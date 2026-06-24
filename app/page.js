@@ -1,21 +1,57 @@
 "use client";
 
+import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// PLACEHOLDER HELPER
-// Orange text = content that still needs your real copy / assets.
-// Search for <PH> in this file to find every item needing your attention.
-// ─────────────────────────────────────────────────────────────────────────────
-function PH({ children, block = false }) {
-  const Tag = block ? "p" : "span";
+function LogoMark({ size = 32, priority = false }) {
   return (
-    <Tag
-      className="placeholder-copy"
-      title="⚠ Placeholder — replace before launch"
-    >
-      {children}
-    </Tag>
+    <Image
+      src="/sooklabs-glyph.png"
+      alt="SookLabs"
+      width={size}
+      height={size}
+      className="rounded-lg"
+      priority={priority}
+    />
+  );
+}
+
+function BuildAreaIcon({ type }) {
+  const icons = {
+    chat: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
+        <path d="M7 8.5h10M7 12h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        <path d="M5 5.5h14a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H9l-4 3v-3.5A2 2 0 0 1 5 14.5v-7a2 2 0 0 1 2-2Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+      </svg>
+    ),
+    seo: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
+        <path d="M4 18V6.5A1.5 1.5 0 0 1 5.5 5H18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        <path d="M8 16l3-3 2.5 2.5L18 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M16 5h3v3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
+    workflow: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
+        <circle cx="7" cy="7" r="2.5" stroke="currentColor" strokeWidth="1.5" />
+        <circle cx="17" cy="7" r="2.5" stroke="currentColor" strokeWidth="1.5" />
+        <circle cx="12" cy="17" r="2.5" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M9.2 8.8 10.8 15M14.8 8.8 13.2 15M9.5 7h5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      </svg>
+    ),
+    data: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
+        <path d="M6 7h12M6 12h12M6 17h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        <rect x="4" y="5" width="16" height="14" rx="2" stroke="currentColor" strokeWidth="1.5" />
+      </svg>
+    ),
+  };
+
+  return (
+    <span className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-slate-100 text-slate-600">
+      {icons[type]}
+    </span>
   );
 }
 
@@ -37,15 +73,12 @@ function Header() {
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
 
         {/* Logo */}
-        <a href="#" className="flex items-center gap-2.5 group">
-          {/* ↓ Replace this with your real logo SVG or <Image /> */}
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center shadow-sm shadow-sky-200">
-            <span className="text-white text-xs font-bold tracking-tight">SL</span>
-          </div>
+        <Link href="/" className="flex items-center gap-2.5 group">
+          <LogoMark size={32} priority />
           <span className="font-semibold text-slate-950 text-lg tracking-tight">
             SookLabs
           </span>
-        </a>
+        </Link>
 
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-7">
@@ -74,9 +107,12 @@ function Header() {
 
         {/* Mobile hamburger */}
         <button
+          type="button"
           onClick={() => setOpen(!open)}
-          className="md:hidden p-2 -mr-2 text-slate-600"
+          className="md:hidden p-3 -mr-2 text-slate-600 min-w-[44px] min-h-[44px] flex items-center justify-center"
           aria-label="Toggle menu"
+          aria-expanded={open}
+          aria-controls="mobile-nav"
         >
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
             {open ? (
@@ -94,13 +130,13 @@ function Header() {
 
       {/* Mobile drawer */}
       {open && (
-        <div className="md:hidden border-t border-slate-100 bg-white px-6 py-5 flex flex-col gap-4">
+        <div id="mobile-nav" className="md:hidden border-t border-slate-100 bg-white px-6 py-5 flex flex-col gap-2">
           {navLinks.map((l) => (
             <a
               key={l.label}
               href={l.href}
               onClick={() => setOpen(false)}
-              className="text-sm text-slate-700 font-medium"
+              className="text-sm text-slate-700 font-medium py-3 min-h-[44px] flex items-center"
             >
               {l.label}
             </a>
@@ -109,7 +145,7 @@ function Header() {
             href="https://sookly.co"
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-1 px-4 py-2.5 bg-sky-500 text-white text-sm font-semibold rounded-xl text-center"
+            className="mt-1 px-4 py-3 min-h-[44px] bg-sky-500 text-white text-sm font-semibold rounded-xl text-center flex items-center justify-center"
           >
             Explore Sookly
           </a>
@@ -240,7 +276,7 @@ function HeroSection() {
         </div>
 
         {/* Headline */}
-        <h1 className="text-center text-5xl md:text-[64px] font-bold text-slate-950 tracking-tight leading-[1.08] max-w-3xl mx-auto mb-6">
+        <h1 className="text-center text-4xl sm:text-5xl md:text-[64px] font-bold text-slate-950 tracking-tight leading-[1.08] max-w-3xl mx-auto mb-6">
           Practical AI, SEO, and workflow tools for service businesses
         </h1>
 
@@ -556,25 +592,25 @@ function SeoSnapshotSection() {
 function WhatWeBuildsSection() {
   const areas = [
     {
-      emoji: "💬",
+      icon: "chat",
       title: "Chat operations",
       desc: "Unified inbox workflows for clinics managing enquiries across multiple chat channels. Capture first, route second, follow up always.",
       tag: "Sookly",
     },
     {
-      emoji: "📊",
+      icon: "seo",
       title: "SEO and data tools",
       desc: "Lightweight audit and reporting systems built on Google's free data stack. Visibility insights without the enterprise price tag.",
       tag: "SEO Snapshot",
     },
     {
-      emoji: "⚙️",
+      icon: "workflow",
       title: "Workflow automation",
       desc: "Small automation systems that reduce repetitive admin while keeping humans in control of important handoffs.",
       tag: "Custom builds",
     },
     {
-      emoji: "📋",
+      icon: "data",
       title: "Data-backed action lists",
       desc: "Turn scattered data into simple next steps your team can actually act on. Prioritised, clear, and tied to outcomes.",
       tag: "Reporting",
@@ -592,7 +628,7 @@ function WhatWeBuildsSection() {
             Focused tools, built around real operating problems
           </h2>
           <p className="text-slate-500 text-lg max-w-xl mx-auto">
-            Small teams don't need more bloated software. They need focused systems that make work easier to manage.
+            Small teams don&apos;t need more bloated software. They need focused systems that make work easier to manage.
           </p>
         </div>
 
@@ -603,7 +639,7 @@ function WhatWeBuildsSection() {
               className="bg-white border border-slate-200 rounded-2xl p-6 hover:shadow-sm hover:border-slate-300 transition-all"
             >
               <div className="flex items-start justify-between mb-4">
-                <span className="text-2xl">{a.emoji}</span>
+                <BuildAreaIcon type={a.icon} />
                 <span className="text-xs bg-sky-50 text-sky-600 border border-sky-100 px-2.5 py-0.5 rounded-full font-semibold">
                   {a.tag}
                 </span>
@@ -707,33 +743,21 @@ function FounderNote() {
             A note from the founder
           </div>
 
-          {/* ↓ PLACEHOLDER — replace with real founder quote */}
           <blockquote className="text-xl md:text-2xl font-medium text-slate-800 leading-relaxed mb-8">
-            <PH>
-              "SookLabs started because I kept seeing the same problem: small service businesses
-              losing enquiries to chaos — wrong channels, no follow-up, no visibility. The goal
-              isn't to build more software. It's to build the right systems."
-            </PH>
+            &ldquo;SookLabs started because I kept seeing the same problem: small service businesses
+            losing enquiries to chaos — wrong channels, no follow-up, no visibility. The goal
+            isn&apos;t to build more software. It&apos;s to build the right systems.&rdquo;
           </blockquote>
 
           <div className="flex items-center gap-4">
-            {/* ↓ PLACEHOLDER — replace with real founder photo (<Image />) */}
-            <div className="w-12 h-12 rounded-full bg-sky-100 border-2 border-sky-200 flex items-center justify-center flex-shrink-0">
-              <span className="text-sky-500 font-bold text-sm">
-                <PH>?</PH>
-              </span>
+            <div className="w-12 h-12 rounded-full bg-sky-100 border-2 border-sky-200 flex items-center justify-center flex-shrink-0" aria-hidden>
+              <span className="text-sky-600 font-bold text-sm">SL</span>
             </div>
             <div>
-              <div className="font-semibold text-slate-900">
-                <PH>Your Name</PH>
-              </div>
-              <div className="text-sm text-slate-400">Founder, SookLabs</div>
+              <div className="font-semibold text-slate-900">Founder</div>
+              <div className="text-sm text-slate-400">SookLabs</div>
             </div>
           </div>
-
-          <p className="mt-6 text-xs text-orange-400 italic">
-            ↑ Placeholder: Replace the quote, name, and avatar with real founder content before publishing.
-          </p>
         </div>
       </div>
     </section>
@@ -784,31 +808,42 @@ function FAQSection() {
         </div>
 
         <div className="space-y-2.5">
-          {faqs.map((faq, i) => (
+          {faqs.map((faq, i) => {
+            const panelId = `faq-panel-${i}`;
+            const buttonId = `faq-button-${i}`;
+            const isOpen = openIndex === i;
+
+            return (
             <div
               key={i}
               className="bg-white border border-slate-200 rounded-2xl overflow-hidden"
             >
               <button
-                onClick={() => setOpenIndex(openIndex === i ? null : i)}
-                className="w-full text-left px-6 py-4 flex items-center justify-between gap-4 hover:bg-slate-50/50 transition-colors"
+                id={buttonId}
+                type="button"
+                onClick={() => setOpenIndex(isOpen ? null : i)}
+                className="w-full text-left px-6 py-4 min-h-[44px] flex items-center justify-between gap-4 hover:bg-slate-50/50 transition-colors"
+                aria-expanded={isOpen}
+                aria-controls={panelId}
               >
                 <span className="text-sm font-semibold text-slate-900">{faq.q}</span>
                 <span
                   className={`text-slate-400 text-lg leading-none flex-shrink-0 transition-transform duration-200 ${
-                    openIndex === i ? "rotate-45" : ""
+                    isOpen ? "rotate-45" : ""
                   }`}
+                  aria-hidden
                 >
                   +
                 </span>
               </button>
-              {openIndex === i && (
-                <div className="px-6 pb-5">
+              {isOpen && (
+                <div id={panelId} role="region" aria-labelledby={buttonId} className="px-6 pb-5">
                   <p className="text-sm text-slate-500 leading-relaxed">{faq.a}</p>
                 </div>
               )}
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>
@@ -878,9 +913,7 @@ function Footer() {
           {/* Brand column */}
           <div className="md:col-span-2">
             <div className="flex items-center gap-2.5 mb-3">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center">
-                <span className="text-white text-xs font-bold">SL</span>
-              </div>
+              <LogoMark size={32} />
               <span className="font-semibold text-slate-950 text-lg tracking-tight">SookLabs</span>
             </div>
             <p className="text-sm text-slate-500 max-w-xs leading-relaxed">
@@ -944,7 +977,7 @@ function Footer() {
 // ─────────────────────────────────────────────────────────────────────────────
 export default function SookLabsPage() {
   return (
-    <main className="bg-white text-slate-950 antialiased">
+    <main id="main-content" className="bg-white text-slate-950 antialiased">
       <Header />
       <HeroSection />
       <CapabilityStrip />

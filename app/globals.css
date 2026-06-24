@@ -21,8 +21,15 @@ h1, h2, h3, h4 {
   font-family: var(--font-display);
 }
 
-/* Placeholder orange pulse — draws the eye to copy that needs refining */
-.placeholder-copy {
-  color: #f97316;
-  font-style: italic;
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
