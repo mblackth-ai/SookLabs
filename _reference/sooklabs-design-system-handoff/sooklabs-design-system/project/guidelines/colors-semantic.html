@@ -1,0 +1,34 @@
+<!-- @dsCard group="Colors" viewport="700x200" name="Semantic & Status" subtitle="Calm signals — never loud — with tinted glass chips" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { margin:0; background:var(--bg-page); font-family:var(--font-sans);
+         padding:22px 24px; color:var(--text-body); }
+  .row { display:flex; gap:14px; margin-bottom:18px; }
+  .sw { flex:1; }
+  .chip { height:46px; border-radius:var(--radius-md); border:1px solid var(--border); }
+  .name { font-family:var(--font-mono); font-size:11px; color:var(--text-muted); margin-top:9px; }
+  .chips { display:flex; gap:10px; flex-wrap:wrap; }
+  .tag { font-family:var(--font-mono); font-size:11px; padding:5px 12px; border-radius:var(--radius-pill);
+         border:1px solid var(--border); letter-spacing:.02em; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="sw"><div class="chip" style="background:var(--success-500)"></div><div class="name">--success-500</div></div>
+    <div class="sw"><div class="chip" style="background:var(--warning-500)"></div><div class="name">--warning-500</div></div>
+    <div class="sw"><div class="chip" style="background:var(--danger-500)"></div><div class="name">--danger-500</div></div>
+    <div class="sw"><div class="chip" style="background:var(--info-500)"></div><div class="name">--info-500</div></div>
+  </div>
+  <div class="chips">
+    <span class="tag" style="background:var(--tint-cyan);color:var(--cyan-300);border-color:rgba(43,210,224,.3)">Connected</span>
+    <span class="tag" style="background:var(--tint-success);color:var(--success-500);border-color:rgba(63,209,152,.3)">Resolved</span>
+    <span class="tag" style="background:var(--tint-warning);color:var(--warning-500);border-color:rgba(230,180,80,.3)">Assigned</span>
+    <span class="tag" style="background:var(--tint-danger);color:var(--danger-500);border-color:rgba(237,107,138,.3)">Exposed</span>
+    <span class="tag" style="background:var(--tint-violet);color:var(--violet-400);border-color:rgba(142,131,242,.3)">Community</span>
+  </div>
+</body>
+</html>

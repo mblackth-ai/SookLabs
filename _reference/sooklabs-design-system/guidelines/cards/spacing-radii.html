@@ -1,0 +1,26 @@
+<!-- @dsCard group="Spacing" viewport="700x180" name="Radii" subtitle="Soft edges, 4 → full" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../../styles.css" />
+<style>
+  body { margin: 0; background: var(--bg-page); padding: 28px 36px; }
+  .row { display: flex; gap: 20px; align-items: flex-end; }
+  .sw { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .box { width: 72px; height: 72px; background: var(--surface-card); border: 1px solid var(--border-strong); }
+  .name { font-family: var(--font-mono); font-size: 10px; color: var(--text-faint); }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="sw"><div class="box" style="border-radius:var(--radius-xs)"></div><span class="name">xs · 4</span></div>
+    <div class="sw"><div class="box" style="border-radius:var(--radius-sm)"></div><span class="name">sm · 8</span></div>
+    <div class="sw"><div class="box" style="border-radius:var(--radius-md)"></div><span class="name">md · 12</span></div>
+    <div class="sw"><div class="box" style="border-radius:var(--radius-lg)"></div><span class="name">lg · 16</span></div>
+    <div class="sw"><div class="box" style="border-radius:var(--radius-xl)"></div><span class="name">xl · 22</span></div>
+    <div class="sw"><div class="box" style="border-radius:var(--radius-2xl)"></div><span class="name">2xl · 28</span></div>
+    <div class="sw"><div class="box" style="border-radius:var(--radius-full)"></div><span class="name">full</span></div>
+  </div>
+</body>
+</html>

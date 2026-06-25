@@ -1,0 +1,24 @@
+<!-- @dsCard group="Spacing" viewport="700x210" name="Elevation & glow" subtitle="Deep soft shadows; accent glow for focus" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../../styles.css" />
+<style>
+  body { margin: 0; background: var(--bg-page); padding: 30px 36px; }
+  .row { display: flex; gap: 26px; align-items: center; }
+  .sw { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .box { width: 96px; height: 64px; background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: 14px; }
+  .name { font-family: var(--font-mono); font-size: 10px; color: var(--text-faint); }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="sw"><div class="box" style="box-shadow:var(--shadow-sm)"></div><span class="name">shadow-sm</span></div>
+    <div class="sw"><div class="box" style="box-shadow:var(--shadow-md),var(--inset-top)"></div><span class="name">card</span></div>
+    <div class="sw"><div class="box" style="box-shadow:var(--shadow-lg),var(--inset-top)"></div><span class="name">shadow-lg</span></div>
+    <div class="sw"><div class="box" style="box-shadow:var(--glow-md)"></div><span class="name">glow-md</span></div>
+    <div class="sw"><div class="box" style="box-shadow:var(--focus-ring)"></div><span class="name">focus-ring</span></div>
+  </div>
+</body>
+</html>

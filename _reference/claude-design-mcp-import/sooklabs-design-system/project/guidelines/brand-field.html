@@ -1,0 +1,25 @@
+<!-- @dsCard group="Brand" viewport="700x230" name="Background Field" subtitle="Fine control-room grid + cyan origin wash" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { margin:0; background:var(--bg-page); }
+  .field { position:relative; height:230px; background:var(--bg-page); overflow:hidden;
+           display:grid; place-items:center; }
+  .field::before { content:""; position:absolute; inset:0; background:var(--grid); }
+  .field::after  { content:""; position:absolute; inset:0; background:var(--wash-origin); }
+  .point { position:relative; width:10px; height:10px; border-radius:50%; background:var(--cyan-400);
+           box-shadow:var(--glow-cyan-core); }
+  .lbl { position:absolute; left:20px; bottom:16px; font-family:var(--font-mono); font-size:11px;
+         color:var(--text-subtle); letter-spacing:.04em; z-index:2; }
+</style>
+</head>
+<body>
+  <div class="field">
+    <div class="point"></div>
+    <div class="lbl">--grid · --wash-origin · the origin point</div>
+  </div>
+</body>
+</html>

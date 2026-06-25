@@ -1,0 +1,25 @@
+<!-- @dsCard group="Colors" viewport="700x210" name="Glow fields" subtitle="Light from within — radial accent fields" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../../styles.css" />
+<style>
+  body { margin: 0; background: var(--bg-void); padding: 26px 32px; }
+  .row { display: flex; gap: 16px; }
+  .field { flex: 1; height: 120px; border-radius: 14px; border: 1px solid var(--border-subtle); position: relative; overflow: hidden; background: var(--bg-page); }
+  .field::after { content: ""; position: absolute; inset: 0; }
+  .blue::after { background: radial-gradient(ellipse at 50% 60%, var(--glow-blue), transparent 70%); }
+  .cyan::after { background: radial-gradient(ellipse at 50% 60%, var(--glow-cyan), transparent 70%); }
+  .violet::after { background: radial-gradient(ellipse at 50% 60%, var(--glow-violet), transparent 70%); }
+  .name { position: relative; z-index: 1; font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary); padding: 12px; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="field blue"><div class="name">--glow-blue</div></div>
+    <div class="field cyan"><div class="name">--glow-cyan</div></div>
+    <div class="field violet"><div class="name">--glow-violet</div></div>
+  </div>
+</body>
+</html>

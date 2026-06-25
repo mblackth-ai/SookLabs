@@ -1,0 +1,26 @@
+<!-- @dsCard group="Spacing" viewport="700x200" name="Elevation & Glow" subtitle="Soft shadow + cyan glow for depth" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { margin:0; background:var(--bg-page); font-family:var(--font-sans);
+         padding:30px 24px; color:var(--text-body); }
+  .row { display:flex; gap:26px; align-items:center; }
+  .u { text-align:center; }
+  .box { width:96px; height:68px; background:var(--surface-card); border:1px solid var(--border);
+         border-radius:var(--radius-lg); }
+  .n { font-family:var(--font-mono); font-size:11px; color:var(--text-muted); margin-top:14px; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="u"><div class="box" style="box-shadow:var(--shadow-sm)"></div><div class="n">shadow-sm</div></div>
+    <div class="u"><div class="box" style="box-shadow:var(--shadow-md)"></div><div class="n">shadow-md</div></div>
+    <div class="u"><div class="box" style="box-shadow:var(--shadow-lg)"></div><div class="n">shadow-lg</div></div>
+    <div class="u"><div class="box" style="box-shadow:var(--shadow-card)"></div><div class="n">shadow-card</div></div>
+    <div class="u"><div class="box" style="box-shadow:var(--glow-cyan);border-color:rgba(43,210,224,.4)"></div><div class="n">glow-cyan</div></div>
+  </div>
+</body>
+</html>

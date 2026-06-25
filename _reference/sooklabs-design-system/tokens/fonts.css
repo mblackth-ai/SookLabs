@@ -1,0 +1,12 @@
+/* ============================================================
+   Fonts — loaded from Google Fonts CDN.
+   Display : Space Grotesk  (technical grotesque, OS/lab feel)
+   Sans/UI : DM Sans        (from the SookLabs codebase)
+   Mono    : IBM Plex Mono  (data, labels, eyebrows, metrics)
+
+   NOTE: The production codebase used "Bricolage Grotesque" for
+   display. It was substituted with Space Grotesk to better match
+   the brief's "operating system / research lab, avoid playful"
+   direction. Swap back here if Bricolage is preferred.
+   ============================================================ */
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=IBM+Plex+Mono:wght@400;500;600&display=swap");

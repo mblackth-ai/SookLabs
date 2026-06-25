@@ -1,0 +1,53 @@
+/* ============================================================
+   EFFECTS — shadows, glows, blur, grid, motion.
+   On dark UI, elevation comes from soft glow + inset hairline,
+   not heavy drop shadow.
+   ============================================================ */
+:root {
+  /* ---- Shadows (deep, soft) ---- */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45);
+  --shadow-md: 0 10px 28px -12px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 28px 64px -20px rgba(0, 0, 0, 0.72);
+  --shadow-xl: 0 48px 120px -32px rgba(0, 0, 0, 0.8);
+
+  /* matte-glass card: top inset highlight + ambient drop */
+  --shadow-card:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 14px 40px -22px rgba(0, 0, 0, 0.7);
+
+  /* ---- Glows (cyan signature, used sparingly) ---- */
+  --glow-cyan:      0 0 36px rgba(43, 210, 224, 0.28);
+  --glow-cyan-soft: 0 0 90px rgba(43, 210, 224, 0.14);
+  --glow-cyan-core: 0 0 18px rgba(79, 225, 236, 0.55), 0 0 48px rgba(43, 210, 224, 0.3);
+  --glow-violet:    0 0 70px rgba(142, 131, 242, 0.16);
+
+  /* ---- Blur (matte glass) ---- */
+  --blur-glass: 16px;
+  --blur-strong: 28px;
+
+  /* ---- Background field: fine control-room grid ---- */
+  --grid-line: rgba(255, 255, 255, 0.035);
+  --grid-size: 56px;
+  --grid:
+    linear-gradient(var(--grid-line) 1px, transparent 1px) 0 0 / var(--grid-size) var(--grid-size),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px) 0 0 / var(--grid-size) var(--grid-size);
+
+  /* radial glow wash for hero / origin point */
+  --wash-origin: radial-gradient(ellipse 60% 50% at 50% 38%, rgba(43, 210, 224, 0.13), transparent 70%); /* @kind other */
+
+  /* ---- Motion ---- */
+  --dur-fast: 140ms; /* @kind other */
+  --dur:      240ms; /* @kind other */
+  --dur-slow: 460ms; /* @kind other */
+  --ease-out:    cubic-bezier(0.22, 1, 0.36, 1); /* @kind other */
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1); /* @kind other */
+  --ease-calm:   cubic-bezier(0.33, 0, 0.1, 1); /* @kind other */
+
+  /* ---- Z-index ---- */
+  --z-base: 0; /* @kind other */
+  --z-raised: 10; /* @kind other */
+  --z-sticky: 100; /* @kind other */
+  --z-overlay: 1000; /* @kind other */
+  --z-modal: 1100; /* @kind other */
+  --z-toast: 1200; /* @kind other */
+}

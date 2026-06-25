@@ -1,0 +1,36 @@
+<!-- @dsCard group="Brand" viewport="700x230" name="Logo & Mark" subtitle="Origin symbol — waveform mark, badge, wordmark" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { margin:0; background:var(--bg-page); font-family:var(--font-display);
+         padding:30px; color:var(--text-heading); }
+  .row { display:flex; align-items:center; gap:46px; }
+  .u { text-align:center; }
+  .badge { width:104px; height:104px; border-radius:50%; background:var(--ink-850);
+           border:1px solid var(--border); display:grid; place-items:center; box-shadow:var(--shadow-card); }
+  .lockup { display:flex; align-items:center; gap:14px; }
+  .lockup .wm { font-size:34px; font-weight:600; letter-spacing:-0.02em; }
+  .lockup .wm b { color:var(--cyan-400); font-weight:600; }
+  .n { font-family:var(--font-mono); font-size:11px; color:var(--text-subtle); margin-top:14px; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="u">
+      <div class="badge"><img src="../assets/logo/sooklabs-mark.svg" width="60" alt="SookLabs mark"></div>
+      <div class="n">badge</div>
+    </div>
+    <div class="u">
+      <img src="../assets/logo/sooklabs-mark.svg" width="120" alt="SookLabs mark">
+      <div class="n">mark</div>
+    </div>
+    <div class="u">
+      <div class="lockup"><img src="../assets/logo/sooklabs-mark.svg" width="52" alt=""><span class="wm">Sook<b>Labs</b></span></div>
+      <div class="n">horizontal lockup</div>
+    </div>
+  </div>
+</body>
+</html>

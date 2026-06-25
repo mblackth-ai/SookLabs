@@ -1,0 +1,90 @@
+/* ============================================================
+   COLORS — dark "control room" palette.
+   Anchored on the logo's cyan→teal waveform mark on charcoal.
+   Restrained blue / violet / silver / white / charcoal.
+   ============================================================ */
+:root {
+  /* ---- Ink / charcoal (backgrounds, surfaces) ---- */
+  --ink-950: #07090d; /* deepest void */
+  --ink-900: #0b0e13; /* page background */
+  --ink-850: #10141b; /* raised section band */
+  --ink-800: #151a23; /* base surface */
+  --ink-750: #1a202b; /* card */
+  --ink-700: #222a35; /* elevated surface */
+  --ink-600: #2c3541; /* strong fill / inset */
+
+  /* ---- Hairlines (white on dark, low alpha) ---- */
+  --line-soft:   rgba(255, 255, 255, 0.06);
+  --line:        rgba(255, 255, 255, 0.09);
+  --line-strong: rgba(255, 255, 255, 0.14);
+
+  /* ---- Text (soft whites → silver → muted) ---- */
+  --white-pure:    #ffffff;
+  --text-strong:   #f2f5f9;
+  --text-primary:  #e3e8f0;
+  --text-secondary:#a3adbd;
+  --text-tertiary: #6d7889;
+  --text-faint:    #49515f;
+
+  /* ---- Signature: SookLabs cyan (the waveform mark) ---- */
+  --cyan-300: #74e9f1;
+  --cyan-400: #4fe1ec;
+  --cyan-500: #2bd2e0; /* PRIMARY accent */
+  --cyan-600: #1fb0c2;
+  --cyan-700: #178496;
+  --teal-500: #29c2b1;
+
+  /* ---- Restrained secondary accents ---- */
+  --blue-400:   #7aa3f5;
+  --blue-500:   #5b8cf0;
+  --blue-600:   #4172dd;
+  --violet-400: #a89ef6;
+  --violet-500: #8e83f2;
+  --violet-600: #6f63e0;
+  --silver:     #c5cedc;
+  --silver-dim: #8d97a7;
+
+  /* ---- Semantic (calm, never loud) ---- */
+  --success-500: #3fd198;
+  --warning-500: #e6b450;
+  --danger-500:  #ed6b8a;
+  --info-500:    var(--blue-500);
+
+  /* tinted glass fills for status chips (very low alpha) */
+  --tint-cyan:    rgba(43, 210, 224, 0.12);
+  --tint-blue:    rgba(91, 140, 240, 0.12);
+  --tint-violet:  rgba(142, 131, 242, 0.13);
+  --tint-success: rgba(63, 209, 152, 0.13);
+  --tint-warning: rgba(230, 180, 80, 0.14);
+  --tint-danger:  rgba(237, 107, 138, 0.13);
+
+  /* ============================================================
+     SEMANTIC ALIASES — prefer these in components.
+     ============================================================ */
+  --bg-page:          var(--ink-900);
+  --bg-section:       var(--ink-850);
+  --surface:          var(--ink-800);
+  --surface-card:     var(--ink-750);
+  --surface-elevated: var(--ink-700);
+  --surface-inset:    var(--ink-600);
+
+  --glass-fill:       rgba(21, 26, 35, 0.66); /* matte glass card */
+  --glass-fill-light: rgba(34, 42, 53, 0.55);
+
+  --border-subtle: var(--line-soft);
+  --border:        var(--line);
+  --border-strong: var(--line-strong);
+
+  --text-heading: var(--text-strong);
+  --text-body:    var(--text-primary);
+  --text-muted:   var(--text-secondary);
+  --text-subtle:  var(--text-tertiary);
+  --text-faded:   var(--text-faint);
+
+  --accent:        var(--cyan-500);
+  --accent-bright: var(--cyan-400);
+  --accent-deep:   var(--cyan-600);
+  --on-accent:     #04181c; /* text on a cyan fill */
+
+  --focus-ring: rgba(43, 210, 224, 0.55);
+}

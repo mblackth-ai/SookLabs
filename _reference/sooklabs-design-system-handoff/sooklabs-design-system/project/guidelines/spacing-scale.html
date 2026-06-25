@@ -1,0 +1,29 @@
+<!-- @dsCard group="Spacing" viewport="700x170" name="Spacing Scale" subtitle="4px base grid" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { margin:0; background:var(--bg-page); font-family:var(--font-sans);
+         padding:24px; color:var(--text-body); }
+  .row { display:flex; align-items:flex-end; gap:18px; }
+  .u { text-align:center; }
+  .bar { background:var(--cyan-500); border-radius:2px; width:100%; box-shadow:var(--glow-cyan-soft); }
+  .n { font-family:var(--font-mono); font-size:11px; color:var(--text-muted); margin-top:8px; }
+  .px{ font-family:var(--font-mono); font-size:10px; color:var(--text-subtle); }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="u" style="width:16px"><div class="bar" style="height:8px"></div><div class="n">2</div><div class="px">8</div></div>
+    <div class="u" style="width:20px"><div class="bar" style="height:12px"></div><div class="n">3</div><div class="px">12</div></div>
+    <div class="u" style="width:24px"><div class="bar" style="height:16px"></div><div class="n">4</div><div class="px">16</div></div>
+    <div class="u" style="width:32px"><div class="bar" style="height:24px"></div><div class="n">6</div><div class="px">24</div></div>
+    <div class="u" style="width:40px"><div class="bar" style="height:32px"></div><div class="n">8</div><div class="px">32</div></div>
+    <div class="u" style="width:52px"><div class="bar" style="height:48px"></div><div class="n">12</div><div class="px">48</div></div>
+    <div class="u" style="width:68px"><div class="bar" style="height:64px"></div><div class="n">16</div><div class="px">64</div></div>
+    <div class="u" style="width:84px"><div class="bar" style="height:80px"></div><div class="n">20</div><div class="px">80</div></div>
+  </div>
+</body>
+</html>

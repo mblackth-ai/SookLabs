@@ -1,0 +1,26 @@
+<!-- @dsCard group="Colors" viewport="700x190" name="Silver text" subtitle="Neutral foreground scale" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../../styles.css" />
+<style>
+  body { margin: 0; background: var(--bg-page); padding: 26px 32px; }
+  .row { display: flex; gap: 14px; }
+  .sw { flex: 1; }
+  .chip { height: 72px; border-radius: 12px; border: 1px solid var(--border-subtle); display: grid; place-items: center; }
+  .chip span { font-family: var(--font-display); font-weight: 700; font-size: 26px; color: var(--bg-void); }
+  .name { font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary); margin-top: 10px; }
+  .role { font-family: var(--font-body); font-size: 11px; color: var(--text-faint); margin-top: 2px; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="sw"><div class="chip" style="background:var(--silver-50)"><span>Aa</span></div><div class="name">silver-50</div><div class="role">primary text</div></div>
+    <div class="sw"><div class="chip" style="background:var(--silver-200)"><span>Aa</span></div><div class="name">silver-200</div><div class="role">heading dim</div></div>
+    <div class="sw"><div class="chip" style="background:var(--silver-300)"><span>Aa</span></div><div class="name">silver-300</div><div class="role">secondary</div></div>
+    <div class="sw"><div class="chip" style="background:var(--silver-400)"><span>Aa</span></div><div class="name">silver-400</div><div class="role">muted</div></div>
+    <div class="sw"><div class="chip" style="background:var(--silver-500)"><span style="color:var(--silver-50)">Aa</span></div><div class="name">silver-500</div><div class="role">faint</div></div>
+  </div>
+</body>
+</html>

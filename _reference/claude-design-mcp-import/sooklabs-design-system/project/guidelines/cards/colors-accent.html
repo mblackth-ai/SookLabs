@@ -1,0 +1,27 @@
+<!-- @dsCard group="Colors" viewport="700x230" name="Accents" subtitle="Blue primary · cyan glow · violet depth" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../../styles.css" />
+<style>
+  body { margin: 0; background: var(--bg-page); padding: 26px 32px; }
+  .grp { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; }
+  .row { display: flex; gap: 12px; }
+  .sw { display: flex; flex-direction: column; }
+  .chip { width: 120px; height: 56px; border-radius: 10px; border: 1px solid var(--border-subtle); }
+  .name { font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary); margin-top: 8px; }
+  .hex { font-family: var(--font-mono); font-size: 10px; color: var(--text-faint); margin-top: 1px; }
+</style>
+</head>
+<body>
+  <div class="grp">Restrained signals — one focal accent per view</div>
+  <div class="row">
+    <div class="sw"><div class="chip" style="background:var(--blue-500)"></div><div class="name">blue-500</div><div class="hex">#2F7CF0 · primary</div></div>
+    <div class="sw"><div class="chip" style="background:var(--blue-400)"></div><div class="name">blue-400</div><div class="hex">#5793F5 · hover</div></div>
+    <div class="sw"><div class="chip" style="background:var(--cyan-400)"></div><div class="name">cyan-400</div><div class="hex">#34CFEA · glow</div></div>
+    <div class="sw"><div class="chip" style="background:var(--violet-400)"></div><div class="name">violet-400</div><div class="hex">#9A85F8 · second</div></div>
+    <div class="sw"><div class="chip" style="background:var(--violet-500)"></div><div class="name">violet-500</div><div class="hex">#7C63EE</div></div>
+  </div>
+</body>
+</html>

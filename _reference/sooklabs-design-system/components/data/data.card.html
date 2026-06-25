@@ -1,0 +1,33 @@
+<!-- @dsCard group="Components" viewport="700x180" name="Data — StatTile" subtitle="Calm metric cells" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../../styles.css" />
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>
+  body { margin: 0; background: var(--bg-page); padding: 28px 32px; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+  const { StatTile } = window.SookLabsDesignSystem_9aa38b;
+  function Demo() {
+    return (
+      <div className="grid">
+        <StatTile label="Organic clicks" value="1,240" delta="+12%" caption="Month over month" />
+        <StatTile label="Impressions" value="18.4k" delta="+8%" caption="Search visibility" />
+        <StatTile label="Tech health" value="84/100" delta="Good" deltaTone="info" caption="Core Web Vitals" />
+        <StatTile label="Opportunities" value="3 pages" delta="Fix now" deltaTone="warning" caption="High priority" />
+      </div>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
+</script>
+</body>
+</html>

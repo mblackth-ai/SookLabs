@@ -1,0 +1,10 @@
+<svg width="256" height="200" viewBox="0 0 256 200" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="SookLabs waveform mark">
+  <defs>
+    <linearGradient id="sookWave" x1="128" y1="40" x2="128" y2="160" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#74E9F1"></stop>
+      <stop offset="0.5" stop-color="#2BD2E0"></stop>
+      <stop offset="1" stop-color="#1FB0C2"></stop>
+    </linearGradient>
+  </defs>
+  <path d="M20 116 H50 V84 H78 V132 H96 V60 H116 V150 H134 V44 H158 V128 H184 V88 H214" stroke="url(#sookWave)" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>

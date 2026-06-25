@@ -1,0 +1,62 @@
+<!-- @dsCard group="Components" viewport="700x440" name="Core — Button, Badge, Card" subtitle="Actions, status, surfaces" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../../styles.css" />
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>
+  body { margin: 0; background: var(--bg-page); padding: 28px 32px; }
+  .row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+  .lbl { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-faint); width: 100%; margin-bottom: 2px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+  const { Button, IconButton, Badge, Overline, Card } = window.SookLabsDesignSystem_9aa38b;
+  const Arrow = () => (<svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>);
+  const Search = () => (<svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>);
+  const Gear = () => (<svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>);
+
+  function Demo() {
+    return (
+      <div>
+        <div className="row"><span className="lbl">Buttons</span>
+          <Button variant="primary" iconRight={<Arrow/>}>Explore the ecosystem</Button>
+          <Button variant="secondary">Request a snapshot</Button>
+          <Button variant="ghost">Cancel</Button>
+          <Button variant="primary" size="sm">Small</Button>
+          <Button variant="primary" disabled>Disabled</Button>
+          <IconButton label="Search"><Search/></IconButton>
+          <IconButton label="Settings" variant="glass" active><Gear/></IconButton>
+        </div>
+        <div className="row"><span className="lbl">Badges</span>
+          <Badge tone="success" dot>Connected</Badge>
+          <Badge tone="blue" mono>In progress</Badge>
+          <Badge tone="neutral" mono>Built</Badge>
+          <Badge tone="violet">Community</Badge>
+          <Badge tone="warning" appearance="outline">Review</Badge>
+          <Badge tone="cyan" dot>Live</Badge>
+        </div>
+        <div className="row"><span className="lbl">Surfaces</span>
+          <Card appearance="solid" hover padding="18px" style={{width:200}}>
+            <Overline dot tone="accent">Operating rule</Overline>
+            <div style={{fontFamily:'var(--font-display)',fontWeight:700,fontSize:17,color:'var(--text-primary)',marginTop:8,lineHeight:1.25}}>Reduce repetition into infrastructure.</div>
+          </Card>
+          <Card appearance="outline" padding="18px" style={{width:200}}>
+            <Overline>Current project</Overline>
+            <div style={{fontFamily:'var(--font-display)',fontWeight:700,fontSize:17,color:'var(--text-primary)',marginTop:8}}>Sookly</div>
+            <div style={{fontFamily:'var(--font-body)',fontSize:13,color:'var(--text-muted)',marginTop:4}}>One calm inbox.</div>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
+</script>
+</body>
+</html>

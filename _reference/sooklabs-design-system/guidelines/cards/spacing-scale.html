@@ -1,0 +1,28 @@
+<!-- @dsCard group="Spacing" viewport="700x180" name="Spacing scale" subtitle="4px base grid" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../../styles.css" />
+<style>
+  body { margin: 0; background: var(--bg-page); padding: 28px 36px; }
+  .row { display: flex; align-items: flex-end; gap: 18px; }
+  .sw { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .bar { background: linear-gradient(var(--accent), var(--accent-glow)); border-radius: 4px; width: 100%; }
+  .box { width: 40px; display: flex; align-items: flex-end; height: 64px; }
+  .name { font-family: var(--font-mono); font-size: 10px; color: var(--text-faint); }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="sw"><div class="box"><div class="bar" style="height:4px"></div></div><span class="name">1·4</span></div>
+    <div class="sw"><div class="box"><div class="bar" style="height:8px"></div></div><span class="name">2·8</span></div>
+    <div class="sw"><div class="box"><div class="bar" style="height:12px"></div></div><span class="name">3·12</span></div>
+    <div class="sw"><div class="box"><div class="bar" style="height:16px"></div></div><span class="name">4·16</span></div>
+    <div class="sw"><div class="box"><div class="bar" style="height:24px"></div></div><span class="name">6·24</span></div>
+    <div class="sw"><div class="box"><div class="bar" style="height:32px"></div></div><span class="name">8·32</span></div>
+    <div class="sw"><div class="box"><div class="bar" style="height:48px"></div></div><span class="name">12·48</span></div>
+    <div class="sw"><div class="box"><div class="bar" style="height:64px"></div></div><span class="name">16·64</span></div>
+  </div>
+</body>
+</html>

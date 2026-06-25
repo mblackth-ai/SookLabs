@@ -1,0 +1,91 @@
+<!-- @dsCard group="Sooklabs Site" viewport="1280x760" name="Ecosystem homepage" subtitle="Hero · operating rule · ecosystem" -->
+<!-- @startingPoint section="SookLabs Site" subtitle="Full ecosystem homepage — dark control room" viewport="1280x900" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="ext-resource-dependency" content="../../assets/sooklabs-glyph.png" data-resource-id="glyph" />
+<title>SookLabs — Quiet infrastructure for intelligent systems</title>
+<link rel="stylesheet" href="../../styles.css" />
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  body { margin: 0; background: var(--bg-page); }
+  .sl-mob { display: none; }
+  .sl-navlink { transition: color .2s var(--ease-out); }
+  .sl-navlink:hover { color: var(--text-primary); }
+  .sl-cardlink { transition: gap .2s var(--ease-out), opacity .2s; }
+  .sl-cardlink:hover { opacity: 0.8; }
+
+  /* Fine control-room grid backdrop in hero */
+  .sl-grid-bg {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image: linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 56px 56px;
+    -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, #000 30%, transparent 75%);
+    mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, #000 30%, transparent 75%);
+  }
+
+  /* Decorative motion only — never hides content (safe for print / reduced-motion / static capture) */
+  @media (prefers-reduced-motion: no-preference) {
+    .sl-spin { animation: slSpin 24s linear infinite; }
+    .sl-spin-slow { animation: slSpin 40s linear infinite; }
+    .sl-glyph-pulse { animation: slPulse 5s var(--ease-in-out) infinite; }
+  }
+  @keyframes slSpin { to { transform: rotate(360deg); } }
+  @keyframes slReveal { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
+  @keyframes slPulse { 0%,100% { box-shadow: 0 0 0 1px var(--border-strong), var(--shadow-lg), 0 0 40px rgba(52,207,234,0.28); } 50% { box-shadow: 0 0 0 1px var(--border-strong), var(--shadow-lg), 0 0 64px rgba(52,207,234,0.5); } }
+
+  @media (max-width: 860px) {
+    .sl-desk { display: none !important; }
+    .sl-mob { display: inline-flex; }
+    .sl-2col, .sl-foot { grid-template-columns: 1fr !important; }
+  }
+  @media (max-width: 560px) {
+    .sl-foot { grid-template-columns: 1fr 1fr !important; }
+  }
+</style>
+</head>
+<body>
+<template id="__bundler_thumbnail" data-bg-color="#06080d">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#06080d"/>
+    <circle cx="600" cy="400" r="190" fill="none" stroke="#1b2230" stroke-width="2"/>
+    <circle cx="600" cy="400" r="120" fill="none" stroke="#222b3c" stroke-width="2"/>
+    <circle cx="600" cy="400" r="250" fill="none" stroke="#141a25" stroke-width="2"/>
+    <circle cx="600" cy="400" r="58" fill="#34cfea" opacity="0.18"/>
+    <rect x="566" y="366" width="68" height="68" rx="16" fill="#0c1018" stroke="#34cfea" stroke-width="2"/>
+    <circle cx="600" cy="400" r="7" fill="#34cfea"/>
+    <circle cx="790" cy="400" r="5" fill="#7c6cf0"/>
+    <circle cx="410" cy="400" r="5" fill="#34cfea"/>
+  </svg>
+</template>
+<div id="root"></div>
+<script type="text/babel" src="icons.jsx"></script>
+<script type="text/babel" src="kit-ui.jsx"></script>
+<script type="text/babel" src="hero-scroll.jsx"></script>
+<script type="text/babel" src="sections-hero.jsx"></script>
+<script type="text/babel" src="sections-body.jsx"></script>
+<script type="text/babel">
+  const { Header, Hero, OperatingRule, Ecosystem, WhySection, Philosophy, Pillars, Mantra, Footer } = window;
+  function App() {
+    return (
+      <React.Fragment>
+        <Header />
+        <Hero />
+        <OperatingRule />
+        <Ecosystem />
+        <WhySection />
+        <Philosophy />
+        <Pillars />
+        <Mantra />
+        <Footer />
+      </React.Fragment>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

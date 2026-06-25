@@ -1,0 +1,36 @@
+/* ============================================================
+   COMPAT ALIASES
+   Maps the vocabulary used by the UI kits / readme onto the
+   canonical token set. Imported LAST so it can reference the
+   tokens defined in colors.css / typography.css / effects.css.
+   ============================================================ */
+:root {
+  /* type */
+  --font-body: var(--font-sans); /* @kind font */
+
+  /* surfaces & glass */
+  --glass-bg:        var(--glass-fill);       /* @kind color */
+  --glass-border:    var(--border-strong);    /* @kind color */
+  --bg-section-alt:  var(--ink-850);          /* @kind color */
+  --surface-hover:   var(--ink-700);          /* @kind color */
+
+  /* borders */
+  --border-default:  var(--border);                 /* @kind color */
+  --border-accent:   rgba(43, 210, 224, 0.30);      /* @kind color */
+
+  /* accent + glow */
+  --accent-hover: var(--cyan-400);  /* @kind color */
+  --accent-glow:  var(--glow-cyan); /* @kind shadow */
+  --glow-blue:    0 0 70px rgba(91, 140, 240, 0.18); /* @kind shadow */
+
+  /* light silver / accent steps used in the kits */
+  --silver-300:  #d6dde8; /* @kind color */
+  --silver-400:  #c5cedc; /* @kind color */
+  --blue-300:    #9bbcf8; /* @kind color */
+  --violet-300:  #bcb3f9; /* @kind color */
+  --success-400: #5fdcab; /* @kind color */
+
+  /* effects */
+  --inset-top: inset 0 1px 0 rgba(255, 255, 255, 0.05); /* @kind shadow */
+  --blur-md:   var(--blur-glass); /* @kind spacing */
+}

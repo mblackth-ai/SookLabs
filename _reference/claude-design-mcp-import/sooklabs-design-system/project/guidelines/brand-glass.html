@@ -1,0 +1,31 @@
+<!-- @dsCard group="Brand" viewport="700x230" name="Matte Glass Card" subtitle="Signature surface — blur, hairline, inset highlight" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { margin:0; font-family:var(--font-sans); position:relative; height:230px; overflow:hidden;
+         background:var(--bg-page); display:grid; place-items:center; }
+  body::before { content:""; position:absolute; inset:0; background:var(--grid); }
+  body::after  { content:""; position:absolute; inset:0;
+                 background:radial-gradient(circle at 30% 30%, rgba(43,210,224,.18), transparent 60%); }
+  .card { position:relative; width:380px; padding:24px; border-radius:var(--radius-xl);
+          background:var(--glass-fill); backdrop-filter:blur(var(--blur-glass));
+          -webkit-backdrop-filter:blur(var(--blur-glass));
+          border:1px solid var(--border-strong); box-shadow:var(--shadow-card); }
+  .eye { font-family:var(--font-mono); font-size:11px; letter-spacing:.2em; text-transform:uppercase;
+         color:var(--cyan-400); }
+  h3 { font-family:var(--font-display); font-size:20px; font-weight:600; color:var(--text-heading);
+       margin:10px 0 6px; letter-spacing:-0.01em; }
+  p { font-size:13px; line-height:1.6; color:var(--text-secondary); margin:0; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="eye">// Sookly</div>
+    <h3>One calm inbox.</h3>
+    <p>Handles enquiries, routes messages, and reduces missed leads — across every channel, in one place.</p>
+  </div>
+</body>
+</html>

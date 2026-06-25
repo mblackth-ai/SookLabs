@@ -1,0 +1,32 @@
+<!-- @dsCard group="Brand" viewport="700x220" name="Logo" subtitle="Primary mark — circular, on dark" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../../styles.css" />
+<style>
+  body { margin: 0; background: var(--bg-page); display: flex; align-items: center; gap: 40px; padding: 32px 40px; }
+  .lockup { display: flex; align-items: center; gap: 18px; }
+  .lockup img { width: 64px; height: 64px; }
+  .word { font-family: var(--font-display); font-weight: 700; font-size: 34px; letter-spacing: -0.02em; color: var(--text-primary); }
+  .divider { width: 1px; height: 72px; background: var(--border-default); }
+  .meta { display: flex; flex-direction: column; gap: 6px; }
+  .meta .l { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-muted); }
+  .meta .v { font-family: var(--font-body); font-size: 14px; color: var(--text-secondary); }
+  .swatch-on-dark { padding: 18px; border-radius: 16px; background: var(--bg-void); border: 1px solid var(--border-subtle); }
+</style>
+</head>
+<body>
+  <div class="swatch-on-dark lockup">
+    <img src="../../assets/sooklabs-logo.png" alt="SookLabs" />
+    <span class="word">SookLabs</span>
+  </div>
+  <div class="divider"></div>
+  <div class="meta">
+    <span class="l">Origin symbol</span>
+    <span class="v">The logo is the source point of the ecosystem.</span>
+    <span class="l" style="margin-top:6px">Clear space</span>
+    <span class="v">Keep ≥ half the mark's height on all sides.</span>
+  </div>
+</body>
+</html>

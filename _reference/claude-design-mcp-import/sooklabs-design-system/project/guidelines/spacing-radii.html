@@ -1,0 +1,28 @@
+<!-- @dsCard group="Spacing" viewport="700x170" name="Radii" subtitle="Controlled corners, not pill-soft" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { margin:0; background:var(--bg-page); font-family:var(--font-sans);
+         padding:24px; color:var(--text-body); }
+  .row { display:flex; gap:18px; }
+  .u { text-align:center; }
+  .box { width:74px; height:62px; background:var(--surface-card); border:1px solid var(--border-strong);
+         box-shadow:var(--shadow-card); }
+  .n { font-family:var(--font-mono); font-size:11px; color:var(--text-muted); margin-top:9px; }
+  .v { font-family:var(--font-mono); font-size:10px; color:var(--text-subtle); }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="u"><div class="box" style="border-radius:var(--radius-sm)"></div><div class="n">sm</div><div class="v">6px</div></div>
+    <div class="u"><div class="box" style="border-radius:var(--radius-md)"></div><div class="n">md</div><div class="v">10px</div></div>
+    <div class="u"><div class="box" style="border-radius:var(--radius-lg)"></div><div class="n">lg</div><div class="v">14px</div></div>
+    <div class="u"><div class="box" style="border-radius:var(--radius-xl)"></div><div class="n">xl</div><div class="v">20px</div></div>
+    <div class="u"><div class="box" style="border-radius:var(--radius-2xl)"></div><div class="n">2xl</div><div class="v">28px</div></div>
+    <div class="u"><div class="box" style="border-radius:var(--radius-pill);width:62px"></div><div class="n">pill</div><div class="v">999</div></div>
+  </div>
+</body>
+</html>
