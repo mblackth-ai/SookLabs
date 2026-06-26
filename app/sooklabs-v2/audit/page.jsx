@@ -97,7 +97,7 @@ function Header() {
           justifyContent: "space-between",
         }}
       >
-        <Link href="/sooklabs-v2" style={{ display: "flex", alignItems: "center", gap: 11 }}>
+        <Link href="/" style={{ display: "flex", alignItems: "center", gap: 11 }}>
           <img src={GLYPH} alt="" style={{ width: 30, height: 30, borderRadius: 8 }} />
           <span
             style={{
@@ -220,7 +220,7 @@ function Hero() {
             Get a free audit now →
           </a>
           <Link
-            href="/sooklabs-v2"
+            href="/"
             style={{
               display: "inline-flex",
               alignItems: "center",
@@ -651,7 +651,7 @@ function Footer() {
           gap: 12,
         }}
       >
-        <Link href="/sooklabs-v2" style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <img src={GLYPH} alt="" style={{ width: 26, height: 26, borderRadius: 8 }} />
           <span
             style={{

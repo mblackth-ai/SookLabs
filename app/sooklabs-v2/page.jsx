@@ -1705,7 +1705,7 @@ function Mantra() {
           <Button
             variant="primary"
             size="lg"
-            href="/sooklabs-v2/audit"
+            href="/audit"
             iconRight={<Icons.Arrow size={18} />}
           >
             Get a free audit now
