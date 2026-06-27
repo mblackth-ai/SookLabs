@@ -22,7 +22,12 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${display.variable} ${body.variable}`}>
-      <body>{children}</body>
+      <body>
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
+        {children}
+      </body>
     </html>
   );
 }

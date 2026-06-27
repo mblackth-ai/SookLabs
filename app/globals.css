@@ -21,15 +21,47 @@ h1, h2, h3, h4 {
   font-family: var(--font-display);
 }
 
+.skip-link {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link:focus {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 100;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0.5rem 1rem;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  background: #fff;
+  color: #0f172a;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
+}
 
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
+/* Placeholder orange pulse — draws the eye to copy that needs refining */
+.placeholder-copy {
+  color: #f97316;
+  font-style: italic;
 }

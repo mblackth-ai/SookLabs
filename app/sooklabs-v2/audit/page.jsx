@@ -504,9 +504,48 @@ function WhyNow() {
 
 function AuditForm() {
   const [sent, setSent] = useState(false);
-  const onSubmit = (e) => {
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
+  const onSubmit = async (e) => {
     e.preventDefault();
-    setSent(true);
+    setError("");
+    setSubmitting(true);
+
+    const form = e.currentTarget;
+    const data = new FormData(form);
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          formType: "audit",
+          subject: "Free audit request",
+          name: data.get("name"),
+          email: data.get("email"),
+          website: data.get("website"),
+          context: data.get("context"),
+        }),
+      });
+
+      const body = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setError(
+          body.error ||
+            "Something went wrong. Email sooklabs.th@gmail.com directly."
+        );
+        return;
+      }
+
+      setSent(true);
+      form.reset();
+    } catch {
+      setError("Network error. Email sooklabs.th@gmail.com directly.");
+    } finally {
+      setSubmitting(false);
+    }
   };
   const field = {
     width: "100%",
@@ -605,6 +644,7 @@ function AuditForm() {
             />
             <button
               type="submit"
+              disabled={submitting}
               style={{
                 marginTop: 4,
                 padding: "14px 22px",
@@ -615,11 +655,29 @@ function AuditForm() {
                 fontFamily: "var(--font-body)",
                 fontSize: 15,
                 fontWeight: 600,
-                cursor: "pointer",
+                cursor: submitting ? "wait" : "pointer",
+                opacity: submitting ? 0.7 : 1,
               }}
             >
-              Get a free audit now →
+              {submitting ? "Sending…" : "Get a free audit now →"}
             </button>
+            {error && (
+              <p
+                role="alert"
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: 14,
+                  color: "var(--danger-500, #ed6b8a)",
+                  textAlign: "center",
+                  marginTop: 4,
+                }}
+              >
+                {error}{" "}
+                <a href="mailto:sooklabs.th@gmail.com" style={{ color: "var(--accent-glow)" }}>
+                  sooklabs.th@gmail.com
+                </a>
+              </p>
+            )}
             <p
               style={{
                 fontFamily: "var(--font-mono)",

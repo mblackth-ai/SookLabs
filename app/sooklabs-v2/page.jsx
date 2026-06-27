@@ -213,6 +213,23 @@ function Button({
     onMouseUp: () => setA(false),
   };
   if (href) {
+    const external = href.startsWith("http");
+    if (external) {
+      return (
+        <a
+          href={href}
+          onClick={onClick}
+          style={sharedStyle}
+          target="_blank"
+          rel="noopener noreferrer"
+          {...handlers}
+        >
+          {iconLeft}
+          {children}
+          {iconRight}
+        </a>
+      );
+    }
     return (
       <Link href={href} onClick={onClick} style={sharedStyle} {...handlers}>
         {iconLeft}
@@ -904,8 +921,8 @@ function Header() {
           justifyContent: "space-between",
         }}
       >
-        <a href="#" style={{ display: "flex", alignItems: "center", gap: 11 }}>
-          <img src={GLYPH} alt="" style={{ width: 30, height: 30, borderRadius: 8 }} />
+        <Link href="/" style={{ display: "flex", alignItems: "center", gap: 11 }}>
+          <img src={GLYPH} alt="SookLabs" style={{ width: 30, height: 30, borderRadius: 8 }} />
           <span
             style={{
               fontFamily: "var(--font-display)",
@@ -917,7 +934,7 @@ function Header() {
           >
             SookLabs
           </span>
-        </a>
+        </Link>
         <nav
           style={{ display: "flex", alignItems: "center", gap: 30 }}
           className="sl-desk"
@@ -942,7 +959,7 @@ function Header() {
           <Button variant="ghost" size="sm">
             Sign in
           </Button>
-          <Button variant="primary" size="sm" iconRight={<Icons.Arrow size={15} />}>
+          <Button variant="primary" size="sm" href="https://sookly.co" iconRight={<Icons.Arrow size={15} />}>
             Explore Sookly
           </Button>
         </div>
@@ -951,6 +968,7 @@ function Header() {
           className="sl-mob"
           onClick={() => setOpen(!open)}
           aria-label="Menu"
+          aria-expanded={open}
           style={{
             background: "none",
             border: "none",
@@ -983,7 +1001,7 @@ function Header() {
               {l.label}
             </a>
           ))}
-          <Button variant="primary" size="sm">
+          <Button variant="primary" size="sm" href="https://sookly.co">
             Explore Sookly
           </Button>
         </div>
@@ -1098,10 +1116,10 @@ function Hero() {
             flexWrap: "wrap",
           }}
         >
-          <Button variant="primary" size="lg" iconRight={<Icons.Arrow size={18} />}>
+          <Button variant="primary" size="lg" href="#ecosystem" iconRight={<Icons.Arrow size={18} />}>
             Explore the ecosystem
           </Button>
-          <Button variant="secondary" size="lg">
+          <Button variant="secondary" size="lg" href="#operating-rule">
             Read the operating rule
           </Button>
         </div>
@@ -1160,6 +1178,7 @@ function SectionHead({ eyebrow, title, sub, align = "center", max = 640 }) {
 function OperatingRule() {
   return (
     <section
+      id="operating-rule"
       style={{
         padding: "96px 0",
         borderTop: "1px solid var(--border-subtle)",
@@ -1286,6 +1305,7 @@ const PRODUCTS = [
     status: "Live",
     tag: "Omnichat · AI receptionist",
     desc: "Handles enquiries, routes messages, reduces missed leads, and gives teams one calm inbox.",
+    href: "https://sookly.co",
   },
   {
     key: "SEOS",
@@ -1294,6 +1314,7 @@ const PRODUCTS = [
     status: "In progress",
     tag: "Search Expansion OS",
     desc: "SEO diagnostics, website audits, content systems, and growth operations — measurable visibility.",
+    href: "/audit",
   },
   {
     key: "RoastMyOpSec",
@@ -1405,10 +1426,13 @@ function Ecosystem() {
                 >
                   {p.desc}
                 </p>
-                {p.status !== "To be announced" && (
+                {p.status !== "To be announced" && p.href && (
                   <a
-                    href="#"
+                    href={p.href}
                     className="sl-cardlink"
+                    {...(p.href.startsWith("http")
+                      ? { target: "_blank", rel: "noopener noreferrer" }
+                      : {})}
                     style={{
                       display: "inline-flex",
                       alignItems: "center",
@@ -1710,7 +1734,7 @@ function Mantra() {
           >
             Get a free audit now
           </Button>
-          <Button variant="secondary" size="lg">
+          <Button variant="secondary" size="lg" href="https://sookly.co">
             Explore Sookly
           </Button>
         </div>
@@ -1720,6 +1744,15 @@ function Mantra() {
 }
 
 function Footer() {
+  const linkHref = {
+    Sookly: "https://sookly.co",
+    SEOS: "/audit",
+    "Operating rule": "#operating-rule",
+    Philosophy: "#philosophy",
+    Pillars: "#pillars",
+    Contact: "mailto:sooklabs.th@gmail.com",
+    "Clinic SEO Snapshot": "/audit",
+  };
   const cols = [
     { h: "Ecosystem", links: ["Sookly", "SEOS", "RoastMyOpSec", "Community"] },
     { h: "Company", links: ["Operating rule", "Philosophy", "Pillars", "Contact"] },
@@ -1738,7 +1771,7 @@ function Footer() {
         >
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 11, marginBottom: 14 }}>
-              <img src={GLYPH} alt="" style={{ width: 28, height: 28, borderRadius: 8 }} />
+              <img src={GLYPH} alt="SookLabs" style={{ width: 28, height: 28, borderRadius: 8 }} />
               <span
                 style={{
                   fontFamily: "var(--font-display)",
@@ -1786,11 +1819,17 @@ function Footer() {
                   gap: 11,
                 }}
               >
-                {c.links.map((l) => (
+                {c.links.map((l) => {
+                  const href = linkHref[l];
+                  return (
                   <li key={l}>
+                    {href ? (
                     <a
-                      href="#"
+                      href={href}
                       className="sl-navlink"
+                      {...(href.startsWith("http")
+                        ? { target: "_blank", rel: "noopener noreferrer" }
+                        : {})}
                       style={{
                         fontFamily: "var(--font-body)",
                         fontSize: 13.5,
@@ -1799,8 +1838,20 @@ function Footer() {
                     >
                       {l}
                     </a>
+                    ) : (
+                      <span
+                        style={{
+                          fontFamily: "var(--font-body)",
+                          fontSize: 13.5,
+                          color: "var(--text-faint)",
+                        }}
+                      >
+                        {l}
+                      </span>
+                    )}
                   </li>
-                ))}
+                  );
+                })}
               </ul>
             </div>
           ))}
@@ -1844,7 +1895,8 @@ function useRouteCanvas() {
 export default function SookLabsV2Page() {
   useRouteCanvas();
   return (
-    <div
+    <main
+      id="main-content"
       className={`sl-v2-root ${spaceGrotesk.variable} ${dmSans.variable} ${ibmPlexMono.variable}`}
     >
       <Header />
@@ -1856,6 +1908,6 @@ export default function SookLabsV2Page() {
       <Pillars />
       <Mantra />
       <Footer />
-    </div>
+    </main>
   );
 }
