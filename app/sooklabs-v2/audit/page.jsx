@@ -98,7 +98,7 @@ function Header() {
         }}
       >
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 11 }}>
-          <img src={GLYPH} alt="" style={{ width: 30, height: 30, borderRadius: 8 }} />
+          <img src={GLYPH} alt="" style={{ width: 30, height: 30, borderRadius: 8, objectFit: "cover" }} />
           <span
             style={{
               fontFamily: "var(--font-display)",
@@ -559,6 +559,15 @@ function AuditForm() {
     outline: "none",
     boxSizing: "border-box",
   };
+  const labelStyle = {
+    display: "block",
+    fontFamily: "var(--font-mono)",
+    fontSize: 11,
+    letterSpacing: "0.08em",
+    textTransform: "uppercase",
+    color: "var(--text-faint)",
+    marginBottom: 6,
+  };
   return (
     <section id="audit-form" style={{ padding: "88px 0 104px" }}>
       <Container style={{ maxWidth: 560 }}>
@@ -634,14 +643,26 @@ function AuditForm() {
               boxShadow: "var(--inset-top)",
             }}
           >
-            <input style={field} type="text" name="name" placeholder="Your name" required />
-            <input style={field} type="email" name="email" placeholder="Work email" required />
-            <input style={field} type="url" name="website" placeholder="Website URL" required />
-            <textarea
-              style={{ ...field, minHeight: 90, resize: "vertical" }}
-              name="context"
-              placeholder="What does your business sell, and who are your main competitors? (optional)"
-            />
+            <label style={{ display: "block" }}>
+              <span style={labelStyle}>Name</span>
+              <input style={field} type="text" name="name" placeholder="Your name" required />
+            </label>
+            <label style={{ display: "block" }}>
+              <span style={labelStyle}>Email</span>
+              <input style={field} type="email" name="email" placeholder="Work email" required />
+            </label>
+            <label style={{ display: "block" }}>
+              <span style={labelStyle}>Website</span>
+              <input style={field} type="url" name="website" placeholder="Website URL" required />
+            </label>
+            <label style={{ display: "block" }}>
+              <span style={labelStyle}>Context (optional)</span>
+              <textarea
+                style={{ ...field, minHeight: 90, resize: "vertical" }}
+                name="context"
+                placeholder="What does your business sell, and who are your main competitors?"
+              />
+            </label>
             <button
               type="submit"
               disabled={submitting}
@@ -710,7 +731,7 @@ function Footer() {
         }}
       >
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <img src={GLYPH} alt="" style={{ width: 26, height: 26, borderRadius: 8 }} />
+          <img src={GLYPH} alt="" style={{ width: 26, height: 26, borderRadius: 8, objectFit: "cover" }} />
           <span
             style={{
               fontFamily: "var(--font-display)",

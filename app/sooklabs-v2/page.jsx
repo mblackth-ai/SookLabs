@@ -24,7 +24,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 const GLYPH = "/assets/sooklabs/sooklabs-glyph.png";
-const LOGO = "/assets/sooklabs/sooklabs-logo.png";
+const LOGO = "/assets/sooklabs/sooklabs-glyph.png";
 
 function Icon({ d, size = 20, stroke = 1.75, children, viewBox = "0 0 24 24", style }) {
   return (
@@ -438,65 +438,55 @@ const WORD_TOKENS = [
     kind: "product",
     accent: "blue",
     weight: "med-high",
-    angle: 145,
+    angle: 150,
     radius: TOKEN_RADIUS.medLarge,
     start: 0.31,
     end: 0.49,
   },
   {
-    key: "RoastMyOpSec",
-    label: "RoastMyOpSec",
-    sub: "Security Audit",
-    kind: "product",
-    accent: "violet",
-    weight: "med-high",
-    angle: 320,
-    radius: TOKEN_RADIUS.medLarge,
-    start: 0.34,
-    end: 0.52,
-  },
-  {
-    key: "Automation",
-    label: "Automation",
+    key: "Ops",
+    label: "Ops Systems",
+    sub: "Clear processes",
     kind: "support",
     accent: "silver",
     weight: "medium",
-    angle: 205,
+    angle: 90,
     radius: TOKEN_RADIUS.med,
+    start: 0.18,
+    end: 0.34,
+  },
+  {
+    key: "Automation",
+    label: "Workflow Automation",
+    sub: "Repeatable tasks",
+    kind: "support",
+    accent: "silver",
+    weight: "medium",
+    angle: 325,
+    radius: TOKEN_RADIUS.medLarge,
     start: 0.2,
     end: 0.36,
   },
   {
     key: "AI",
     label: "AI Consultancy",
+    sub: "Practical systems",
     kind: "support",
     accent: "silver",
     weight: "low-medium",
-    angle: 80,
-    radius: TOKEN_RADIUS.smallMed,
+    angle: 215,
+    radius: TOKEN_RADIUS.med,
     start: 0.16,
     end: 0.32,
-  },
-  {
-    key: "Systems",
-    label: "Systems",
-    kind: "support",
-    accent: "silver",
-    weight: "medium",
-    angle: 240,
-    radius: TOKEN_RADIUS.med,
-    start: 0.18,
-    end: 0.34,
   },
 ];
 
 const MOBILE_TOKEN_SLOTS = {
-  AI: { x: 0, y: -118 },
-  Sookly: { x: 0, y: -62 },
-  Systems: { x: 0, y: -8 },
-  SEOS: { x: -52, y: 52 },
-  Automation: { x: 52, y: 52 },
-  RoastMyOpSec: { x: 0, y: 108 },
+  Ops: { x: 0, y: -118 },
+  Sookly: { x: 0, y: -58 },
+  SEOS: { x: -56, y: 16 },
+  AI: { x: 56, y: 16 },
+  Automation: { x: 0, y: 92 },
 };
 
 function desktopTokenXY(angleDeg, radius) {
@@ -519,7 +509,7 @@ function useMobileConstellation() {
   return mobile;
 }
 
-function LogoOrbitMark({ size = 92, scale = 1, glowOpacity = 0.35, animate = true }) {
+function LogoOrbitMark({ size = 92, scale = 1, glowOpacity = 0.35, animate = true, spark = false }) {
   const arcSize = size + 18;
 
   return (
@@ -568,8 +558,19 @@ function LogoOrbitMark({ size = 92, scale = 1, glowOpacity = 0.35, animate = tru
           alt="SookLabs"
           width={size}
           height={size}
-          style={{ display: "block", width: "100%", height: "100%", objectFit: "cover" }}
+          style={{
+            display: "block",
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+          }}
         />
+        {spark && (
+          <>
+            <span className="sl-spark-streak" aria-hidden />
+            <span className="sl-spark-dot" aria-hidden />
+          </>
+        )}
       </div>
     </div>
   );
@@ -626,7 +627,7 @@ function HeroScrollScene({ p = 0, reduce = false }) {
   const partR = b * 190;
   const partOpacity = Math.sin(b * Math.PI) * (1 - c * 0.85);
   const sceneW = mobile ? 320 : 680;
-  const sceneH = mobile ? 360 : 480;
+  const sceneH = mobile ? 320 : 420;
 
   const ring = (w, extra) => ({
     position: "absolute",
@@ -772,6 +773,7 @@ function HeroScrollScene({ p = 0, reduce = false }) {
             scale={glyphScale}
             glowOpacity={dotGlow}
             animate={!reduce && c < 0.15}
+            spark={!reduce}
           />
         </div>
       </div>
@@ -899,7 +901,7 @@ function Header() {
     { label: "Ecosystem", href: "#ecosystem" },
     { label: "Philosophy", href: "#philosophy" },
     { label: "Pillars", href: "#pillars" },
-    { label: "Community", href: "#community" },
+    { label: "Audit", href: "/audit" },
   ];
   return (
     <header
@@ -922,7 +924,7 @@ function Header() {
         }}
       >
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 11 }}>
-          <img src={GLYPH} alt="SookLabs" style={{ width: 30, height: 30, borderRadius: 8 }} />
+          <img src={GLYPH} alt="SookLabs" style={{ width: 30, height: 30, borderRadius: 8, objectFit: "cover" }} />
           <span
             style={{
               fontFamily: "var(--font-display)",
@@ -956,9 +958,6 @@ function Header() {
           ))}
         </nav>
         <div className="sl-desk" style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <Button variant="ghost" size="sm">
-            Sign in
-          </Button>
           <Button variant="primary" size="sm" href="https://sookly.co" iconRight={<Icons.Arrow size={15} />}>
             Explore Sookly
           </Button>
@@ -1056,7 +1055,7 @@ function Hero() {
         }}
       />
       <Container style={{ position: "relative", textAlign: "center" }}>
-        <div className="sl-fade" style={{ display: "flex", justifyContent: "center", marginBottom: 40 }}>
+        <div className="sl-fade" style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
           <span
             style={{
               display: "inline-flex",
@@ -1320,7 +1319,7 @@ const PRODUCTS = [
     key: "RoastMyOpSec",
     icon: Icons.Roast,
     tone: "violet",
-    status: "To be announced",
+    status: "TBA",
     tag: "Security auditor",
     desc: "Plain-English exposure checks for founders and small teams. Know what is leaking, first.",
   },
@@ -1328,7 +1327,7 @@ const PRODUCTS = [
     key: "SookLabs Community",
     icon: Icons.Community,
     tone: "neutral",
-    status: "To be announced",
+    status: "On hold",
     tag: "Builder community",
     desc: "A focused community around technology, psychology, and investment. Sharper thinking, long-term leverage.",
   },
@@ -1426,7 +1425,7 @@ function Ecosystem() {
                 >
                   {p.desc}
                 </p>
-                {p.status !== "To be announced" && p.href && (
+                {p.href && (
                   <a
                     href={p.href}
                     className="sl-cardlink"
@@ -1678,7 +1677,7 @@ function Mantra() {
     "Repeat with discipline.",
   ];
   return (
-    <section id="community" style={{ padding: "112px 0", position: "relative", overflow: "hidden" }}>
+    <section id="cta" style={{ padding: "112px 0", position: "relative", overflow: "hidden" }}>
       <div
         aria-hidden
         style={{
@@ -1697,6 +1696,7 @@ function Mantra() {
             height: 56,
             borderRadius: 16,
             marginBottom: 32,
+            objectFit: "cover",
             boxShadow: "0 0 40px rgba(52,207,234,0.4)",
           }}
         />
@@ -1751,12 +1751,18 @@ function Footer() {
     Philosophy: "#philosophy",
     Pillars: "#pillars",
     Contact: "mailto:sooklabs.th@gmail.com",
-    "Clinic SEO Snapshot": "/audit",
+    "Free GEO audit": "/audit",
   };
   const cols = [
-    { h: "Ecosystem", links: ["Sookly", "SEOS", "RoastMyOpSec", "Community"] },
+    {
+      h: "Ecosystem",
+      links: ["Sookly", "SEOS", "RoastMyOpSec (TBA)", "Community (on hold)"],
+    },
     { h: "Company", links: ["Operating rule", "Philosophy", "Pillars", "Contact"] },
-    { h: "Resources", links: ["Clinic SEO Snapshot", "Documentation", "Changelog"] },
+    {
+      h: "Resources",
+      links: ["Free GEO audit", "Documentation (soon)", "Changelog (soon)"],
+    },
   ];
   return (
     <footer style={{ borderTop: "1px solid var(--border-subtle)", padding: "56px 0 36px" }}>
@@ -1771,7 +1777,7 @@ function Footer() {
         >
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 11, marginBottom: 14 }}>
-              <img src={GLYPH} alt="SookLabs" style={{ width: 28, height: 28, borderRadius: 8 }} />
+              <img src={GLYPH} alt="SookLabs" style={{ width: 28, height: 28, borderRadius: 8, objectFit: "cover" }} />
               <span
                 style={{
                   fontFamily: "var(--font-display)",

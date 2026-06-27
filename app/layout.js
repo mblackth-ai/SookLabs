@@ -25,14 +25,14 @@ export const metadata = {
       "SookLabs builds focused AI, SEO, and workflow systems that help website-dependent companies stay relevant as search shifts to AI answer engines.",
     type: "website",
     siteName: "SookLabs",
-    images: [{ url: "/assets/sooklabs/sooklabs-mark.svg", alt: "SookLabs" }],
+    images: [{ url: "/assets/sooklabs/sooklabs-glyph.png", alt: "SookLabs" }],
   },
   twitter: {
     card: "summary",
     title: "SookLabs — Reduce the noise. Build the system.",
     description:
       "Focused AI, SEO, and workflow systems for website-dependent companies.",
-    images: ["/assets/sooklabs/sooklabs-mark.svg"],
+    images: ["/assets/sooklabs/sooklabs-glyph.png"],
   },
 };
 
