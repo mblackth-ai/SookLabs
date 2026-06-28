@@ -1,0 +1,236 @@
+/* SookLabs HQ — scoped design tokens.
+   Every token lives under .hq-scope so the HQ dark/Geist identity
+   never leaks into the public SookLabs site. */
+
+.hq-scope {
+  /* Cyan / Brand palette */
+  --color-cyan-50: #e8fdff;
+  --color-cyan-100: #c5f9ff;
+  --color-cyan-200: #90f3ff;
+  --color-cyan-300: #74e9f1;
+  --color-cyan-400: #2bd2e0;
+  --color-cyan-500: #1fb0c2;
+  --color-cyan-600: #1890a0;
+  --color-cyan-700: #126c7a;
+  --color-cyan-800: #0d4e58;
+  --color-cyan-900: #082e35;
+
+  /* Neutral / gray palette */
+  --color-gray-0: #ffffff;
+  --color-gray-50: #f5f5f5;
+  --color-gray-100: #e8e8e8;
+  --color-gray-200: #d0d0d0;
+  --color-gray-300: #a8a8a8;
+  --color-gray-400: #808080;
+  --color-gray-500: #585858;
+  --color-gray-600: #383838;
+  --color-gray-700: #282828;
+  --color-gray-750: #1e1e1e;
+  --color-gray-800: #161616;
+  --color-gray-850: #111111;
+  --color-gray-900: #0a0a0a;
+  --color-gray-950: #080808;
+
+  /* Status colors */
+  --color-success: #22c55e;
+  --color-success-muted: rgba(34, 197, 94, 0.12);
+  --color-warning: #f59e0b;
+  --color-warning-muted: rgba(245, 158, 11, 0.12);
+  --color-error: #ef4444;
+  --color-error-muted: rgba(239, 68, 68, 0.12);
+  --color-info: var(--color-cyan-400);
+  --color-info-muted: rgba(43, 210, 224, 0.12);
+
+  /* Backgrounds */
+  --bg-base: var(--color-gray-950);
+  --bg-subtle: var(--color-gray-900);
+  --bg-surface: var(--color-gray-850);
+  --bg-raised: var(--color-gray-800);
+  --bg-overlay: var(--color-gray-750);
+  --bg-float: var(--color-gray-700);
+
+  /* Borders */
+  --border-faint: rgba(255, 255, 255, 0.04);
+  --border-subtle: rgba(255, 255, 255, 0.07);
+  --border-default: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --border-accent: rgba(43, 210, 224, 0.3);
+
+  /* Text */
+  --text-primary: #f2f2f2;
+  --text-secondary: #888888;
+  --text-tertiary: #555555;
+  --text-disabled: #333333;
+  --text-inverse: #080808;
+  --text-accent: var(--color-cyan-400);
+  --text-accent-light: var(--color-cyan-300);
+
+  /* Accent fills */
+  --accent: var(--color-cyan-400);
+  --accent-light: var(--color-cyan-300);
+  --accent-dark: var(--color-cyan-500);
+  --accent-muted: rgba(43, 210, 224, 0.1);
+  --accent-muted-hover: rgba(43, 210, 224, 0.16);
+  --ai-glow: rgba(43, 210, 224, 0.15);
+  --ai-pulse: rgba(43, 210, 224, 0.25);
+
+  /* Typography — bound to the scoped Geist next/font variables */
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", "Fira Code", monospace;
+
+  --weight-light: 300;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  --text-xs: 11px;
+  --text-sm: 13px;
+  --text-base: 15px;
+  --text-lg: 17px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --text-3xl: 30px;
+  --text-4xl: 36px;
+  --text-5xl: 48px;
+  --text-6xl: 60px;
+
+  --leading-tight: 1.2;
+  --leading-snug: 1.35;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.65;
+
+  --tracking-tight: -0.03em;
+  --tracking-snug: -0.02em;
+  --tracking-normal: 0em;
+  --tracking-wide: 0.04em;
+  --tracking-wider: 0.08em;
+  --tracking-caps: 0.1em;
+
+  /* Spacing scale (4px base) */
+  --space-0: 0px;
+  --space-px: 1px;
+  --space-0-5: 2px;
+  --space-1: 4px;
+  --space-1-5: 6px;
+  --space-2: 8px;
+  --space-2-5: 10px;
+  --space-3: 12px;
+  --space-3-5: 14px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-9: 36px;
+  --space-10: 40px;
+  --space-11: 44px;
+  --space-12: 48px;
+  --space-14: 56px;
+  --space-16: 64px;
+
+  /* Component + layout tokens */
+  --padding-card-sm: var(--space-4);
+  --padding-card: var(--space-6);
+  --padding-card-lg: var(--space-8);
+  --sidebar-width: 240px;
+  --sidebar-collapsed: 56px;
+  --topbar-height: 52px;
+  --panel-width: 320px;
+  --content-max: 1200px;
+  --content-narrow: 720px;
+
+  /* Radii */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-3xl: 24px;
+  --radius-full: 9999px;
+
+  /* Elevation */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.6), 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-2xl: 0 24px 64px rgba(0, 0, 0, 0.7), 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-glow-sm: 0 0 12px rgba(43, 210, 224, 0.15);
+  --shadow-glow-md: 0 0 24px rgba(43, 210, 224, 0.2), 0 0 8px rgba(43, 210, 224, 0.12);
+  --shadow-glow-lg: 0 0 48px rgba(43, 210, 224, 0.25), 0 0 16px rgba(43, 210, 224, 0.15);
+  --card-shadow: var(--shadow-sm);
+  --panel-shadow: var(--shadow-xl);
+  --modal-shadow: var(--shadow-2xl);
+
+  /* Motion */
+  --duration-fast: 100ms;
+  --duration-normal: 160ms;
+  --duration-enter: 200ms;
+  --duration-exit: 140ms;
+  --ease-default: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Scope base surface */
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Reset margins for elements rendered inside HQ without touching the public site */
+.hq-scope *,
+.hq-scope *::before,
+.hq-scope *::after {
+  box-sizing: border-box;
+}
+
+.hq-scope h1,
+.hq-scope h2,
+.hq-scope h3,
+.hq-scope h4,
+.hq-scope p {
+  margin: 0;
+  font-family: var(--font-sans);
+}
+
+.hq-scope ::-webkit-scrollbar {
+  width: 4px;
+}
+.hq-scope ::-webkit-scrollbar-track {
+  background: transparent;
+}
+.hq-scope ::-webkit-scrollbar-thumb {
+  background: var(--bg-float);
+  border-radius: 2px;
+}
+
+@keyframes sl-pulse-glow {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes sl-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes sl-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
