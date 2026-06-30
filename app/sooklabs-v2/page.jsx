@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Space_Grotesk, DM_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./sooklabs-v2.css";
 import { GlyphSparkOverlay } from "@/components/brand/GlyphSparkOverlay";
+import { ToolsNavDropdown, ToolsNavAccordion } from "@/components/nav/ToolsNav";
 
 const GLYPH = "/assets/sooklabs/sooklabs-glyph.png";
 const LOGO = "/assets/sooklabs/sooklabs-glyph.png";
@@ -892,7 +893,6 @@ function Header() {
     { label: "Ecosystem", href: "#ecosystem" },
     { label: "Philosophy", href: "#philosophy" },
     { label: "Pillars", href: "#pillars" },
-    { label: "Audit", href: "/audit" },
   ];
   return (
     <header
@@ -947,6 +947,7 @@ function Header() {
               {l.label}
             </a>
           ))}
+          <ToolsNavDropdown />
         </nav>
         <div className="sl-desk" style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <Button variant="primary" size="sm" href="https://sookly.co" iconRight={<Icons.Arrow size={15} />}>
@@ -991,6 +992,7 @@ function Header() {
               {l.label}
             </a>
           ))}
+          <ToolsNavAccordion onNavigate={() => setOpen(false)} />
           <Button variant="primary" size="sm" href="https://sookly.co">
             Explore Sookly
           </Button>
