@@ -1,0 +1,63 @@
+.glyph-spark-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.glyph-spark-overlay svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.glyph-spark-beam {
+  stroke-width: var(--glyph-spark-stroke, 17);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  filter: drop-shadow(0 0 6px rgba(191, 246, 251, 0.85));
+  stroke-dasharray: 36 520;
+  animation: glyphSparkBeam 2.8s ease-in-out infinite;
+}
+
+.glyph-spark-dot {
+  fill: #eafdff;
+  filter: drop-shadow(0 0 5px rgba(52, 207, 234, 0.9));
+  animation: glyphSparkFlicker 0.14s steps(2, end) infinite;
+}
+
+@keyframes glyphSparkBeam {
+  0% {
+    stroke-dashoffset: 520;
+    opacity: 0;
+  }
+  6% {
+    opacity: 1;
+  }
+  94% {
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: -36;
+    opacity: 0;
+  }
+}
+
+@keyframes glyphSparkFlicker {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.72;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glyph-spark-beam,
+  .glyph-spark-dot {
+    display: none;
+  }
+}

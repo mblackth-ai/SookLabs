@@ -4,6 +4,10 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Space_Grotesk, DM_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./sooklabs-v2.css";
+import { GlyphSparkOverlay } from "@/components/brand/GlyphSparkOverlay";
+
+const GLYPH = "/assets/sooklabs/sooklabs-glyph.png";
+const LOGO = "/assets/sooklabs/sooklabs-glyph.png";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -23,9 +27,6 @@ const ibmPlexMono = IBM_Plex_Mono({
   weight: ["400", "500", "600"],
 });
 
-const GLYPH = "/assets/sooklabs/sooklabs-glyph.png";
-const LOGO = "/assets/sooklabs/sooklabs-glyph.png";
-
 function Icon({ d, size = 20, stroke = 1.75, children, viewBox = "0 0 24 24", style }) {
   return (
     <svg
@@ -41,6 +42,63 @@ function Icon({ d, size = 20, stroke = 1.75, children, viewBox = "0 0 24 24", st
     >
       {children || <path d={d} />}
     </svg>
+  );
+}
+
+function LogoOrbitMark({ size = 92, scale = 1, glowOpacity = 0.35, animate = true, spark = false }) {
+  const arcSize = size + 18;
+
+  return (
+    <div
+      className="sl-logo-orbit-mark"
+      style={{
+        position: "relative",
+        zIndex: 2,
+        width: arcSize,
+        height: arcSize,
+        display: "grid",
+        placeItems: "center",
+        transform: `scale(${scale})`,
+        willChange: "transform",
+      }}
+    >
+      {animate && (
+        <div
+          className="sl-logo-orbit"
+          aria-hidden
+          style={{
+            position: "absolute",
+            inset: 0,
+            borderRadius: "50%",
+            background:
+              "conic-gradient(from 0deg, transparent 0 68%, var(--cyan-400) 84%, var(--cyan-300) 90%, transparent 100%)",
+            WebkitMask:
+              "radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px))",
+            mask: "radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px))",
+            opacity: 0.85,
+          }}
+        />
+      )}
+      <div
+        style={{
+          position: "relative",
+          width: size,
+          height: size,
+          borderRadius: "50%",
+          overflow: "hidden",
+          boxShadow: `0 0 0 1px var(--border-strong), var(--shadow-lg), 0 0 ${40 + glowOpacity * 60}px rgba(52,207,234,${glowOpacity})`,
+        }}
+      >
+        <img
+          src={LOGO}
+          alt="SookLabs"
+          width={size}
+          height={size}
+          style={{ display: "block", width: "100%", height: "100%", objectFit: "cover" }}
+        />
+        {spark && <GlyphSparkOverlay size={size} animate />}
+      </div>
+    </div>
   );
 }
 
@@ -483,9 +541,9 @@ const WORD_TOKENS = [
 
 const MOBILE_TOKEN_SLOTS = {
   Ops: { x: 0, y: -118 },
-  Sookly: { x: 0, y: -58 },
-  SEOS: { x: -56, y: 16 },
-  AI: { x: 56, y: 16 },
+  Sookly: { x: 0, y: -68 },
+  SEOS: { x: -88, y: 44 },
+  AI: { x: 108, y: -58 },
   Automation: { x: 0, y: 92 },
 };
 
@@ -507,73 +565,6 @@ function useMobileConstellation() {
     return () => mq.removeEventListener("change", on);
   }, []);
   return mobile;
-}
-
-function LogoOrbitMark({ size = 92, scale = 1, glowOpacity = 0.35, animate = true, spark = false }) {
-  const arcSize = size + 18;
-
-  return (
-    <div
-      className="sl-logo-orbit-mark"
-      style={{
-        position: "relative",
-        zIndex: 2,
-        width: arcSize,
-        height: arcSize,
-        display: "grid",
-        placeItems: "center",
-        transform: `scale(${scale})`,
-        willChange: "transform",
-      }}
-    >
-      {animate && (
-        <div
-          className="sl-logo-orbit"
-          aria-hidden
-          style={{
-            position: "absolute",
-            inset: 0,
-            borderRadius: "50%",
-            background:
-              "conic-gradient(from 0deg, transparent 0 68%, var(--cyan-400) 84%, var(--cyan-300) 90%, transparent 100%)",
-            WebkitMask:
-              "radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px))",
-            mask: "radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px))",
-            opacity: 0.85,
-          }}
-        />
-      )}
-      <div
-        style={{
-          position: "relative",
-          width: size,
-          height: size,
-          borderRadius: "50%",
-          overflow: "hidden",
-          boxShadow: `0 0 0 1px var(--border-strong), var(--shadow-lg), 0 0 ${40 + glowOpacity * 60}px rgba(52,207,234,${glowOpacity})`,
-        }}
-      >
-        <img
-          src={LOGO}
-          alt="SookLabs"
-          width={size}
-          height={size}
-          style={{
-            display: "block",
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-          }}
-        />
-        {spark && (
-          <>
-            <span className="sl-spark-streak" aria-hidden />
-            <span className="sl-spark-dot" aria-hidden />
-          </>
-        )}
-      </div>
-    </div>
-  );
 }
 
 function HeroWordToken({ token, lp, tx, ty, reduce }) {
@@ -1688,18 +1679,7 @@ function Mantra() {
         }}
       />
       <Container style={{ position: "relative", textAlign: "center" }}>
-        <img
-          src={GLYPH}
-          alt=""
-          style={{
-            width: 56,
-            height: 56,
-            borderRadius: 16,
-            marginBottom: 32,
-            objectFit: "cover",
-            boxShadow: "0 0 40px rgba(52,207,234,0.4)",
-          }}
-        />
+        <img src={GLYPH} alt="" style={{ width: 56, height: 56, borderRadius: 16, marginBottom: 32, objectFit: "cover", boxShadow: "0 0 40px rgba(52,207,234,0.4)" }} />
         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
           {lines.map((l, i) => (
             <span

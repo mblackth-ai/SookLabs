@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Button } from "@/components/hq/Button";
 
+const GLYPH = "/assets/sooklabs/sooklabs-glyph.png";
+
 export default function HqLoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -65,8 +67,7 @@ export default function HqLoginPage() {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/hq/sooklabs-mark.svg" width="32" height="25" alt="SookLabs" />
+          <img src={GLYPH} alt="SookLabs" style={{ width: 32, height: 32, borderRadius: 8, objectFit: "cover" }} />
           <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
             SookLabs HQ
           </span>

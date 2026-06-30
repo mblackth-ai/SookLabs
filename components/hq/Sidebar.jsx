@@ -8,6 +8,8 @@ import { Avatar } from "./Avatar";
 import { icons } from "@/lib/hq/icons";
 import { nav, currentUser } from "@/lib/hq/mock-data";
 
+const GLYPH = "/assets/sooklabs/sooklabs-glyph.png";
+
 function SectionLabel({ children }) {
   return (
     <div
@@ -128,8 +130,7 @@ export function Sidebar() {
           borderBottom: "1px solid var(--border-faint)",
         }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/hq/sooklabs-mark.svg" width="28" height="22" alt="SookLabs" style={{ flexShrink: 0 }} />
+        <img src={GLYPH} alt="SookLabs" style={{ width: 28, height: 28, borderRadius: 8, objectFit: "cover", flexShrink: 0 }} />
         <span style={{ fontSize: 14, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
           SookLabs
         </span>

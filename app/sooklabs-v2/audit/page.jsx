@@ -5,6 +5,8 @@ import Link from "next/link";
 import { Space_Grotesk, DM_Sans, IBM_Plex_Mono } from "next/font/google";
 import "../sooklabs-v2.css";
 
+const GLYPH = "/assets/sooklabs/sooklabs-glyph.png";
+
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   variable: "--sl-font-display",
@@ -22,8 +24,6 @@ const ibmPlexMono = IBM_Plex_Mono({
   variable: "--sl-font-mono",
   weight: ["400", "500", "600"],
 });
-
-const GLYPH = "/assets/sooklabs/sooklabs-glyph.png";
 
 function Container({ children, style }) {
   return (
