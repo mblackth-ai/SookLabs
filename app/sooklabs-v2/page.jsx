@@ -469,8 +469,10 @@ function useHeroPinProgress(pinRef, reduce) {
 }
 
 /** Viewport heights of scroll consumed while hero is pinned (animation plays). */
-const HERO_PIN_SCROLL_VH = 3.6;
-const HERO_PIN_SCROLL_MOBILE_VH = 2.6;
+const HERO_PIN_SCROLL_VH = 2.1;
+const HERO_PIN_SCROLL_MOBILE_VH = 1.6;
+/** Raw pin progress at which the hero animation reaches its end state (shorter tail after). */
+const HERO_ANIM_COMPLETE_AT = 0.9;
 
 const smooth = (t) => t * t * (3 - 2 * t);
 const clamp01 = (v) => Math.max(0, Math.min(1, v));
@@ -605,9 +607,10 @@ function HeroWordToken({ token, lp, tx, ty, reduce }) {
 
 function HeroScrollScene({ p = 0, reduce = false }) {
   const mobile = useMobileConstellation();
-  const a = smooth(clamp01(p / 0.16));
-  const b = smooth(clamp01((p - 0.06) / 0.24));
-  const c = smooth(clamp01((p - 0.16) / 0.34));
+  const animP = reduce ? 0 : clamp01(p / HERO_ANIM_COMPLETE_AT);
+  const a = smooth(clamp01(animP / 0.16));
+  const b = smooth(clamp01((animP - 0.06) / 0.24));
+  const c = smooth(clamp01((animP - 0.16) / 0.34));
   const glyphScale = 1 - a * 0.8;
   const restOpacity = 1 - a;
   const dotGlow = 0.32 + a * 0.42 + Math.sin(b * Math.PI) * 0.3;
@@ -784,7 +787,7 @@ function HeroScrollScene({ p = 0, reduce = false }) {
             : desktopTokenXY(token.angle, token.radius);
           const lp = reduce
             ? 1
-            : smooth(clamp01((p - token.start) / (token.end - token.start)));
+            : smooth(clamp01((animP - token.start) / (token.end - token.start)));
           const tx = x * lp;
           const ty = y * lp;
           return (
