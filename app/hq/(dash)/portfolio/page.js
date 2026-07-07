@@ -8,7 +8,7 @@ export default function PortfolioPage() {
     <div>
       <TopBar
         title="Portfolio"
-        subtitle="SookLabs product suite — live products and the development pipeline."
+        subtitle="SookLabs product suite — reference status until live integrations ship."
         actions={
           <Button variant="secondary" size="sm" disabled title="Not available in v1">
             Add product
