@@ -1,5 +1,6 @@
 import { TopBar } from "@/components/hq/TopBar";
 import { Card } from "@/components/hq/Card";
+import { Badge } from "@/components/hq/Badge";
 import { StatusBadge } from "@/components/hq/HubPage";
 import { knowledgeUsage } from "@/lib/hq/knowledge-mock";
 
@@ -9,6 +10,11 @@ export default function KnowledgeUsagePage() {
       <TopBar
         title="Knowledge Usage"
         subtitle="Which SEOS Knowledge Base records power Sookly auto-replies"
+        actions={
+          <Badge variant="warning" size="sm">
+            Read-only · Manual
+          </Badge>
+        }
       />
       <div className="hq-page-content">
         <Card padding="none">

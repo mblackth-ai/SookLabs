@@ -1,5 +1,6 @@
 import { TopBar } from "@/components/hq/TopBar";
 import { Button } from "@/components/hq/Button";
+import { Badge } from "@/components/hq/Badge";
 import { StatusDot } from "@/components/hq/StatusDot";
 import { AgentCard } from "@/components/hq/AgentCard";
 import { agents } from "@/lib/hq/mock-data";
@@ -10,17 +11,19 @@ export default function AgentsPage() {
     <div>
       <TopBar
         title="AI Agents"
-        subtitle="Department intelligence — autonomous agents that observe, analyse and surface recommendations."
+        subtitle="Reference demo — not connected to live agents or integrations."
         actions={
           <>
-            <StatusDot status="ai" pulse label={`${running} running`} />
-            <Button variant="secondary" size="sm">
+            <Badge variant="neutral" size="sm">
+              Reference
+            </Badge>
+            <StatusDot status="ai" pulse label={`${running} running (mock)`} />
+            <Button variant="secondary" size="sm" disabled title="Not available in v1">
               Configure
             </Button>
           </>
         }
-      />
-      <div className="hq-page-content hq-page-content--grid hq-grid-3">
+      />      <div className="hq-page-content hq-page-content--grid hq-grid-3">
         {agents.map((a, i) => (
           <AgentCard key={i} {...a} />
         ))}

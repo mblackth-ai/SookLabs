@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-07T15:18:30.658Z",
+  "updatedAt": "2026-07-07T15:23:43.194Z",
   "todayPriorities": [
     {
       "id": "tp-1",
@@ -140,7 +140,7 @@
   "briefingNotes": {
     "date": "2026-07-07",
     "sections": {
-      "priorities": "smoke test",
+      "priorities": "",
       "risks": "",
       "decisions": ""
     }

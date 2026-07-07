@@ -11,6 +11,11 @@ export default function ReceptionistReadinessPage() {
       <TopBar
         title="Receptionist Readiness"
         subtitle="What can the AI receptionist safely say? · Consumes SEOS Knowledge Base"
+        actions={
+          <Badge variant="warning" size="sm">
+            Read-only · Manual
+          </Badge>
+        }
       />
       <div className="hq-page-content">
         <div className="hq-grid-3">
