@@ -1,10 +1,5 @@
-import { Sidebar } from "@/components/hq/Sidebar";
+import { DashShell } from "@/components/hq/DashShell";
 
 export default function DashLayout({ children }) {
-  return (
-    <div style={{ display: "flex", width: "100%", height: "100vh" }}>
-      <Sidebar />
-      <main style={{ flex: 1, height: "100vh", overflowY: "auto", background: "var(--bg-base)" }}>{children}</main>
-    </div>
-  );
+  return <DashShell>{children}</DashShell>;
 }

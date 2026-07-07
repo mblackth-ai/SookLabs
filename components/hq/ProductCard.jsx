@@ -5,16 +5,7 @@ import { Button } from "./Button";
 function Stat({ label, children }) {
   return (
     <div>
-      <div
-        style={{
-          fontSize: 11,
-          color: "var(--text-tertiary)",
-          fontWeight: 500,
-          textTransform: "uppercase",
-          letterSpacing: "0.06em",
-          marginBottom: 4,
-        }}
-      >
+      <div className="hq-section-label" style={{ marginBottom: "var(--space-1)" }}>
         {label}
       </div>
       {children}
@@ -22,8 +13,12 @@ function Stat({ label, children }) {
   );
 }
 
-export function ProductCard({ name, tagline, status, mrr, mrrDelta, users, desc, eta, phase }) {
+export function ProductCard({ name, tagline, status, mrr, mrrDelta, users, desc, eta, phase, href }) {
   const live = status === "live";
+  const inProgress = status === "in progress";
+  const badgeVariant = live ? "success" : inProgress ? "warning" : "neutral";
+  const badgeLabel = live ? "LIVE" : inProgress ? "IN PROGRESS" : "PLANNED";
+
   return (
     <Card padding="lg" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
@@ -33,8 +28,8 @@ export function ProductCard({ name, tagline, status, mrr, mrrDelta, users, desc,
           </div>
           <div style={{ fontSize: 13, color: "var(--text-tertiary)", lineHeight: 1.4, maxWidth: 280 }}>{tagline}</div>
         </div>
-        <Badge variant={live ? "success" : "neutral"} dot={live}>
-          {live ? "LIVE" : "PLANNED"}
+        <Badge variant={badgeVariant} dot={live}>
+          {badgeLabel}
         </Badge>
       </div>
       <p
@@ -69,7 +64,12 @@ export function ProductCard({ name, tagline, status, mrr, mrrDelta, users, desc,
           </Stat>
         </div>
       )}
-      <Button variant={live ? "secondary" : "ghost"} size="sm" style={{ alignSelf: "flex-start" }}>
+      <Button
+        variant={live ? "secondary" : "ghost"}
+        size="sm"
+        href={href}
+        style={{ alignSelf: "flex-start" }}
+      >
         {live ? "Open product →" : "View roadmap →"}
       </Button>
     </Card>

@@ -1,21 +1,11 @@
 export function TopBar({ title, subtitle, actions }) {
   return (
-    <div
-      style={{
-        padding: "20px 32px 0",
-        display: "flex",
-        alignItems: "flex-start",
-        justifyContent: "space-between",
-        gap: 16,
-      }}
-    >
+    <div className="hq-topbar">
       <div>
-        <h1 style={{ fontSize: 22, fontWeight: 600, letterSpacing: "-0.025em", color: "var(--text-primary)", lineHeight: 1.2 }}>
-          {title}
-        </h1>
-        {subtitle && <p style={{ fontSize: 13, color: "var(--text-tertiary)", marginTop: 4 }}>{subtitle}</p>}
+        <h1 className="hq-topbar-title">{title}</h1>
+        {subtitle && <div className="hq-topbar-subtitle">{subtitle}</div>}
       </div>
-      {actions && <div style={{ display: "flex", gap: 8, alignItems: "center", flexShrink: 0 }}>{actions}</div>}
+      {actions && <div className="hq-topbar-actions">{actions}</div>}
     </div>
   );
 }

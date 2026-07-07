@@ -2,15 +2,7 @@ import { Avatar } from "./Avatar";
 
 export function ActivityRow({ icon, agent, action, time }) {
   return (
-    <div
-      style={{
-        display: "flex",
-        gap: 12,
-        padding: "11px 0",
-        borderBottom: "1px solid var(--border-faint)",
-        alignItems: "flex-start",
-      }}
-    >
+    <div className="hq-list-row" style={{ alignItems: "flex-start" }}>
       {icon === "ai" ? (
         <Avatar name={agent} isAI size="xs" />
       ) : (

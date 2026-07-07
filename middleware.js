@@ -1,19 +1,23 @@
 import { NextResponse } from "next/server";
-import { HQ_COOKIE, verifySessionToken } from "@/lib/hq/auth";
+import { HQ_COOKIE, resolveSessionSecret, verifySessionToken } from "@/lib/hq/auth";
+
+function isHqHost(host) {
+  return host === "hq.sooklabs.com" || host === "hq.localhost";
+}
 
 // Maps the hq.sooklabs.com subdomain onto the /hq route subtree and guards
 // every HQ route behind the Phase 1 password session. The public SookLabs
 // site (any non-hq host on non-/hq paths) passes straight through untouched.
 export async function middleware(request) {
   const host = (request.headers.get("host") || "").split(":")[0];
-  const isHqHost = host === "hq.sooklabs.com" || host.startsWith("hq.localhost");
+  const isHqSubdomain = isHqHost(host);
 
   let pathname = request.nextUrl.pathname;
   const url = request.nextUrl.clone();
   let rewroteHost = false;
 
   // On the HQ subdomain, lift root-level paths into the /hq subtree.
-  if (isHqHost && !pathname.startsWith("/hq")) {
+  if (isHqSubdomain && !pathname.startsWith("/hq")) {
     url.pathname = pathname === "/" ? "/hq" : "/hq" + pathname;
     pathname = url.pathname;
     rewroteHost = true;
@@ -32,7 +36,8 @@ export async function middleware(request) {
   }
 
   const token = request.cookies.get(HQ_COOKIE)?.value;
-  const authed = await verifySessionToken(token, process.env.HQ_SESSION_SECRET);
+  const secret = resolveSessionSecret();
+  const authed = await verifySessionToken(token, secret);
 
   if (!authed) {
     const loginUrl = request.nextUrl.clone();

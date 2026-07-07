@@ -3,15 +3,7 @@ export function AttentionRow({ sev, title, time, tag, action }) {
   const bg = sev === "error" ? "var(--color-error-muted)" : "var(--color-warning-muted)";
 
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 12,
-        padding: "12px 0",
-        borderBottom: "1px solid var(--border-faint)",
-      }}
-    >
+    <div className="hq-list-row" style={{ alignItems: "center" }}>
       <div
         style={{ width: 6, height: 6, borderRadius: "50%", background: color, flexShrink: 0, boxShadow: `0 0 6px ${color}` }}
       />

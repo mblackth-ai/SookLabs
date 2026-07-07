@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export function Avatar({ name = "", src = null, size = "md", status = null, isAI = false }) {
   const sizes = { xs: 20, sm: 24, md: 32, lg: 40, xl: 56 };
   const px = sizes[size] || sizes.md;
@@ -52,8 +54,13 @@ export function Avatar({ name = "", src = null, size = "md", status = null, isAI
     <span style={wrapStyle}>
       <span style={avatarStyle}>
         {src ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={src} alt={name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          <Image
+            src={src}
+            alt={name}
+            width={px}
+            height={px}
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          />
         ) : isAI ? (
           <span style={{ fontSize: px * 0.28, fontFamily: "var(--font-mono)", fontWeight: 500, color: "var(--text-accent)" }}>
             AI

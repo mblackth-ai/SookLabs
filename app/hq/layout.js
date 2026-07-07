@@ -5,12 +5,14 @@ const geist = Geist({
   subsets: ["latin"],
   variable: "--font-geist",
   weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-geist-mono",
   weight: ["400", "500"],
+  display: "swap",
 });
 
 export const metadata = {

@@ -20,7 +20,7 @@ export default function AgentsPage() {
           </>
         }
       />
-      <div style={{ padding: "24px 32px", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+      <div className="hq-page-content hq-page-content--grid hq-grid-3">
         {agents.map((a, i) => (
           <AgentCard key={i} {...a} />
         ))}

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { Button } from "@/components/hq/Button";
 
@@ -26,11 +27,10 @@ export default function HqLoginPage() {
         setLoading(false);
         return;
       }
-      // Middleware rewrites protected URLs to this page while preserving the
-      // original URL. Reloading now passes the auth gate; if the user is on the
-      // literal login path, send them to the dashboard.
-      if (window.location.pathname === "/hq/login") {
-        window.location.assign("/hq");
+      const path = window.location.pathname.replace(/\/$/, "") || "/";
+      const onLoginPath = path === "/hq/login" || path === "/login";
+      if (onLoginPath) {
+        window.location.assign(path.startsWith("/hq") ? "/hq" : "/");
       } else {
         window.location.reload();
       }
@@ -41,49 +41,57 @@ export default function HqLoginPage() {
   }
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "var(--bg-base)",
-        padding: 24,
-      }}
-    >
-      <form
-        onSubmit={onSubmit}
-        style={{
-          width: "100%",
-          maxWidth: 360,
-          background: "var(--bg-surface)",
-          border: "1px solid var(--border-default)",
-          borderRadius: "var(--radius-xl)",
-          boxShadow: "var(--shadow-lg)",
-          padding: 28,
-          display: "flex",
-          flexDirection: "column",
-          gap: 18,
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <img src={GLYPH} alt="SookLabs" style={{ width: 32, height: 32, borderRadius: 8, objectFit: "cover" }} />
-          <span style={{ fontSize: 16, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
+    <div className="hq-login-page">
+      <form onSubmit={onSubmit} className="hq-login-form">
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2-5)" }}>
+          <Image
+            src={GLYPH}
+            alt="SookLabs"
+            width={32}
+            height={32}
+            priority
+            style={{ borderRadius: "var(--radius-lg)", objectFit: "cover" }}
+          />
+          <span
+            style={{
+              fontSize: "var(--text-base)",
+              fontWeight: "var(--weight-semibold)",
+              letterSpacing: "var(--tracking-snug)",
+              color: "var(--text-primary)",
+            }}
+          >
             SookLabs HQ
           </span>
         </div>
 
         <div>
-          <div style={{ fontSize: 18, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
+          <div
+            style={{
+              fontSize: "var(--text-lg)",
+              fontWeight: "var(--weight-semibold)",
+              letterSpacing: "var(--tracking-snug)",
+              color: "var(--text-primary)",
+            }}
+          >
             Restricted access
           </div>
-          <p style={{ fontSize: 13, color: "var(--text-tertiary)", marginTop: 4, lineHeight: 1.5 }}>
+          <p
+            style={{
+              fontSize: "var(--text-sm)",
+              color: "var(--text-tertiary)",
+              marginTop: "var(--space-1)",
+              lineHeight: "var(--leading-normal)",
+            }}
+          >
             Enter the access password to continue.
           </p>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          <label htmlFor="hq-password" style={{ fontSize: 12, fontWeight: 500, color: "var(--text-secondary)" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1-5)" }}>
+          <label
+            htmlFor="hq-password"
+            style={{ fontSize: "var(--text-xs)", fontWeight: "var(--weight-medium)", color: "var(--text-secondary)" }}
+          >
             Password
           </label>
           <input
@@ -95,7 +103,7 @@ export default function HqLoginPage() {
             autoComplete="current-password"
             style={{
               width: "100%",
-              padding: "8px 12px",
+              padding: "var(--space-2) var(--space-3)",
               fontSize: "var(--text-sm)",
               fontFamily: "var(--font-sans)",
               color: "var(--text-primary)",
@@ -110,12 +118,12 @@ export default function HqLoginPage() {
         {error && (
           <div
             style={{
-              fontSize: 12,
+              fontSize: "var(--text-xs)",
               color: "var(--color-error)",
               background: "var(--color-error-muted)",
               border: "1px solid rgba(239,68,68,0.2)",
               borderRadius: "var(--radius-md)",
-              padding: "8px 10px",
+              padding: "var(--space-2) var(--space-2-5)",
             }}
           >
             {error}

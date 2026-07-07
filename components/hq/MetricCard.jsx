@@ -12,25 +12,24 @@ export function MetricCard({ label, value, delta, pos, ai, neutral, sub }) {
 
   return (
     <Card padding="md" style={{ flex: 1 }}>
-      <div
-        style={{
-          fontSize: 11,
-          fontWeight: 600,
-          letterSpacing: "0.07em",
-          textTransform: "uppercase",
-          color: "var(--text-tertiary)",
-          marginBottom: 10,
-        }}
-      >
+      <div className="hq-section-label" style={{ marginBottom: "var(--space-2-5)" }}>
         {label}
       </div>
-      <div style={{ fontSize: 28, fontWeight: 600, letterSpacing: "-0.03em", color: "var(--text-primary)", lineHeight: 1 }}>
+      <div
+        style={{
+          fontSize: "var(--text-3xl)",
+          fontWeight: "var(--weight-semibold)",
+          letterSpacing: "var(--tracking-tight)",
+          color: "var(--text-primary)",
+          lineHeight: "var(--leading-tight)",
+        }}
+      >
         {value}
       </div>
-      <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 6 }}>
+      <div style={{ marginTop: "var(--space-2)", display: "flex", alignItems: "center", gap: "var(--space-1-5)" }}>
         {ai && <StatusDot status="ai" pulse />}
-        <span style={{ fontSize: 12, fontWeight: 500, color: deltaColor }}>{delta}</span>
-        <span style={{ fontSize: 11, color: "var(--text-tertiary)" }}>{sub}</span>
+        <span style={{ fontSize: "var(--text-xs)", fontWeight: "var(--weight-medium)", color: deltaColor }}>{delta}</span>
+        <span style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)" }}>{sub}</span>
       </div>
     </Card>
   );
