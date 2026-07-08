@@ -2,8 +2,8 @@ import { TopBar } from "@/components/hq/TopBar";
 import { DecisionLogEditor } from "@/components/hq/DecisionLogEditor";
 import { readOpsData } from "@/lib/hq/ops";
 
-export default function DecisionLogPage() {
-  const ops = readOpsData();
+export default async function DecisionLogPage() {
+  const ops = await readOpsData();
 
   return (
     <div>

@@ -107,6 +107,11 @@ Both variables are **required** for HQ login to work. If either is missing, empt
 | `HQ_ACCESS_PASSWORD` | Yes | Single shared password for the HQ login screen. Must not match the placeholder pattern (`change-me`). Compared via SHA-256 hashing for constant-time verification. |
 | `HQ_SESSION_SECRET` | Yes | Secret used to HMAC-sign the `hq_session` cookie. Must be **at least 32 characters** and must not match the placeholder pattern. |
 | `NEXT_PUBLIC_SEOS_URL` | No | SEOS product app URL for "Open SEOS app" links from HQ intel views. Defaults to `http://localhost:3000`. |
+| `HQ_DATABASE_URL` | Prod | DigitalOcean Postgres connection string. When set, ops data persists in `hq_ops` table instead of ephemeral filesystem. |
+| `HQ_CRON_SECRET` | Automation | Bearer secret for `POST /hq/api/cron/morning` (DO cron or worker). |
+| `ANTHROPIC_API_KEY` | Automation | Claude API key for Ask AI and morning briefing generation. |
+| `HQ_LLM_MODEL` | No | Anthropic model id (default: `claude-sonnet-4-20250514`). |
+| `HQ_CRON_URL` | Worker | Full URL for `scripts/hq-morning-worker.mjs` HTTP mode. |
 
 ### Other env vars (not HQ-specific, but in the same file)
 
@@ -163,6 +168,8 @@ The public marketing site on other hosts is unaffected: non-`/hq` paths on non-H
 | `/hq/sookly/action-plan` | Protected | Sookly website + app workstream tracker |
 | `/hq/decision-log` | Protected | Decision log (read/write via ops data) |
 | `/hq/api/ops` | Protected | `GET` / `PATCH` — session-guarded ops data |
+| `/hq/api/briefing/ask` | Protected | `POST` — Claude briefing from ops context |
+| `/hq/api/cron/morning` | Cron secret | `POST` / `GET` — morning briefing automation |
 | `/hq/agents` | Protected | AI Agents grid (mock agent list) |
 | `/hq/portfolio` | Protected | Portfolio products (mock product cards) |
 | `/hq/automation` | Protected | Coming soon placeholder |
@@ -187,15 +194,31 @@ On the HQ subdomain, the same routes are reachable without the `/hq` prefix in t
 4. **Decision Log** — append architecture and business decisions as you make them.
 5. **SEOS / Sookly intel** pages are read-only mirrors; edit canonical truth in the SEOS app (`NEXT_PUBLIC_SEOS_URL`).
 
-Ops data persists in `data/hq/ops.json` (git-tracked). You can edit via the UI or commit direct JSON edits.
+Ops data persists in `data/hq/ops.json` (local) or **Postgres** when `HQ_DATABASE_URL` is set.
+
+### Automation (DigitalOcean cron)
+
+On a DO Droplet or App Platform worker, schedule:
+
+```bash
+# 06:00 daily (UTC) — HTTP mode
+0 6 * * * HQ_CRON_URL=https://hq.sooklabs.com/hq/api/cron/morning HQ_CRON_SECRET=... node /path/to/scripts/hq-morning-worker.mjs
+```
+
+Or run direct mode with `HQ_DATABASE_URL` + `ANTHROPIC_API_KEY` (no HTTP).
+
+Verify deploy: `npm run hq:verify-deploy`
+
+Init Postgres schema: `npm run hq:init-db`
 
 ### Protected vs open routes
 
-**Open** (no valid session required):
+**Open** (no valid session / cron secret required at middleware):
 
 - `/hq/login`
 - `/hq/api/login`
 - `/hq/api/logout`
+- `/hq/api/cron/morning` (authorized by `HQ_CRON_SECRET` inside the route)
 
 **Protected** (valid `hq_session` cookie required):
 
@@ -231,10 +254,10 @@ These are factual constraints of the Phase 1 implementation:
 
 - **Single shared password** — no user accounts, roles, OAuth, or database-backed auth (`lib/hq/auth.js` comments and implementation).
 - **Placeholder env rejection** — default example values disable HQ until real secrets are configured.
-- **Git-tracked ops data** — priorities, workstreams, briefing notes, and decisions live in `data/hq/ops.json` via `/hq/api/ops`. Portfolio metrics, AI agents, and integration feeds remain reference placeholders.
-- **Non-functional export / AI buttons** — "Export briefing", "Ask AI", and similar controls are disabled until integrations ship.
+- **Git-tracked / Postgres ops** — priorities, workstreams, briefing notes, decisions, and `agentJobs` via `/hq/api/ops`. Prefer `HQ_DATABASE_URL` in production. Portfolio metrics remain reference placeholders.
+- **Non-functional export button** — "Export PDF" remains disabled until PDF export ships. **Ask AI** is live when `ANTHROPIC_API_KEY` is set.
 - **Hardcoded user** — sidebar footer shows `currentUser` from mock data (`James Sook`, `Founder · CEO`), not the authenticated identity.
-- **No server-side data APIs** — aside from login/logout and `/hq/api/ops`, there are no HQ data endpoints.
+- **HQ APIs** — login/logout, `/hq/api/ops`, `/hq/api/briefing/ask`, `/hq/api/cron/morning`.
 - **Search engine exclusion** — HQ layout metadata sets `noindex, nofollow`.
 - **Shared deployment** — HQ ships in the same Next.js app as the public site; middleware scope is limited to `/hq` paths.
 

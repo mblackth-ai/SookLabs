@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { isHqSessionValid } from "@/lib/hq/session";
-import { patchOpsData, readOpsData } from "@/lib/hq/ops";
+import { patchOpsData, readOpsData, getOpsStorageMode } from "@/lib/hq/ops";
 
 export async function GET() {
   if (!(await isHqSessionValid())) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
-  return NextResponse.json({ ok: true, data: readOpsData() });
+  const data = await readOpsData();
+  return NextResponse.json({ ok: true, data, storage: getOpsStorageMode() });
 }
 
 export async function PATCH(request) {
@@ -26,11 +27,12 @@ export async function PATCH(request) {
   if (body.workstreams !== undefined) allowed.workstreams = body.workstreams;
   if (body.briefingNotes !== undefined) allowed.briefingNotes = body.briefingNotes;
   if (body.decisions !== undefined) allowed.decisions = body.decisions;
+  if (body.agentJobs !== undefined) allowed.agentJobs = body.agentJobs;
 
   if (Object.keys(allowed).length === 0) {
     return NextResponse.json({ ok: false, error: "No valid fields to update" }, { status: 400 });
   }
 
-  const data = patchOpsData(allowed);
-  return NextResponse.json({ ok: true, data });
+  const data = await patchOpsData(allowed);
+  return NextResponse.json({ ok: true, data, storage: getOpsStorageMode() });
 }

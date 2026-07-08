@@ -28,9 +28,12 @@ export async function middleware(request) {
     return NextResponse.next();
   }
 
-  // Unauthenticated entry points.
+  // Unauthenticated entry points (cron uses HQ_CRON_SECRET in the route itself).
   const isOpenPath =
-    pathname === "/hq/login" || pathname === "/hq/api/login" || pathname === "/hq/api/logout";
+    pathname === "/hq/login" ||
+    pathname === "/hq/api/login" ||
+    pathname === "/hq/api/logout" ||
+    pathname === "/hq/api/cron/morning";
   if (isOpenPath) {
     return rewroteHost ? NextResponse.rewrite(url) : NextResponse.next();
   }

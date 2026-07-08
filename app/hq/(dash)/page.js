@@ -5,11 +5,13 @@ import { Button } from "@/components/hq/Button";
 import { LongDate } from "@/components/hq/LongDate";
 import { PriorityList } from "@/components/hq/PriorityList";
 import { TopOpenItems } from "@/components/hq/TopOpenItems";
+import { AgentJobLog } from "@/components/hq/AgentJobLog";
 import { QuickLinks } from "@/components/hq/QuickLinks";
+import { AskAIButton } from "@/components/hq/AskAIButton";
 import { readOpsData, getTopOpenItems } from "@/lib/hq/ops";
 
-export default function ExecutivePage() {
-  const ops = readOpsData();
+export default async function ExecutivePage() {
+  const ops = await readOpsData();
   const topOpen = getTopOpenItems(ops, 3);
   const openPriorities = ops.todayPriorities.filter((p) => !p.done).length;
 
@@ -23,9 +25,7 @@ export default function ExecutivePage() {
             <Button variant="secondary" size="sm" disabled title="Not available in v1">
               Export briefing
             </Button>
-            <Button variant="accent" size="sm" disabled title="Not available in v1">
-              Ask AI
-            </Button>
+            <AskAIButton />
           </>
         }
       />
@@ -37,6 +37,8 @@ export default function ExecutivePage() {
           <TopOpenItems items={topOpen} />
           <QuickLinks />
         </div>
+
+        <AgentJobLog jobs={ops.agentJobs} />
 
         <Card padding="md">
           <div className="hq-card-header">

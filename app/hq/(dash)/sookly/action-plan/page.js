@@ -2,8 +2,8 @@ import { TopBar } from "@/components/hq/TopBar";
 import { ActionPlanBoard } from "@/components/hq/ActionPlanBoard";
 import { readOpsData } from "@/lib/hq/ops";
 
-export default function SooklyActionPlanPage() {
-  const ops = readOpsData();
+export default async function SooklyActionPlanPage() {
+  const ops = await readOpsData();
 
   return (
     <div>

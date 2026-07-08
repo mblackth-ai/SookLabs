@@ -1,11 +1,12 @@
 import { TopBar } from "@/components/hq/TopBar";
 import { Button } from "@/components/hq/Button";
 import { LongDate } from "@/components/hq/LongDate";
+import { AskAIButton } from "@/components/hq/AskAIButton";
 import { BriefingNotesEditor } from "@/components/hq/BriefingNotesEditor";
 import { readOpsData } from "@/lib/hq/ops";
 
-export default function BriefingPage() {
-  const ops = readOpsData();
+export default async function BriefingPage() {
+  const ops = await readOpsData();
 
   return (
     <div>
@@ -17,9 +18,7 @@ export default function BriefingPage() {
             <Button variant="secondary" size="sm" disabled title="Not available in v1">
               Export PDF
             </Button>
-            <Button variant="accent" size="sm" disabled title="Not available in v1">
-              Ask a follow-up
-            </Button>
+            <AskAIButton />
           </>
         }
       />
