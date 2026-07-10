@@ -1,3 +1,6 @@
+import JsonLd from "@/components/JsonLd";
+import { auditPageSchemaGraph } from "@/lib/schema";
+
 export const metadata = {
   title: "Free GEO Audit — SookLabs",
   description:
@@ -17,5 +20,10 @@ export const metadata = {
 };
 
 export default function AuditLayout({ children }) {
-  return children;
+  return (
+    <>
+      <JsonLd data={auditPageSchemaGraph()} />
+      {children}
+    </>
+  );
 }

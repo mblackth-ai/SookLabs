@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Space_Grotesk, DM_Sans, IBM_Plex_Mono } from "next/font/google";
 import "../sooklabs-v2.css";
+import { SiteFooter } from "@/components/site/SiteFooter";
 
 const GLYPH = "/assets/sooklabs/sooklabs-glyph.png";
 
@@ -718,38 +719,6 @@ function AuditForm() {
   );
 }
 
-function Footer() {
-  return (
-    <footer style={{ borderTop: "1px solid var(--border-subtle)", padding: "40px 0" }}>
-      <Container
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: 12,
-        }}
-      >
-        <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <img src={GLYPH} alt="" style={{ width: 26, height: 26, borderRadius: 8, objectFit: "cover" }} />
-          <span
-            style={{
-              fontFamily: "var(--font-display)",
-              fontWeight: 700,
-              fontSize: 16,
-              color: "var(--text-primary)",
-            }}
-          >
-            SookLabs
-          </span>
-        </Link>
-        <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-faint)" }}>
-          © 2026 SookLabs — Reduce · Protect · Build · Repeat
-        </span>
-      </Container>
-    </footer>
-  );
-}
 
 export default function AuditPage() {
   useRouteCanvas();
@@ -763,7 +732,7 @@ export default function AuditPage() {
       <AuditContents />
       <WhyNow />
       <AuditForm />
-      <Footer />
+      <SiteFooter />
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { Space_Grotesk, DM_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./sooklabs-v2.css";
 import { GlyphSparkOverlay } from "@/components/brand/GlyphSparkOverlay";
 import { ToolsNavDropdown, ToolsNavAccordion } from "@/components/nav/ToolsNav";
+import { SiteFooter } from "@/components/site/SiteFooter";
 
 const GLYPH = "/assets/sooklabs/sooklabs-glyph.png";
 const LOGO = "/assets/sooklabs/sooklabs-glyph.png";
@@ -1728,147 +1729,6 @@ function Mantra() {
   );
 }
 
-function Footer() {
-  const linkHref = {
-    Sookly: "https://sookly.co",
-    SEOS: "/audit",
-    "Operating rule": "#operating-rule",
-    Philosophy: "#philosophy",
-    Pillars: "#pillars",
-    Contact: "mailto:sooklabs.th@gmail.com",
-    "Free GEO audit": "/audit",
-  };
-  const cols = [
-    {
-      h: "Ecosystem",
-      links: ["Sookly", "SEOS", "RoastMyOpSec (TBA)", "Community (on hold)"],
-    },
-    { h: "Company", links: ["Operating rule", "Philosophy", "Pillars", "Contact"] },
-    {
-      h: "Resources",
-      links: ["Free GEO audit", "Documentation (soon)", "Changelog (soon)"],
-    },
-  ];
-  return (
-    <footer style={{ borderTop: "1px solid var(--border-subtle)", padding: "56px 0 36px" }}>
-      <Container>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1.6fr 1fr 1fr 1fr",
-            gap: 40,
-          }}
-          className="sl-foot"
-        >
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 11, marginBottom: 14 }}>
-              <img src={GLYPH} alt="SookLabs" style={{ width: 28, height: 28, borderRadius: 8, objectFit: "cover" }} />
-              <span
-                style={{
-                  fontFamily: "var(--font-display)",
-                  fontWeight: 700,
-                  fontSize: 18,
-                  color: "var(--text-primary)",
-                }}
-              >
-                SookLabs
-              </span>
-            </div>
-            <p
-              style={{
-                fontFamily: "var(--font-body)",
-                fontSize: 13.5,
-                lineHeight: 1.55,
-                color: "var(--text-muted)",
-                maxWidth: 260,
-              }}
-            >
-              Calm digital systems that reduce repetition, interruptions, cognitive load, and waiting
-              time.
-            </p>
-          </div>
-          {cols.map((c) => (
-            <div key={c.h}>
-              <div
-                style={{
-                  fontFamily: "var(--font-mono)",
-                  fontSize: 10,
-                  letterSpacing: "0.16em",
-                  textTransform: "uppercase",
-                  color: "var(--text-faint)",
-                  marginBottom: 16,
-                }}
-              >
-                {c.h}
-              </div>
-              <ul
-                style={{
-                  listStyle: "none",
-                  margin: 0,
-                  padding: 0,
-                  display: "grid",
-                  gap: 11,
-                }}
-              >
-                {c.links.map((l) => {
-                  const href = linkHref[l];
-                  return (
-                  <li key={l}>
-                    {href ? (
-                    <a
-                      href={href}
-                      className="sl-navlink"
-                      {...(href.startsWith("http")
-                        ? { target: "_blank", rel: "noopener noreferrer" }
-                        : {})}
-                      style={{
-                        fontFamily: "var(--font-body)",
-                        fontSize: 13.5,
-                        color: "var(--text-secondary)",
-                      }}
-                    >
-                      {l}
-                    </a>
-                    ) : (
-                      <span
-                        style={{
-                          fontFamily: "var(--font-body)",
-                          fontSize: 13.5,
-                          color: "var(--text-faint)",
-                        }}
-                      >
-                        {l}
-                      </span>
-                    )}
-                  </li>
-                  );
-                })}
-              </ul>
-            </div>
-          ))}
-        </div>
-        <div
-          style={{
-            borderTop: "1px solid var(--border-subtle)",
-            marginTop: 40,
-            paddingTop: 22,
-            display: "flex",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: 10,
-          }}
-        >
-          <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-faint)" }}>
-            © 2026 SookLabs — Compress the diamond.
-          </span>
-          <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-faint)" }}>
-            Reduce · Protect · Build · Repeat
-          </span>
-        </div>
-      </Container>
-    </footer>
-  );
-}
 
 function useRouteCanvas() {
   useEffect(() => {
@@ -1898,7 +1758,7 @@ export default function SookLabsV2Page() {
       <Philosophy />
       <Pillars />
       <Mantra />
-      <Footer />
+      <SiteFooter />
     </main>
   );
 }
