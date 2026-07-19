@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Card } from "./Card";
+import { Badge } from "./Badge";
 import { Button } from "./Button";
 import { useOpsData } from "./useOpsData";
 import { newId } from "@/lib/hq/ops-shared";
@@ -10,6 +11,10 @@ export function PriorityList({ initialData, compact = false }) {
   const { data, save, saving, error } = useOpsData(initialData);
   const [newTitle, setNewTitle] = useState("");
 
+  const open = data.todayPriorities.filter((p) => !p.done);
+  const done = data.todayPriorities.filter((p) => p.done);
+  const atCap = open.length >= 3;
+
   async function toggle(id) {
     const todayPriorities = data.todayPriorities.map((p) =>
       p.id === id ? { ...p, done: !p.done } : p
@@ -17,10 +22,18 @@ export function PriorityList({ initialData, compact = false }) {
     await save({ todayPriorities });
   }
 
+  async function remove(id) {
+    await save({ todayPriorities: data.todayPriorities.filter((p) => p.id !== id) });
+  }
+
+  async function clearDone() {
+    await save({ todayPriorities: data.todayPriorities.filter((p) => !p.done) });
+  }
+
   async function addItem(e) {
     e.preventDefault();
     const title = newTitle.trim();
-    if (!title) return;
+    if (!title || atCap) return;
     const todayPriorities = [
       ...data.todayPriorities,
       { id: newId("tp"), title, done: false, stream: "ops" },
@@ -29,70 +42,91 @@ export function PriorityList({ initialData, compact = false }) {
     if (ok) setNewTitle("");
   }
 
-  const open = data.todayPriorities.filter((p) => !p.done);
-  const done = data.todayPriorities.filter((p) => p.done);
-
   return (
-    <Card accent={!compact} padding="md">
+    <Card accent={!compact} padding="md" id="priorities">
       <div className="hq-card-header" style={{ marginBottom: "var(--space-3)" }}>
         <div>
           <div className="hq-card-title">Today&apos;s priorities</div>
           {!compact && (
             <div style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)", marginTop: 4 }}>
-              Your live checklist — saved to HQ ops
+              Aim for 3 — {open.length}/3 open · saved to HQ ops
             </div>
           )}
         </div>
-        {!compact && (
-          <Button variant="ghost" size="sm" href="/hq/briefing">
-            Briefing notes →
-          </Button>
-        )}
+        <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+          <Badge variant={atCap ? "warning" : "outline"} size="sm">
+            {open.length} open
+          </Badge>
+          {done.length > 0 && (
+            <Button variant="ghost" size="sm" disabled={saving} onClick={clearDone}>
+              Clear done
+            </Button>
+          )}
+          {!compact && (
+            <Button variant="ghost" size="sm" href="/hq/briefing">
+              Briefing →
+            </Button>
+          )}
+        </div>
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {open.map((p) => (
-          <label
+          <div
             key={p.id}
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-              gap: 10,
-              padding: "8px 10px",
-              borderRadius: "var(--radius-md)",
-              border: "1px solid var(--border-subtle)",
-              background: "var(--bg-surface)",
-              cursor: "pointer",
-            }}
+            className="hq-priority-row"
           >
-            <input
-              type="checkbox"
-              checked={p.done}
-              onChange={() => toggle(p.id)}
+            <label style={{ display: "flex", alignItems: "flex-start", gap: 10, flex: 1, cursor: "pointer", minWidth: 0 }}>
+              <input
+                type="checkbox"
+                checked={p.done}
+                onChange={() => toggle(p.id)}
+                disabled={saving}
+                style={{ marginTop: 3, accentColor: "var(--accent)" }}
+              />
+              <span style={{ fontSize: "var(--text-sm)", color: "var(--text-primary)", lineHeight: 1.45 }}>{p.title}</span>
+            </label>
+            <button
+              type="button"
+              className="hq-priority-remove"
               disabled={saving}
-              style={{ marginTop: 3, accentColor: "var(--accent)" }}
-            />
-            <span style={{ fontSize: "var(--text-sm)", color: "var(--text-primary)", lineHeight: 1.45 }}>{p.title}</span>
-          </label>
+              onClick={() => remove(p.id)}
+              aria-label="Remove priority"
+            >
+              ×
+            </button>
+          </div>
         ))}
         {open.length === 0 && (
-          <p style={{ fontSize: "var(--text-sm)", color: "var(--text-tertiary)", margin: 0 }}>All priorities done for today.</p>
+          <p style={{ fontSize: "var(--text-sm)", color: "var(--text-tertiary)", margin: 0 }}>
+            No open priorities — add up to 3 for today.
+          </p>
         )}
       </div>
 
       {done.length > 0 && (
-        <div style={{ marginTop: 12, opacity: 0.65 }}>
+        <div style={{ marginTop: 12, opacity: 0.7 }}>
           <div className="hq-section-label" style={{ marginBottom: 6 }}>
-            Done
+            Done ({done.length})
           </div>
           {done.map((p) => (
-            <label
-              key={p.id}
-              style={{ display: "flex", gap: 10, alignItems: "center", fontSize: "var(--text-sm)", marginBottom: 4 }}
-            >
-              <input type="checkbox" checked onChange={() => toggle(p.id)} disabled={saving} />
-              <span style={{ textDecoration: "line-through", color: "var(--text-tertiary)" }}>{p.title}</span>
-            </label>
+            <div key={p.id} className="hq-priority-row hq-priority-row--done">
+              <label style={{ display: "flex", gap: 10, alignItems: "center", flex: 1, cursor: "pointer", minWidth: 0 }}>
+                <input type="checkbox" checked onChange={() => toggle(p.id)} disabled={saving} />
+                <span style={{ textDecoration: "line-through", color: "var(--text-tertiary)", fontSize: "var(--text-sm)" }}>
+                  {p.title}
+                </span>
+              </label>
+              <button
+                type="button"
+                className="hq-priority-remove"
+                disabled={saving}
+                onClick={() => remove(p.id)}
+                aria-label="Remove priority"
+              >
+                ×
+              </button>
+            </div>
           ))}
         </div>
       )}
@@ -101,7 +135,8 @@ export function PriorityList({ initialData, compact = false }) {
         <input
           value={newTitle}
           onChange={(e) => setNewTitle(e.target.value)}
-          placeholder="Add a priority…"
+          placeholder={atCap ? "Clear or finish one before adding…" : "Add a priority…"}
+          disabled={atCap || saving}
           style={{
             flex: 1,
             padding: "7px 10px",
@@ -112,7 +147,7 @@ export function PriorityList({ initialData, compact = false }) {
             color: "var(--text-primary)",
           }}
         />
-        <Button type="submit" variant="secondary" size="sm" loading={saving}>
+        <Button type="submit" variant="secondary" size="sm" loading={saving} disabled={atCap}>
           Add
         </Button>
       </form>

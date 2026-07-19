@@ -9,10 +9,10 @@ export default function KnowledgeUsagePage() {
     <div>
       <TopBar
         title="Knowledge Usage"
-        subtitle="Which SEOS Knowledge Base records power Sookly auto-replies"
+        subtitle="Static demo · which KB records could power auto-replies (not live sync)"
         actions={
           <Badge variant="warning" size="sm">
-            Read-only · Manual
+            Demo · Manual
           </Badge>
         }
       />

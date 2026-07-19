@@ -1,11 +1,15 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export function useOpsData(initialData) {
   const [data, setData] = useState(initialData);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    setData(initialData);
+  }, [initialData?.updatedAt]);
 
   const save = useCallback(async (partial) => {
     setSaving(true);

@@ -3,18 +3,25 @@
 import { useState } from "react";
 import { useOpsData } from "./useOpsData";
 import { Card } from "./Card";
-import { Badge } from "./Badge";
+import { Button } from "./Button";
 import { newId } from "@/lib/hq/ops-shared";
 
 const STATUSES = ["todo", "doing", "blocked", "done"];
 const PRIORITIES = ["P0", "P1", "P2"];
 
-function StreamColumn({ streamKey, stream, onUpdate, saving }) {
+function StreamColumn({ streamKey, stream, idPrefix, onUpdate, onPromote, saving, openPriorityCount }) {
   const [draft, setDraft] = useState("");
 
   async function updateItem(itemId, patch) {
     const items = stream.items.map((item) => (item.id === itemId ? { ...item, ...patch } : item));
     await onUpdate(streamKey, items);
+  }
+
+  async function removeItem(itemId) {
+    await onUpdate(
+      streamKey,
+      stream.items.filter((item) => item.id !== itemId)
+    );
   }
 
   async function addItem(e) {
@@ -24,11 +31,11 @@ function StreamColumn({ streamKey, stream, onUpdate, saving }) {
     const items = [
       ...stream.items,
       {
-        id: newId(streamKey === "sooklyWebsite" ? "sw" : "sa"),
+        id: newId(idPrefix || streamKey.slice(0, 2)),
         title,
         status: "todo",
         priority: "P1",
-        owner: "James",
+        owner: "Mark",
         due: "",
         links: [],
       },
@@ -43,23 +50,21 @@ function StreamColumn({ streamKey, stream, onUpdate, saving }) {
         {stream.label}
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        {stream.items.map((item) => (
-          <div
-            key={item.id}
-            style={{
-              padding: 12,
-              borderRadius: "var(--radius-lg)",
-              border: "1px solid var(--border-subtle)",
-              background: "var(--bg-surface)",
-            }}
-          >
-            <div style={{ fontSize: "var(--text-sm)", fontWeight: 500, marginBottom: 8, lineHeight: 1.45 }}>{item.title}</div>
+        {(stream.items || []).map((item) => (
+          <div key={item.id} className="hq-board-card">
+            <input
+              className="hq-board-title-input"
+              value={item.title}
+              disabled={saving}
+              onChange={(e) => updateItem(item.id, { title: e.target.value })}
+            />
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
               <select
                 value={item.status}
                 onChange={(e) => updateItem(item.id, { status: e.target.value })}
                 disabled={saving}
                 style={selectStyle}
+                aria-label="Status"
               >
                 {STATUSES.map((s) => (
                   <option key={s} value={s}>
@@ -72,6 +77,7 @@ function StreamColumn({ streamKey, stream, onUpdate, saving }) {
                 onChange={(e) => updateItem(item.id, { priority: e.target.value })}
                 disabled={saving}
                 style={selectStyle}
+                aria-label="Priority"
               >
                 {PRIORITIES.map((p) => (
                   <option key={p} value={p}>
@@ -79,27 +85,48 @@ function StreamColumn({ streamKey, stream, onUpdate, saving }) {
                   </option>
                 ))}
               </select>
-              <Badge variant={item.status === "done" ? "success" : item.status === "blocked" ? "error" : "neutral"} size="sm">
-                {item.status}
-              </Badge>
+              <input
+                value={item.owner || ""}
+                onChange={(e) => updateItem(item.id, { owner: e.target.value })}
+                disabled={saving}
+                placeholder="Owner"
+                style={{ ...selectStyle, width: 72 }}
+                aria-label="Owner"
+              />
+              <input
+                type="date"
+                value={item.due || ""}
+                onChange={(e) => updateItem(item.id, { due: e.target.value })}
+                disabled={saving}
+                style={selectStyle}
+                aria-label="Due"
+              />
             </div>
-            {(item.due || item.owner) && (
-              <div style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)", marginTop: 8 }}>
-                {item.owner}
-                {item.due ? ` · due ${item.due}` : ""}
-              </div>
-            )}
+            <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
+              <Button
+                variant="ghost"
+                size="sm"
+                disabled={saving || openPriorityCount >= 3 || item.status === "done"}
+                onClick={() => onPromote(item)}
+                title={openPriorityCount >= 3 ? "Already 3 open priorities" : "Add to today’s priorities"}
+              >
+                → Today
+              </Button>
+              <Button variant="ghost" size="sm" disabled={saving} onClick={() => removeItem(item.id)}>
+                Delete
+              </Button>
+            </div>
             {item.links?.length > 0 && (
               <div style={{ marginTop: 8, display: "flex", gap: 8, flexWrap: "wrap" }}>
                 {item.links.map((link) => (
                   <a
                     key={link.url}
                     href={link.url}
-                    target="_blank"
-                    rel="noreferrer"
+                    target={link.url.startsWith("http") ? "_blank" : undefined}
+                    rel={link.url.startsWith("http") ? "noreferrer" : undefined}
                     style={{ fontSize: "var(--text-xs)", color: "var(--text-accent)" }}
                   >
-                    {link.label} ↗
+                    {link.label} {link.url.startsWith("http") ? "↗" : "→"}
                   </a>
                 ))}
               </div>
@@ -114,9 +141,9 @@ function StreamColumn({ streamKey, stream, onUpdate, saving }) {
           placeholder={`Add ${stream.label} task…`}
           style={inputStyle}
         />
-        <button type="submit" disabled={saving} style={addBtnStyle}>
+        <Button type="submit" variant="secondary" size="sm" disabled={saving}>
           Add
-        </button>
+        </Button>
       </form>
     </Card>
   );
@@ -141,43 +168,66 @@ const inputStyle = {
   color: "var(--text-primary)",
 };
 
-const addBtnStyle = {
-  padding: "7px 12px",
-  fontSize: "var(--text-sm)",
-  background: "var(--bg-raised)",
-  border: "1px solid var(--border-default)",
-  borderRadius: "var(--radius-lg)",
-  color: "var(--text-primary)",
-  cursor: "pointer",
+const ID_PREFIX = {
+  sooklyWebsite: "sw",
+  sooklyApp: "sa",
+  seosSocial: "ss",
+  roastMyOpSec: "rm",
+  community: "cm",
+  personal: "pe",
 };
 
-export function ActionPlanBoard({ initialData }) {
+/**
+ * @param {{ initialData: object, streamKeys: string[], columns?: 1|2|3 }} props
+ */
+export function ActionPlanBoard({ initialData, streamKeys, columns = 2 }) {
   const { data, save, saving, error } = useOpsData(initialData);
+  const keys = streamKeys || ["sooklyWebsite", "sooklyApp"];
+  const openPriorityCount = (data.todayPriorities || []).filter((p) => !p.done).length;
 
   async function updateStream(streamKey, items) {
+    const existing = data.workstreams[streamKey] || {};
     await save({
       workstreams: {
-        [streamKey]: { ...data.workstreams[streamKey], items },
+        [streamKey]: { ...existing, items },
       },
     });
   }
 
+  async function promote(item) {
+    if (openPriorityCount >= 3) return;
+    const todayPriorities = [
+      ...(data.todayPriorities || []),
+      { id: newId("tp"), title: item.title, done: false, stream: item.priority || "board" },
+    ];
+    await save({ todayPriorities });
+  }
+
+  const gridClass = columns >= 3 ? "hq-grid-3" : columns === 1 ? "" : "hq-grid-2";
+
   return (
     <div>
       {error && <p style={{ color: "var(--color-error)", fontSize: "var(--text-sm)", marginBottom: 12 }}>{error}</p>}
-      <div className="hq-grid-2" style={{ alignItems: "start" }}>
-        <StreamColumn
-          streamKey="sooklyWebsite"
-          stream={data.workstreams.sooklyWebsite}
-          onUpdate={updateStream}
-          saving={saving}
-        />
-        <StreamColumn
-          streamKey="sooklyApp"
-          stream={data.workstreams.sooklyApp}
-          onUpdate={updateStream}
-          saving={saving}
-        />
+      <div
+        className={gridClass}
+        style={{ alignItems: "start", display: columns === 1 ? "grid" : undefined, gap: columns === 1 ? 16 : undefined }}
+      >
+        {keys.map((streamKey) => {
+          const stream = data.workstreams?.[streamKey];
+          if (!stream) return null;
+          return (
+            <StreamColumn
+              key={streamKey}
+              streamKey={streamKey}
+              stream={stream}
+              idPrefix={ID_PREFIX[streamKey] || "ws"}
+              onUpdate={updateStream}
+              onPromote={promote}
+              saving={saving}
+              openPriorityCount={openPriorityCount}
+            />
+          );
+        })}
       </div>
     </div>
   );

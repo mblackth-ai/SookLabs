@@ -1,0 +1,2 @@
+CRON_TZ=Asia/Bangkok
+0 6 * * * . /root/.hq-cron-env && curl -sS -X POST -H "Authorization: Bearer $HQ_CRON_SECRET" https://hq.sooklabs.com/hq/api/cron/morning >> /var/log/hq-morning.log 2>&1

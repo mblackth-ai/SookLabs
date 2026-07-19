@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 
 export function Button({
@@ -14,10 +15,12 @@ export function Button({
   type = "button",
   fullWidth = false,
   href,
+  external = false,
   style: styleProp,
+  title,
 }) {
   const [hovered, setHovered] = useState(false);
-  const Tag = href ? "a" : "button";
+  const isDisabled = disabled || loading;
 
   const base = {
     display: "inline-flex",
@@ -29,7 +32,7 @@ export function Button({
     letterSpacing: "-0.01em",
     borderRadius: "var(--radius-lg)",
     border: "1px solid transparent",
-    cursor: disabled || loading ? "not-allowed" : "pointer",
+    cursor: isDisabled ? "not-allowed" : "pointer",
     opacity: disabled ? 0.4 : 1,
     textDecoration: "none",
     transition:
@@ -55,7 +58,7 @@ export function Button({
   };
 
   const hoverOverrides =
-    hovered && !disabled && !loading
+    hovered && !isDisabled
       ? {
           primary: { background: "var(--color-cyan-300)", boxShadow: "var(--shadow-glow-sm)" },
           secondary: { background: "var(--bg-overlay)", borderColor: "var(--border-strong)" },
@@ -67,16 +70,8 @@ export function Button({
 
   const finalStyle = { ...base, ...sizes[size], ...variants[variant], ...hoverOverrides, ...styleProp };
 
-  return (
-    <Tag
-      style={finalStyle}
-      disabled={(disabled || loading) && !href}
-      onClick={!disabled && !loading ? onClick : undefined}
-      type={Tag === "button" ? type : undefined}
-      href={href}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
+  const content = (
+    <>
       {loading && (
         <span
           style={{
@@ -97,6 +92,52 @@ export function Button({
       {icon && iconPosition === "right" && !loading && (
         <span style={{ display: "flex", alignItems: "center" }} dangerouslySetInnerHTML={{ __html: icon }} />
       )}
-    </Tag>
+    </>
+  );
+
+  if (href && !isDisabled) {
+    const isExternal = external || /^https?:\/\//i.test(href);
+    if (isExternal) {
+      return (
+        <a
+          href={href}
+          style={finalStyle}
+          title={title}
+          target="_blank"
+          rel="noopener noreferrer"
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          onClick={onClick}
+        >
+          {content}
+        </a>
+      );
+    }
+    return (
+      <Link
+        href={href}
+        style={finalStyle}
+        title={title}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        onClick={onClick}
+      >
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <button
+      style={finalStyle}
+      disabled={isDisabled}
+      onClick={!isDisabled ? onClick : undefined}
+      type={type}
+      title={title}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {content}
+    </button>
   );
 }

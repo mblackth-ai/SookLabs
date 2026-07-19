@@ -2,57 +2,66 @@ import Link from "next/link";
 import { TopBar } from "@/components/hq/TopBar";
 import { Card } from "@/components/hq/Card";
 import { Badge } from "@/components/hq/Badge";
-import { sooklyHubLinks } from "@/lib/hq/knowledge-mock";
+
+const links = [
+  {
+    href: "/hq/sookly/action-plan",
+    title: "MVP1 Action Plan",
+    subtitle: "Persisted build checklist for sookly.co and app.sookly.com",
+    badge: "Board",
+  },
+  {
+    href: "/hq/sookly/receptionist-readiness",
+    title: "Receptionist readiness",
+    subtitle: "Planning notes — not live product metrics",
+    badge: "Manual",
+  },
+  {
+    href: "/hq/sookly/knowledge-usage",
+    title: "Knowledge usage",
+    subtitle: "How Sookly should consume SEOS KB (read-only)",
+    badge: "Draft",
+  },
+];
 
 export default function SooklyProductStatusPage() {
-  const subLinks = sooklyHubLinks.filter((l) => l.href !== "/hq/sookly");
-
   return (
     <div>
       <TopBar
-        title="Sookly · Product Status"
-        subtitle="Channels, routing, SLA — Sookly ops data (not canonical business truth)"
-        actions={<Badge variant="success" size="sm">Live</Badge>}
+        title="Sookly"
+        subtitle="Incoming control product. HQ tracks build progress — live product at sookly.co."
+        actions={
+          <Badge variant="outline" size="sm">
+            In progress
+          </Badge>
+        }
       />
       <div className="hq-page-content">
-        <div className="hq-grid-4">
-          <Card padding="md">
-            <div style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)" }}>Active channels</div>
-            <div style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--weight-bold)" }}>4</div>
-            <div style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)" }}>LINE, Messenger, WhatsApp, Web</div>
-          </Card>
-          <Card padding="md">
-            <div style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)" }}>MRR</div>
-            <div style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--weight-bold)", color: "var(--text-accent)" }}>$11.2K</div>
-          </Card>
-          <Card padding="md">
-            <div style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)" }}>Active users</div>
-            <div style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--weight-bold)" }}>234</div>
-          </Card>
-          <Card padding="md">
-            <div style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)" }}>KB source</div>
-            <div style={{ fontSize: "var(--text-sm)", fontWeight: "var(--weight-semibold)", marginTop: "var(--space-1)" }}>SEOS Knowledge Base</div>
-            <Badge variant="accent" size="sm" style={{ marginTop: "var(--space-2)" }}>Read-only</Badge>
-          </Card>
-        </div>
-        <div className="hq-grid-2" style={{ marginTop: "var(--space-4)", gap: "var(--space-3)" }}>
-          {subLinks.map((link) => (
+        <Card padding="md" style={{ marginBottom: 16 }}>
+          <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", margin: 0, lineHeight: 1.6 }}>
+            No fake ARR, channel counts, or “Live” product metrics in HQ. Use the action plan board for real work.
+            Open{" "}
+            <a href="https://sookly.co" style={{ color: "var(--text-accent)" }}>
+              sookly.co
+            </a>{" "}
+            for the customer-facing product.
+          </p>
+        </Card>
+        <div className="hq-grid-2" style={{ gap: "var(--space-3)" }}>
+          {links.map((link) => (
             <Link key={link.href} href={link.href} style={{ textDecoration: "none", color: "inherit" }}>
               <Card interactive padding="md">
                 <div className="hq-card-header" style={{ marginBottom: "var(--space-2)" }}>
                   <div className="hq-card-title">{link.title}</div>
-                  <Badge variant="outline" size="sm">{link.badge}</Badge>
+                  <Badge variant="outline" size="sm">
+                    {link.badge}
+                  </Badge>
                 </div>
                 <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", margin: 0 }}>{link.subtitle}</p>
               </Card>
             </Link>
           ))}
         </div>
-        <Card padding="md" style={{ marginTop: "var(--space-4)" }}>
-          <p style={{ fontSize: "var(--text-sm)", color: "var(--text-tertiary)", margin: 0 }}>
-            Sookly does not own a separate Knowledge Center. Fix business facts in SEOS → Knowledge Base.
-          </p>
-        </Card>
       </div>
     </div>
   );

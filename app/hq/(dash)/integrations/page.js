@@ -1,5 +1,5 @@
-import { ComingSoon } from "@/components/hq/ComingSoon";
+import { redirect } from "next/navigation";
 
-export default function IntegrationsPage() {
-  return <ComingSoon title="Integrations" subtitle="Connected services and data sources." />;
+export default function IntegrationsRedirect() {
+  redirect("/hq/settings");
 }

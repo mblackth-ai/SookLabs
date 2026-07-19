@@ -28,6 +28,10 @@ export async function PATCH(request) {
   if (body.briefingNotes !== undefined) allowed.briefingNotes = body.briefingNotes;
   if (body.decisions !== undefined) allowed.decisions = body.decisions;
   if (body.agentJobs !== undefined) allowed.agentJobs = body.agentJobs;
+  if (body.goals !== undefined) allowed.goals = body.goals;
+  if (body.blockers !== undefined) allowed.blockers = body.blockers;
+  if (body.morningLoop !== undefined) allowed.morningLoop = body.morningLoop;
+  if (body.primaryBoardHref !== undefined) allowed.primaryBoardHref = body.primaryBoardHref;
 
   if (Object.keys(allowed).length === 0) {
     return NextResponse.json({ ok: false, error: "No valid fields to update" }, { status: 400 });

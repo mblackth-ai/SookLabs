@@ -19,11 +19,23 @@ export function QuickLinks() {
         <Button variant="secondary" size="sm" href={seosUrl}>
           SEOS app
         </Button>
-        <Button variant="ghost" size="sm" href="/audit">
-          SEO Audit
+        <Button variant="ghost" size="sm" href="/hq/goals">
+          Goals
         </Button>
         <Button variant="ghost" size="sm" href="/hq/sookly/action-plan">
-          Sookly action plan
+          Sookly board
+        </Button>
+        <Button variant="ghost" size="sm" href="/hq/seos">
+          SEOS project
+        </Button>
+        <Button variant="ghost" size="sm" href="/hq/seos/authority">
+          Authority panel
+        </Button>
+        <Button variant="ghost" size="sm" href="/hq/briefing">
+          Briefing
+        </Button>
+        <Button variant="ghost" size="sm" href="/hq/decision-log">
+          Decisions
         </Button>
       </div>
     </Card>
