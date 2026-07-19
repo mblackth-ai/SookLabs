@@ -10,6 +10,8 @@ export function Card({
   accent = false,
   onClick,
   style: styleProp,
+  id,
+  className,
 }) {
   const [hovered, setHovered] = useState(false);
 
@@ -42,6 +44,8 @@ export function Card({
 
   return (
     <div
+      id={id}
+      className={className}
       style={style}
       onClick={onClick}
       onMouseEnter={interactive ? () => setHovered(true) : undefined}

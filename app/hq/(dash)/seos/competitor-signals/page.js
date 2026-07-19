@@ -1,10 +1,10 @@
-import { ComingSoon } from "@/components/hq/ComingSoon";
+import { OpenInSeosStub } from "@/components/hq/OpenInSeosStub";
 
-export default function HqCompetitorSignalsPage() {
+export default function CompetitorSignalsPage() {
   return (
-    <ComingSoon
+    <OpenInSeosStub
       title="Competitor Signals"
-      subtitle="Market intel for expansion — reads context from Knowledge Base, never writes canonical truth."
+      blurb="Market intel is operated in SEOS when enabled. HQ does not maintain a parallel competitor scoreboard — open the SEOS app for operator work."
     />
   );
 }

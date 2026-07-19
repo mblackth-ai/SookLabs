@@ -7,11 +7,24 @@ import { Button } from "./Button";
 import { Badge } from "./Badge";
 import { newId } from "@/lib/hq/ops-shared";
 
+const inputStyle = {
+  width: "100%",
+  padding: "8px 10px",
+  fontSize: "var(--text-sm)",
+  background: "var(--bg-base)",
+  border: "1px solid var(--border-default)",
+  borderRadius: "var(--radius-lg)",
+  color: "var(--text-primary)",
+};
+
 export function DecisionLogEditor({ initialData }) {
   const { data, save, saving, error } = useOpsData(initialData);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [tags, setTags] = useState("");
+  const [editingId, setEditingId] = useState(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editBody, setEditBody] = useState("");
 
   async function addDecision(e) {
     e.preventDefault();
@@ -39,6 +52,24 @@ export function DecisionLogEditor({ initialData }) {
     }
   }
 
+  function startEdit(entry) {
+    setEditingId(entry.id);
+    setEditTitle(entry.title);
+    setEditBody(entry.body);
+  }
+
+  async function saveEdit(id) {
+    const decisions = data.decisions.map((d) =>
+      d.id === id ? { ...d, title: editTitle.trim() || d.title, body: editBody.trim() || d.body } : d
+    );
+    const ok = await save({ decisions });
+    if (ok) setEditingId(null);
+  }
+
+  async function remove(id) {
+    await save({ decisions: data.decisions.filter((d) => d.id !== id) });
+  }
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
       <Card padding="md">
@@ -46,12 +77,7 @@ export function DecisionLogEditor({ initialData }) {
           Log a decision
         </div>
         <form onSubmit={addDecision} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Decision title"
-            style={inputStyle}
-          />
+          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Decision title" style={inputStyle} />
           <textarea
             value={body}
             onChange={(e) => setBody(e.target.value)}
@@ -77,21 +103,51 @@ export function DecisionLogEditor({ initialData }) {
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {data.decisions.map((entry) => (
           <Card key={entry.id} padding="md">
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 12, marginBottom: 8 }}>
-              <div className="hq-card-title">{entry.title}</div>
-              <span style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)", flexShrink: 0 }}>{entry.date}</span>
-            </div>
-            <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", lineHeight: 1.55, margin: "0 0 10px" }}>
-              {entry.body}
-            </p>
-            {entry.tags?.length > 0 && (
-              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                {entry.tags.map((tag) => (
-                  <Badge key={tag} variant="neutral" size="sm">
-                    {tag}
-                  </Badge>
-                ))}
+            {editingId === entry.id ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} style={inputStyle} />
+                <textarea
+                  value={editBody}
+                  onChange={(e) => setEditBody(e.target.value)}
+                  rows={3}
+                  style={{ ...inputStyle, resize: "vertical" }}
+                />
+                <div style={{ display: "flex", gap: 8 }}>
+                  <Button size="sm" disabled={saving} onClick={() => saveEdit(entry.id)}>
+                    Save
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={() => setEditingId(null)}>
+                    Cancel
+                  </Button>
+                </div>
               </div>
+            ) : (
+              <>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 12, marginBottom: 8 }}>
+                  <div className="hq-card-title">{entry.title}</div>
+                  <span style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)", flexShrink: 0 }}>{entry.date}</span>
+                </div>
+                <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", lineHeight: 1.55, margin: "0 0 10px" }}>
+                  {entry.body}
+                </p>
+                {entry.tags?.length > 0 && (
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
+                    {entry.tags.map((tag) => (
+                      <Badge key={tag} variant="neutral" size="sm">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+                <div style={{ display: "flex", gap: 6 }}>
+                  <Button variant="ghost" size="sm" onClick={() => startEdit(entry)}>
+                    Edit
+                  </Button>
+                  <Button variant="ghost" size="sm" disabled={saving} onClick={() => remove(entry.id)}>
+                    Delete
+                  </Button>
+                </div>
+              </>
             )}
           </Card>
         ))}
@@ -102,13 +158,3 @@ export function DecisionLogEditor({ initialData }) {
     </div>
   );
 }
-
-const inputStyle = {
-  width: "100%",
-  padding: "8px 10px",
-  fontSize: "var(--text-sm)",
-  background: "var(--bg-base)",
-  border: "1px solid var(--border-default)",
-  borderRadius: "var(--radius-lg)",
-  color: "var(--text-primary)",
-};

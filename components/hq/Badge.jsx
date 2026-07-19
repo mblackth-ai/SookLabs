@@ -1,4 +1,4 @@
-export function Badge({ children, variant = "neutral", size = "md", dot = false, style: styleProp }) {
+export function Badge({ children, variant = "neutral", size = "md", dot = false, style: styleProp, title }) {
   const variants = {
     neutral: { bg: "var(--bg-float)", color: "var(--text-secondary)", border: "var(--border-subtle)" },
     accent: { bg: "var(--accent-muted)", color: "var(--text-accent)", border: "var(--border-accent)" },
@@ -33,7 +33,7 @@ export function Badge({ children, variant = "neutral", size = "md", dot = false,
   };
 
   return (
-    <span style={style}>
+    <span style={style} title={title}>
       {dot && (
         <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: v.color, flexShrink: 0 }} />
       )}

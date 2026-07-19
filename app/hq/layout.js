@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 
 export const metadata = {
   title: "SookLabs HQ",
-  description: "SookLabs HQ — executive operating system.",
+  description: "SookLabs HQ — Mark’s private founder command centre.",
   robots: { index: false, follow: false },
 };
 

@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { isHqSessionValid } from "@/lib/hq/session";
 import { readOpsData, patchOpsData } from "@/lib/hq/ops";
-import { generateBriefingWithLlm, parseBriefingSections } from "@/lib/hq/briefing-llm";
 import { newId } from "@/lib/hq/ops-shared";
+import { dispatchBriefingJob } from "@/lib/hq/agent-provider";
 
 export async function POST(request) {
   if (!(await isHqSessionValid())) {
@@ -10,9 +10,11 @@ export async function POST(request) {
   }
 
   let followUp = "";
+  let provider;
   try {
     const body = await request.json();
     followUp = body.followUp || body.question || "";
+    provider = body.provider;
   } catch {
     // empty body ok
   }
@@ -20,56 +22,100 @@ export async function POST(request) {
   const ops = await readOpsData();
   const jobId = newId("job");
   const startedAt = new Date().toISOString();
+  const type = followUp ? "briefing-follow-up" : "briefing-ask-ai";
+
+  const runningJobs = [
+    {
+      id: jobId,
+      type,
+      status: "running",
+      provider: provider || process.env.HQ_AGENT_DEFAULT_PROVIDER || "cursor",
+      startedAt,
+      summary: "Ask AI dispatching…",
+    },
+    ...(ops.agentJobs || []).filter((j) => j.id !== jobId),
+  ].slice(0, 20);
+  await patchOpsData({ agentJobs: runningJobs });
 
   try {
-    const { text, model } = await generateBriefingWithLlm(ops, { followUp });
-    const sections = parseBriefingSections(text);
-    const completedAt = new Date().toISOString();
+    const result = await dispatchBriefingJob(ops, { jobId, type, followUp, provider });
+
+    if (result.status === "completed") {
+      const completedAt = new Date().toISOString();
+      const agentJobs = [
+        {
+          id: jobId,
+          type,
+          status: "completed",
+          provider: result.provider,
+          startedAt,
+          completedAt,
+          model: result.model,
+          summary: followUp ? `Follow-up: ${followUp.slice(0, 80)}` : "Ask AI briefing generated",
+        },
+        ...(ops.agentJobs || []).filter((j) => j.id !== jobId),
+      ].slice(0, 20);
+
+      const data = await patchOpsData({
+        briefingNotes: {
+          date: new Date().toISOString().slice(0, 10),
+          sections: followUp
+            ? {
+                ...ops.briefingNotes?.sections,
+                priorities: result.text,
+              }
+            : {
+                priorities: result.sections?.priorities || result.text,
+                risks: result.sections?.risks || ops.briefingNotes?.sections?.risks || "",
+                decisions: result.sections?.decisions || ops.briefingNotes?.sections?.decisions || "",
+              },
+          lastGeneratedAt: completedAt,
+          lastGeneratedBy: followUp ? "ask-ai-follow-up" : "ask-ai",
+        },
+        agentJobs,
+      });
+
+      return NextResponse.json({ ok: true, status: "completed", text: result.text, model: result.model, data });
+    }
 
     const agentJobs = [
       {
         id: jobId,
-        type: followUp ? "briefing-follow-up" : "briefing-ask-ai",
-        status: "completed",
+        type,
+        status: "running",
+        provider: result.provider,
         startedAt,
-        completedAt,
-        model,
-        summary: followUp ? `Follow-up: ${followUp.slice(0, 80)}` : "Ask AI briefing generated",
+        summary: result.summary,
+        externalRef: result.webhookPosted ? "webhook" : "pending",
       },
-      ...(ops.agentJobs || []),
+      ...(ops.agentJobs || []).filter((j) => j.id !== jobId),
     ].slice(0, 20);
 
-    const data = await patchOpsData({
-      briefingNotes: {
-        date: new Date().toISOString().slice(0, 10),
-        sections: followUp
-          ? {
-              ...ops.briefingNotes?.sections,
-              priorities: text,
-            }
-          : {
-              priorities: sections.priorities || text,
-              risks: sections.risks || ops.briefingNotes?.sections?.risks || "",
-              decisions: sections.decisions || ops.briefingNotes?.sections?.decisions || "",
-            },
-        lastGeneratedAt: completedAt,
-        lastGeneratedBy: followUp ? "ask-ai-follow-up" : "ask-ai",
-      },
-      agentJobs,
-    });
+    const data = await patchOpsData({ agentJobs });
 
-    return NextResponse.json({ ok: true, text, model, data });
+    return NextResponse.json({
+      ok: true,
+      status: "running",
+      jobId,
+      provider: result.provider,
+      mode: result.mode,
+      summary: result.summary,
+      webhookPosted: result.webhookPosted,
+      webhookConfigured: result.webhookConfigured,
+      data,
+    });
   } catch (err) {
     const agentJobs = [
       {
         id: jobId,
-        type: "briefing-ask-ai",
+        type,
         status: "failed",
+        provider: provider || "unknown",
         startedAt,
         completedAt: new Date().toISOString(),
         summary: err.message || "LLM request failed",
       },
-      ...(ops.agentJobs || []),
+      ...(ops.agentJobs || []).filter((j) => j.id !== jobId),
     ].slice(0, 20);
     await patchOpsData({ agentJobs });
     return NextResponse.json({ ok: false, error: err.message || "LLM request failed" }, { status: 503 });

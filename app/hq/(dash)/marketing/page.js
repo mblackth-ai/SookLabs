@@ -1,5 +1,5 @@
-import { ComingSoon } from "@/components/hq/ComingSoon";
+import { redirect } from "next/navigation";
 
-export default function MarketingPage() {
-  return <ComingSoon title="Marketing" subtitle="Campaigns, content and search performance." />;
+export default function MarketingRedirect() {
+  redirect("/hq");
 }

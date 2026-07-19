@@ -1,5 +1,5 @@
-import { ComingSoon } from "@/components/hq/ComingSoon";
+import { redirect } from "next/navigation";
 
-export default function EngineeringPage() {
-  return <ComingSoon title="Engineering" subtitle="Code review, architecture and delivery." />;
+export default function EngineeringRedirect() {
+  redirect("/hq");
 }

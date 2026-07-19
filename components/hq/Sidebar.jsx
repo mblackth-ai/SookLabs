@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Badge } from "./Badge";
 import { Avatar } from "./Avatar";
 import { icons } from "@/lib/hq/icons";
 import { nav, currentUser } from "@/lib/hq/mock-data";
@@ -12,10 +11,11 @@ import { isHqNavActive } from "@/lib/hq/paths";
 const GLYPH = "/assets/sooklabs/sooklabs-glyph.png";
 
 function NavRow({ row, active, onNavigate }) {
+  const nested = row.kind === "subitem";
   return (
     <Link
       href={row.href}
-      className={`hq-sidebar-nav-link${active ? " hq-sidebar-nav-link--active" : ""}`}
+      className={`hq-sidebar-nav-link${nested ? " hq-sidebar-nav-link--nested" : ""}${active ? " hq-sidebar-nav-link--active" : ""}`}
       onClick={onNavigate}
     >
       <span
@@ -51,10 +51,7 @@ export function Sidebar({ mobileOpen = false, onMobileClose }) {
           priority
           style={{ borderRadius: "var(--radius-lg)", objectFit: "cover", flexShrink: 0 }}
         />
-        <span className="hq-sidebar-brand">SookLabs</span>
-        <Badge variant="accent" size="sm" style={{ marginLeft: "auto" }}>
-          HQ
-        </Badge>
+        <span className="hq-sidebar-brand">SookLabs HQ</span>
         <button
           type="button"
           className="hq-sidebar-close"
@@ -80,19 +77,22 @@ export function Sidebar({ mobileOpen = false, onMobileClose }) {
           if (row.kind === "divider") {
             return <div key={"div-" + idx} className="hq-sidebar-divider" />;
           }
-          return (
-            <NavRow
-              key={row.id}
-              row={row}
-              active={isActive(row.href)}
-              onNavigate={onMobileClose}
-            />
-          );
+          if (row.kind === "item" || row.kind === "subitem") {
+            return (
+              <NavRow
+                key={row.id}
+                row={row}
+                active={isActive(row.href)}
+                onNavigate={onMobileClose}
+              />
+            );
+          }
+          return null;
         })}
       </nav>
 
       <div className="hq-sidebar-footer">
-        <Avatar name={currentUser.name} size="sm" status="online" />
+        <Avatar name={currentUser.name} size="sm" />
         <div style={{ flex: 1, minWidth: 0 }}>
           <div className="hq-sidebar-user-name">{currentUser.name}</div>
           <div className="hq-sidebar-user-role">{currentUser.role}</div>

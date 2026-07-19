@@ -8,11 +8,11 @@ export default async function SooklyActionPlanPage() {
   return (
     <div>
       <TopBar
-        title="Sookly Action Plan"
-        subtitle="sookly.co website + app.sookly.com app workstreams"
+        title="Sookly MVP1 Action Plan"
+        subtitle="sookly.co website + app.sookly.com — primary build checklist"
       />
       <div className="hq-page-content">
-        <ActionPlanBoard initialData={ops} />
+        <ActionPlanBoard initialData={ops} streamKeys={["sooklyWebsite", "sooklyApp"]} columns={2} />
       </div>
     </div>
   );
