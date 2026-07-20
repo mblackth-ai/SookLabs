@@ -7,6 +7,7 @@ import "./sooklabs-v2.css";
 import { GlyphSparkOverlay } from "@/components/brand/GlyphSparkOverlay";
 import { ToolsNavDropdown, ToolsNavAccordion } from "@/components/nav/ToolsNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
+import { DISCORD_INVITE_URL } from "@/lib/site";
 
 const GLYPH = "/assets/sooklabs/sooklabs-glyph.png";
 const LOGO = "/assets/sooklabs/sooklabs-glyph.png";
@@ -1324,9 +1325,9 @@ const PRODUCTS = [
     key: "SookLabs Community",
     icon: Icons.Community,
     tone: "neutral",
-    status: "On hold",
+    status: "Discord",
     tag: "Builder community",
-    desc: "A focused community around technology, psychology, and investment. Sharper thinking, long-term leverage.",
+    desc: "A focused Discord community around technology, psychology, and investment. Sharper thinking, long-term leverage.",
   },
 ];
 
@@ -1358,7 +1359,11 @@ function Ecosystem() {
             gap: 16,
           }}
         >
-          {PRODUCTS.map((p) => (
+          {PRODUCTS.map((p) => {
+            const href =
+              p.href ??
+              (p.key === "SookLabs Community" && DISCORD_INVITE_URL ? DISCORD_INVITE_URL : undefined);
+            return (
             <Reveal key={p.key}>
               <Card appearance="solid" hover padding={26} style={{ height: "100%", boxSizing: "border-box" }}>
                 <div
@@ -1422,11 +1427,11 @@ function Ecosystem() {
                 >
                   {p.desc}
                 </p>
-                {p.href && (
+                {href && (
                   <a
-                    href={p.href}
+                    href={href}
                     className="sl-cardlink"
-                    {...(p.href.startsWith("http")
+                    {...(href.startsWith("http")
                       ? { target: "_blank", rel: "noopener noreferrer" }
                       : {})}
                     style={{
@@ -1444,7 +1449,8 @@ function Ecosystem() {
                 )}
               </Card>
             </Reveal>
-          ))}
+            );
+          })}
         </div>
       </Container>
     </section>

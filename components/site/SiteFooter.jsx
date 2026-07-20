@@ -1,6 +1,6 @@
 "use client";
 
-import { CONTACT_EMAIL, ORG_SUMMARY, SOCIAL_PROFILES } from "@/lib/site";
+import { CONTACT_EMAIL, DISCORD_INVITE_URL, ORG_SUMMARY, SOCIAL_PROFILES } from "@/lib/site";
 
 const GLYPH = "/assets/sooklabs/sooklabs-glyph.png";
 
@@ -22,6 +22,13 @@ function SocialIcon({ id }) {
     return (
       <svg viewBox="0 0 24 24" {...common}>
         <path d="M13.5 22v-8.2h2.8l.4-3.3h-3.2V8.6c0-1 .3-1.7 1.7-1.7H17V4.1c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2.4H7.8v3.3h2.5V22h3.2z" />
+      </svg>
+    );
+  }
+  if (id === "discord") {
+    return (
+      <svg viewBox="0 0 24 24" {...common}>
+        <path d="M20.3 4.4A19.6 19.6 0 0 0 15.7 3a13 13 0 0 0-.6 1.2 18 18 0 0 0-5.4 0A12 12 0 0 0 8.1 3 19.4 19.4 0 0 0 3.5 4.4 20.4 20.4 0 0 0 .1 17.5a19.7 19.7 0 0 0 6 3 1.5 1.5 0 0 0 1.3-.9 13.2 13.2 0 0 1-2.1-1 1 1 0 0 1 .1-1.7l.4-.3a14.2 14.2 0 0 0 12 0l.4.3a1 1 0 0 1 .1 1.7 12.4 12.4 0 0 1-2.1 1 1.5 1.5 0 0 0 1.3.9 19.6 19.6 0 0 0 6-3 20.3 20.3 0 0 0-3.4-13.1ZM8.6 14.9c-1.1 0-2-.9-2-2.1s.9-2.1 2-2.1 2 1 2 2.1-.9 2.1-2 2.1Zm6.8 0c-1.1 0-2-.9-2-2.1s.9-2.1 2-2.1 2 1 2 2.1-.9 2.1-2 2.1Z" />
       </svg>
     );
   }
@@ -48,20 +55,30 @@ export function SiteFooter() {
     Contact: `mailto:${CONTACT_EMAIL}`,
     "Free GEO audit": "/audit",
     "Privacy Policy": "/privacy",
-    "Terms of Service": "/terms",
+    "Terms of Use": "/terms",
+    ...(DISCORD_INVITE_URL ? { "Discord Community": DISCORD_INVITE_URL } : {}),
   };
   const cols = [
     {
       h: "Ecosystem",
-      links: ["Sookly", "SEOS", "RoastMyOpSec (TBA)", "Community (on hold)"],
+      links: [
+        "Sookly",
+        "SEOS",
+        "RoastMyOpSec (TBA)",
+        DISCORD_INVITE_URL ? "Discord Community" : "Discord Community (soon)",
+      ],
     },
     { h: "Company", links: ["Operating rule", "Philosophy", "Pillars", "Contact"] },
     {
       h: "Resources",
       links: ["Free GEO audit", "Documentation (soon)", "Changelog (soon)"],
     },
-    { h: "Legal", links: ["Privacy Policy", "Terms of Service"] },
+    { h: "Legal", links: ["Privacy Policy", "Terms of Use"] },
   ];
+
+  const socialProfiles = DISCORD_INVITE_URL
+    ? [...SOCIAL_PROFILES, { id: "discord", label: "Discord", url: DISCORD_INVITE_URL }]
+    : SOCIAL_PROFILES;
 
   return (
     <footer style={{ borderTop: "1px solid var(--border-subtle)", padding: "56px 0 36px" }}>
@@ -101,7 +118,7 @@ export function SiteFooter() {
               {ORG_SUMMARY}
             </p>
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }} aria-label="Social profiles">
-              {SOCIAL_PROFILES.map((profile) => (
+              {socialProfiles.map((profile) => (
                 <a
                   key={profile.id}
                   href={profile.url}
