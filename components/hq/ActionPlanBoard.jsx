@@ -262,6 +262,17 @@ const ID_PREFIX = {
 
 const HIDE_DONE_KEY = "hq-board-hide-done";
 
+function countStreamItems(items, hideDone) {
+  const list = items || [];
+  const open = list.filter((item) => item.status !== "done");
+  return {
+    open: open.length,
+    p0: open.filter((item) => item.priority === "P0").length,
+    done: list.filter((item) => item.status === "done").length,
+    visible: list.filter((item) => !(hideDone && item.status === "done")).length,
+  };
+}
+
 /**
  * @param {{ initialData: object, streamKeys: string[], columns?: 1|2|3 }} props
  */
@@ -270,6 +281,7 @@ export function ActionPlanBoard({ initialData, streamKeys, columns = 2 }) {
   const keys = streamKeys || ["sooklyWebsite", "sooklyApp"];
   const openPriorityCount = (data.todayPriorities || []).filter((p) => !p.done).length;
   const [hideDone, setHideDone] = useState(true);
+  const [mobileAccordion, setMobileAccordion] = useState(false);
 
   useEffect(() => {
     try {
@@ -279,6 +291,15 @@ export function ActionPlanBoard({ initialData, streamKeys, columns = 2 }) {
     } catch {
       /* ignore */
     }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(max-width: 1024px)");
+    const sync = () => setMobileAccordion(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
   }, []);
 
   function toggleHideDone() {
@@ -332,26 +353,60 @@ export function ActionPlanBoard({ initialData, streamKeys, columns = 2 }) {
     await save({ todayPriorities });
   }
 
-  const gridClass = columns >= 3 ? "hq-grid-3" : columns === 1 ? "" : "hq-grid-2";
+  const streams = keys
+    .map((streamKey) => {
+      const stream = data.workstreams?.[streamKey];
+      if (!stream) return null;
+      return { streamKey, stream, stats: countStreamItems(stream.items, hideDone) };
+    })
+    .filter(Boolean);
+
+  const totals = streams.reduce(
+    (acc, { stats }) => ({
+      open: acc.open + stats.open,
+      p0: acc.p0 + stats.p0,
+    }),
+    { open: 0, p0: 0 }
+  );
+
+  const gridClass =
+    columns >= 3 ? "hq-board-streams hq-board-streams--3" : columns === 1 ? "hq-board-streams hq-board-streams--1" : "hq-board-streams hq-board-streams--2";
 
   return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
+    <div className="hq-board">
+      <div className="hq-board-toolbar">
+        <div className="hq-board-toolbar-stats">
+          <span className="hq-board-stat">
+            <strong>{totals.open}</strong> open
+          </span>
+          {totals.p0 > 0 ? (
+            <span className="hq-board-stat hq-board-stat--p0">
+              <strong>{totals.p0}</strong> P0
+            </span>
+          ) : null}
+          <span className="hq-board-toolbar-legend">→ Today promotes to priorities (max 3)</span>
+        </div>
         <Button variant="ghost" size="sm" onClick={toggleHideDone}>
           {hideDone ? "Show done" : "Hide done"}
         </Button>
       </div>
-      {error && <p style={{ color: "var(--color-error)", fontSize: "var(--text-sm)", marginBottom: 12 }}>{error}</p>}
-      <div
-        className={gridClass}
-        style={{ alignItems: "start", display: columns === 1 ? "grid" : undefined, gap: columns === 1 ? 16 : undefined }}
-      >
-        {keys.map((streamKey) => {
-          const stream = data.workstreams?.[streamKey];
-          if (!stream) return null;
-          return (
+      {error && <p className="hq-board-error">{error}</p>}
+      <div className={gridClass}>
+        {streams.map(({ streamKey, stream, stats }, index) => (
+          <details
+            key={streamKey}
+            className="hq-board-stream-accordion"
+            open={!mobileAccordion || index === 0}
+          >
+            <summary className="hq-board-stream-summary">
+              <span className="hq-board-stream-label">{stream.label}</span>
+              <span className="hq-board-stream-counts">
+                {stats.open} open
+                {stats.p0 > 0 ? ` · ${stats.p0} P0` : ""}
+                {hideDone && stats.done > 0 ? ` · ${stats.done} done hidden` : ""}
+              </span>
+            </summary>
             <StreamColumn
-              key={streamKey}
               streamKey={streamKey}
               stream={stream}
               idPrefix={ID_PREFIX[streamKey] || "ws"}
@@ -361,8 +416,8 @@ export function ActionPlanBoard({ initialData, streamKeys, columns = 2 }) {
               openPriorityCount={openPriorityCount}
               hideDone={hideDone}
             />
-          );
-        })}
+          </details>
+        ))}
       </div>
     </div>
   );

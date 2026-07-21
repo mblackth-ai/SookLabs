@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Card } from "./Card";
 import { Badge } from "./Badge";
 import { Button } from "./Button";
-import { AskAIButton } from "./AskAIButton";
+import { AskAIButtonFull } from "./AskAIButton";
 
 const BADGE_VARIANT = {
   "Workflow Ready": "success",
@@ -303,7 +303,7 @@ export function AutomationConsole({
           )}
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
-          <AskAIButton showFocus />
+          <AskAIButtonFull showFocus />
           <Button variant="secondary" size="sm" loading={busy === "morning"} onClick={runMorning}>
             Run morning
           </Button>
