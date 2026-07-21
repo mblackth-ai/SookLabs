@@ -11,6 +11,7 @@ import { GoalsPanel } from "@/components/hq/GoalsPanel";
 import { BlockersPanel } from "@/components/hq/BlockersPanel";
 import { EndOfDayCard } from "@/components/hq/EndOfDayCard";
 import { AgentJobLog } from "@/components/hq/AgentJobLog";
+import { ClickPlayDraftHint } from "@/components/hq/ClickPlayDraftHint";
 import {
   readOpsData,
   getTopOpenItems,
@@ -76,6 +77,9 @@ export default async function OverviewPage() {
             >
               {storage === "postgres" ? "Ops: Postgres" : "Ops: File"}
             </Badge>
+            <Button variant="secondary" size="sm" href={ops.primaryBoardHref || "/hq/sookly/action-plan"}>
+              Primary board
+            </Button>
             <Button variant="ghost" size="sm" href="/hq/sookly/action-plan">
               Sookly board
             </Button>
@@ -95,6 +99,8 @@ export default async function OverviewPage() {
             <a href="/hq/settings">Settings →</a>
           </p>
         )}
+
+        <ClickPlayDraftHint primaryBoardHref={ops.primaryBoardHref} />
 
         <MorningLoopCard initialData={ops} />
 

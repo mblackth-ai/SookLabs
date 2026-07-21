@@ -13,8 +13,8 @@ const links = [
   {
     href: "/hq/sookly/receptionist-readiness",
     title: "Receptionist readiness",
-    subtitle: "Planning notes — not live product metrics",
-    badge: "Manual",
+    subtitle: "Demo reply playground + planning notes — not live product metrics",
+    badge: "Demo",
   },
   {
     href: "/hq/sookly/knowledge-usage",

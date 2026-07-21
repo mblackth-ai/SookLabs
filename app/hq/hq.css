@@ -900,6 +900,14 @@
   }
 }
 
+.hq-click-play-result {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+  background: var(--bg-base);
+}
+
 @media (max-width: 640px) {
   .hq-grid-4,
   .hq-grid-3 {
@@ -934,5 +942,23 @@
 
   .hq-page-content--narrow {
     max-width: 100%;
+  }
+
+  .hq-click-play-actions,
+  .hq-automation-running .hq-card-header {
+    align-items: flex-start;
+  }
+
+  .hq-click-play-actions > button,
+  .hq-click-play-result button {
+    flex: 1 1 auto;
+  }
+
+  .hq-click-play-chips button {
+    min-height: 40px;
+  }
+
+  .hq-automation-running [style*="flex-wrap"] button {
+    flex: 1 1 auto;
   }
 }

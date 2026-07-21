@@ -2,6 +2,7 @@ import { TopBar } from "@/components/hq/TopBar";
 import { Card } from "@/components/hq/Card";
 import { Badge } from "@/components/hq/Badge";
 import { Button } from "@/components/hq/Button";
+import { ClickPlaySandbox } from "@/components/hq/ClickPlaySandbox";
 import { sooklyReadiness } from "@/lib/hq/knowledge-mock";
 import { getSeosAppUrl } from "@/lib/hq/paths";
 
@@ -14,8 +15,8 @@ export default function ReceptionistReadinessPage() {
         title="Receptionist Readiness"
         subtitle="Demo placeholder · not SoT — illustrates future Sookly consumption of SEOS KB"
         actions={
-          <Badge variant="outline" size="sm">
-            Demo placeholder · not SoT
+          <Badge variant="warning" size="sm">
+            Demo · not live product
           </Badge>
         }
       />
@@ -25,6 +26,7 @@ export default function ReceptionistReadinessPage() {
             Scores below are static demo figures for planning — not a live product readiness meter. Fix real gaps in SEOS Knowledge Base.
           </p>
         </Card>
+        <ClickPlaySandbox sectionId="sooklyReceptionist" />
         <div className="hq-grid-3">
           <Card accent padding="md">
             <div style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)" }}>Readiness score (demo)</div>

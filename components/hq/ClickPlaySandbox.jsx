@@ -1,16 +1,26 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card } from "./Card";
 import { Badge } from "./Badge";
 import { Button } from "./Button";
-import { CLICK_PLAY_SECTIONS, buildClickPlayResult } from "@/lib/hq/click-play";
+import {
+  CLICK_PLAY_SECTIONS,
+  CLICK_PLAY_BOARD,
+  buildClickPlayResult,
+  boardTitleFromDraft,
+} from "@/lib/hq/click-play";
+import { newId } from "@/lib/hq/ops-shared";
 
 /**
- * Zero-OAuth click-and-play: walk steps → draft result. No Connected claims.
+ * Zero-OAuth click-and-play: walk steps → draft result → optional promote to board.
+ * No Connected claims.
  */
 export function ClickPlaySandbox({ sectionId }) {
+  const router = useRouter();
   const section = CLICK_PLAY_SECTIONS[sectionId];
+  const board = CLICK_PLAY_BOARD[sectionId];
   const [values, setValues] = useState(() => {
     const init = {};
     for (const step of section?.steps || []) {
@@ -20,6 +30,7 @@ export function ClickPlaySandbox({ sectionId }) {
   });
   const [result, setResult] = useState(null);
   const [toast, setToast] = useState("");
+  const [promoting, setPromoting] = useState(false);
 
   const canRun = useMemo(() => {
     if (!section) return false;
@@ -44,16 +55,30 @@ export function ClickPlaySandbox({ sectionId }) {
     });
   }
 
-  function run() {
-    const built = buildClickPlayResult(sectionId, values);
-    setResult(built);
+  function persistDraft(built) {
     try {
       const key = `hq-click-play:${sectionId}`;
       const prev = JSON.parse(sessionStorage.getItem(key) || "[]");
       sessionStorage.setItem(key, JSON.stringify([built, ...prev].slice(0, 8)));
+      sessionStorage.setItem(
+        "hq-click-play:last",
+        JSON.stringify({
+          sectionId,
+          title: boardTitleFromDraft(built),
+          summary: built.summary,
+          createdAt: built.createdAt,
+          boardHref: board?.boardHref || null,
+        })
+      );
     } catch {
       /* ignore */
     }
+  }
+
+  function run() {
+    const built = buildClickPlayResult(sectionId, values);
+    setResult(built);
+    persistDraft(built);
     setToast("Draft saved in this browser session (Draft Export — not published)");
     setTimeout(() => setToast(""), 3500);
   }
@@ -65,8 +90,51 @@ export function ClickPlaySandbox({ sectionId }) {
     setResult(null);
   }
 
+  async function promoteToBoard() {
+    if (!result || !board) return;
+    setPromoting(true);
+    setToast("");
+    try {
+      const resGet = await fetch("/hq/api/ops");
+      const jsonGet = await resGet.json();
+      if (!resGet.ok || !jsonGet.ok) throw new Error(jsonGet.error || "Could not load ops");
+
+      const stream = jsonGet.data?.workstreams?.[board.streamKey] || { label: board.streamKey, items: [] };
+      const title = boardTitleFromDraft(result);
+      const item = {
+        id: newId(board.idPrefix),
+        title,
+        status: "todo",
+        priority: "P2",
+        owner: "Mark",
+        due: "",
+        links: [{ label: "Click-play draft", url: board.boardHref }],
+      };
+      const items = [item, ...(stream.items || [])];
+      const res = await fetch("/hq/api/ops", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          workstreams: {
+            [board.streamKey]: { ...stream, items },
+          },
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.ok) throw new Error(json.error || "Promote failed");
+      setToast(`Added to board as P2 · ${title.slice(0, 48)}`);
+      setTimeout(() => setToast(""), 4000);
+      router.refresh();
+    } catch (e) {
+      setToast(e.message || "Promote failed");
+      setTimeout(() => setToast(""), 4000);
+    } finally {
+      setPromoting(false);
+    }
+  }
+
   return (
-    <Card padding="md" style={{ marginBottom: "var(--space-4)" }}>
+    <Card padding="md" className="hq-click-play" style={{ marginBottom: "var(--space-4)" }}>
       <div className="hq-card-header" style={{ marginBottom: 8 }}>
         <span className="hq-card-title">{section.title}</span>
         <Badge variant="warning" size="sm">
@@ -77,7 +145,7 @@ export function ClickPlaySandbox({ sectionId }) {
         {section.blurb}
       </p>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      <div className="hq-click-play-steps" style={{ display: "flex", flexDirection: "column", gap: 14 }}>
         {section.steps.map((step) => (
           <div key={step.id}>
             <label
@@ -101,7 +169,7 @@ export function ClickPlaySandbox({ sectionId }) {
                 ))}
               </select>
             ) : step.type === "multi" ? (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              <div className="hq-click-play-chips" style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                 {step.options.map((opt) => {
                   const on = (values[step.id] || []).includes(opt);
                   return (
@@ -135,7 +203,7 @@ export function ClickPlaySandbox({ sectionId }) {
         ))}
       </div>
 
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 16, alignItems: "center" }}>
+      <div className="hq-click-play-actions" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 16, alignItems: "center" }}>
         <Button size="sm" disabled={!canRun} onClick={run}>
           Generate draft
         </Button>
@@ -148,16 +216,8 @@ export function ClickPlaySandbox({ sectionId }) {
       </div>
 
       {result ? (
-        <div
-          style={{
-            marginTop: 16,
-            padding: 12,
-            borderRadius: "var(--radius-md)",
-            border: "1px solid var(--border-default)",
-            background: "var(--bg-base)",
-          }}
-        >
-          <div style={{ display: "flex", justifyContent: "space-between", gap: 8, marginBottom: 8 }}>
+        <div className="hq-click-play-result">
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
             <strong style={{ fontSize: "var(--text-sm)" }}>Draft result</strong>
             <Badge variant="accent" size="sm">
               Draft Export
@@ -166,9 +226,19 @@ export function ClickPlaySandbox({ sectionId }) {
           <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", margin: 0, lineHeight: 1.55 }}>
             {result.summary}
           </p>
-          <p style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)", margin: "8px 0 0" }}>
-            Not posted. No OAuth. Promote to the board checklist when ready.
+          <p style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)", margin: "8px 0 12px" }}>
+            Not posted. No OAuth. Promote adds a P2 todo on the board checklist.
           </p>
+          {board ? (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              <Button size="sm" variant="secondary" loading={promoting} onClick={promoteToBoard}>
+                Promote to board
+              </Button>
+              <Button size="sm" variant="ghost" href={board.boardHref}>
+                Open board →
+              </Button>
+            </div>
+          ) : null}
         </div>
       ) : null}
     </Card>

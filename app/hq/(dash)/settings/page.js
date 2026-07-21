@@ -13,14 +13,26 @@ function tokenConfigured() {
   return Boolean(t && !t.startsWith("change-me"));
 }
 
+function webhookHostHint() {
+  const url = process.env.HQ_AGENT_WEBHOOK_URL?.trim();
+  if (!url) return null;
+  try {
+    return new URL(url).host;
+  } catch {
+    return "(invalid URL)";
+  }
+}
+
 export default function SettingsPage() {
   const seosUrl = getSeosAppUrl();
   const hasHqDb = envSet("HQ_DATABASE_URL") || envSet("DATABASE_URL");
   const hasSeosToken = tokenConfigured();
   const hasWebhook = envSet("HQ_AGENT_WEBHOOK_URL");
+  const hasN8nBase = envSet("HQ_N8N_BASE_URL");
   const hasCallback = envSet("HQ_AGENT_CALLBACK_SECRET");
   const hasCron = envSet("HQ_CRON_SECRET") || envSet("CRON_SECRET");
   const agentMode = getAgentMode();
+  const webhookHost = webhookHostHint();
 
   return (
     <div>
@@ -59,7 +71,10 @@ export default function SettingsPage() {
               SEOS Authority token: {hasSeosToken ? "configured" : "not set"}
             </Badge>
             <Badge variant={hasWebhook ? "success" : "outline"} size="sm">
-              Agent webhook: {hasWebhook ? "set" : "optional / unset"}
+              Agent webhook: {hasWebhook ? `set${webhookHost ? ` · ${webhookHost}` : ""}` : "optional / unset"}
+            </Badge>
+            <Badge variant={hasN8nBase ? "success" : "outline"} size="sm">
+              n8n base URL: {hasN8nBase ? "set" : "optional / unset"}
             </Badge>
             <Badge variant={hasCallback ? "success" : "outline"} size="sm">
               Callback secret: {hasCallback ? "set" : "missing"}
@@ -74,6 +89,10 @@ export default function SettingsPage() {
               Sync badges: Manual / Draft / Workflow Ready / Future API only
             </Badge>
           </div>
+          <p style={{ fontSize: "var(--text-sm)", color: "var(--text-tertiary)", marginTop: 12, lineHeight: 1.6 }}>
+            Webhook set ≠ Connected social/OAuth. It only means Ask AI / morning can POST to n8n. Completion still uses
+            callback or Cursor pending poll — never fake “Live” sync.
+          </p>
           {!hasHqDb && (
             <p style={{ fontSize: "var(--text-sm)", color: "var(--color-warning)", marginTop: 12, lineHeight: 1.6 }}>
               Production on Vercel should set <code>HQ_DATABASE_URL</code>. File mode can wipe founder ops on redeploy.

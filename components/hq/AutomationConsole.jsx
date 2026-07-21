@@ -163,6 +163,45 @@ export function AutomationConsole({
     }
   }
 
+  async function dismissAllRunning() {
+    if (!running.length) return;
+    setBusy("dismiss-all");
+    const ids = running.map((j) => j.id);
+    const succeeded = new Set();
+    for (const job of running) {
+      try {
+        const res = await fetch("/hq/api/agents/callback", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            jobId: job.id,
+            provider: job.provider || "cursor",
+            status: "failed",
+            summary: "Bulk dismissed from HQ Automation console",
+          }),
+        });
+        const json = await res.json();
+        if (res.ok && json.ok) succeeded.add(job.id);
+      } catch {
+        /* keep running */
+      }
+    }
+    setJobs((prev) =>
+      (prev || []).map((j) =>
+        succeeded.has(j.id) ? { ...j, status: "failed", summary: "Bulk dismissed" } : j
+      )
+    );
+    const ok = succeeded.size;
+    const fail = ids.length - ok;
+    flash(
+      fail
+        ? `Dismissed ${ok}; ${fail} failed`
+        : `Dismissed ${ok} running job${ok === 1 ? "" : "s"}`
+    );
+    router.refresh();
+    setBusy("");
+  }
+
   async function submitComplete(job) {
     const text = completeText.trim();
     if (!text) {
@@ -261,12 +300,24 @@ export function AutomationConsole({
         </p>
       </Card>
 
-      <Card padding="md">
+      <Card padding="md" className="hq-automation-running">
         <div className="hq-card-header" style={{ marginBottom: 12 }}>
           <span className="hq-card-title">Running jobs</span>
-          <Badge variant={running.length ? "warning" : "outline"} size="sm">
-            {running.length}
-          </Badge>
+          <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+            <Badge variant={running.length ? "warning" : "outline"} size="sm">
+              {running.length}
+            </Badge>
+            {running.length > 1 ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                loading={busy === "dismiss-all"}
+                onClick={dismissAllRunning}
+              >
+                Dismiss all
+              </Button>
+            ) : null}
+          </div>
         </div>
         {!running.length ? (
           <p style={{ fontSize: "var(--text-sm)", color: "var(--text-tertiary)", margin: 0 }}>
