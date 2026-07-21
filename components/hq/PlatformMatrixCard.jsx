@@ -3,7 +3,7 @@ import { Badge } from "./Badge";
 import { PLATFORM_MODE_LABELS } from "@/lib/hq/ops-shared";
 
 const MODE_VARIANT = {
-  auto: "success",
+  auto: "outline", // reserved for real publish — never paint as Connected green
   draft: "warning",
   manual: "neutral",
   future_oauth: "accent",

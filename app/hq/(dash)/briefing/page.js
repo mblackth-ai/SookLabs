@@ -2,6 +2,7 @@ import { TopBar } from "@/components/hq/TopBar";
 import { LongDate } from "@/components/hq/LongDate";
 import { AskAIButton } from "@/components/hq/AskAIButton";
 import { BriefingNotesEditor } from "@/components/hq/BriefingNotesEditor";
+import { AgentJobLog } from "@/components/hq/AgentJobLog";
 import { readOpsData } from "@/lib/hq/ops";
 
 export default async function BriefingPage() {
@@ -16,6 +17,9 @@ export default async function BriefingPage() {
       />
       <div className="hq-page-content hq-page-content--narrow">
         <BriefingNotesEditor initialData={ops} />
+        <div style={{ marginTop: 16 }}>
+          <AgentJobLog jobs={ops.agentJobs} />
+        </div>
       </div>
     </div>
   );

@@ -55,6 +55,7 @@ export function AskAIButton({ showFocus = false }) {
       }
       if (json.status === "running") {
         setMessage(json.summary || `Dispatched to ${provider} — waiting for callback`);
+        // Keep founder on Briefing; AgentJobLog below + Automation for complete
       } else if (json.lastGeneratedAt || json.summary) {
         setMessage(json.summary || `Updated ${json.lastGeneratedAt || ""}`);
       } else {
@@ -118,7 +119,19 @@ export function AskAIButton({ showFocus = false }) {
       >
         Ask AI
       </Button>
-      {message && <span style={{ fontSize: 11, color: "var(--text-tertiary)", maxWidth: 320 }}>{message}</span>}
+      {message && (
+        <span style={{ fontSize: 11, color: "var(--text-tertiary)", maxWidth: 360 }}>
+          {message}
+          {message.toLowerCase().includes("dispatch") || message.toLowerCase().includes("waiting") ? (
+            <>
+              {" · "}
+              <a href="/hq/automation" style={{ color: "var(--text-accent)" }}>
+                Automation →
+              </a>
+            </>
+          ) : null}
+        </span>
+      )}
       {error && <span style={{ fontSize: 11, color: "var(--color-error)" }}>{error}</span>}
     </span>
   );
