@@ -13,6 +13,10 @@ export default async function RoastMyOpSecPlanPage() {
       <TopBar
         title="RoastMyOpSec Plan"
         subtitle="Surface inventory click-and-play · no live scanner"
+        crumbs={[
+          { label: "Overview", href: "/hq" },
+          { label: "RoastMyOpSec" },
+        ]}
         actions={
           <Badge variant="warning" size="sm">
             Manual · 0 live scan

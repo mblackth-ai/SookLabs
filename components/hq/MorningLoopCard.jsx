@@ -60,23 +60,34 @@ export function MorningLoopCard({ initialData }) {
         {STEP_DEFS.map((s, i) => {
           const href = s.id === "board" ? primaryHref : s.href;
           const isDone = checked.has(s.id);
+          const isNext = !isDone && STEP_DEFS.slice(0, i).every((prev) => checked.has(prev.id));
           const detail =
             s.id === "board"
               ? `${boardStats.p0} open P0 · ${boardStats.open} open total on primary board`
               : s.detail;
           return (
-            <li key={s.id} className={isDone ? "hq-morning-step--done" : undefined}>
+            <li
+              key={s.id}
+              className={[
+                "hq-morning-step",
+                isDone ? "hq-morning-step--done" : "",
+                isNext ? "hq-morning-step--next" : "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+            >
               <button
                 type="button"
-                className={`hq-morning-loop-num${isDone ? " hq-morning-loop-num--done" : ""}`}
+                className={`hq-morning-loop-num${isDone ? " hq-morning-loop-num--done" : ""}${isNext ? " hq-morning-loop-num--next" : ""}`}
                 onClick={() => toggle(s.id)}
                 disabled={saving}
                 aria-pressed={isDone}
+                aria-label={isDone ? `Mark ${s.label} incomplete` : `Mark ${s.label} done`}
                 title={isDone ? "Mark incomplete" : "Mark done"}
               >
                 {isDone ? "✓" : i + 1}
               </button>
-              <div>
+              <div className="hq-morning-step-body">
                 <Link href={href || "#"} className="hq-morning-loop-link">
                   {s.label}
                   {s.id === "board" && boardStats.p0 > 0 ? (
@@ -85,7 +96,7 @@ export function MorningLoopCard({ initialData }) {
                     </Badge>
                   ) : null}
                 </Link>
-                <span className="hq-morning-loop-detail"> — {detail}</span>
+                <span className="hq-morning-loop-detail">{detail}</span>
               </div>
             </li>
           );

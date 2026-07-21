@@ -14,6 +14,11 @@ export default async function SeosSocialGtmPage() {
       <TopBar
         title="SEOS Social GTM"
         subtitle="Content refactor → multi-platform draft · click-and-play — no live OAuth"
+        crumbs={[
+          { label: "Overview", href: "/hq" },
+          { label: "SEOS", href: "/hq/seos" },
+          { label: "Social GTM" },
+        ]}
         actions={
           <Badge variant="warning" size="sm">
             Manual · 0 OAuth

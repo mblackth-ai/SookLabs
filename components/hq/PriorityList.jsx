@@ -70,21 +70,21 @@ export function PriorityList({ initialData, compact = false }) {
         </div>
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      <div className="hq-priority-list">
         {open.map((p) => (
           <div
             key={p.id}
             className="hq-priority-row"
           >
-            <label style={{ display: "flex", alignItems: "flex-start", gap: 10, flex: 1, cursor: "pointer", minWidth: 0 }}>
+            <label className="hq-priority-label">
               <input
                 type="checkbox"
                 checked={p.done}
                 onChange={() => toggle(p.id)}
                 disabled={saving}
-                style={{ marginTop: 3, accentColor: "var(--accent)" }}
+                className="hq-priority-check"
               />
-              <span style={{ fontSize: "var(--text-sm)", color: "var(--text-primary)", lineHeight: 1.45 }}>
+              <span className="hq-priority-title">
                 {p.title}
                 {p.boardHref ? (
                   <>
@@ -92,7 +92,7 @@ export function PriorityList({ initialData, compact = false }) {
                     <a
                       href={p.boardHref}
                       onClick={(e) => e.stopPropagation()}
-                      style={{ fontSize: "var(--text-xs)", color: "var(--text-accent)", fontWeight: 500 }}
+                      className="hq-priority-board-link"
                     >
                       Board →
                     </a>
@@ -112,24 +112,38 @@ export function PriorityList({ initialData, compact = false }) {
           </div>
         ))}
         {open.length === 0 && (
-          <p style={{ fontSize: "var(--text-sm)", color: "var(--text-tertiary)", margin: 0 }}>
-            No open priorities — add up to 3 for today.
-          </p>
+          <div className="hq-priority-empty">
+            <p>No open priorities — pick up to 3 for today.</p>
+            <div className="hq-priority-empty-actions">
+              <Button
+                variant="secondary"
+                size="sm"
+                disabled={saving}
+                onClick={() => {
+                  document.getElementById("priorities-add-form")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                  document.querySelector("#priorities-add-form input")?.focus();
+                }}
+              >
+                Add below
+              </Button>
+              <Button variant="ghost" size="sm" href={data.primaryBoardHref || "/hq/sookly/action-plan"}>
+                Open board →
+              </Button>
+            </div>
+          </div>
         )}
       </div>
 
       {done.length > 0 && (
-        <div style={{ marginTop: 12, opacity: 0.7 }}>
-          <div className="hq-section-label" style={{ marginBottom: 6 }}>
+        <div className="hq-priority-done-block">
+          <div className="hq-section-label hq-priority-done-label">
             Done ({done.length})
           </div>
           {done.map((p) => (
             <div key={p.id} className="hq-priority-row hq-priority-row--done">
-              <label style={{ display: "flex", gap: 10, alignItems: "center", flex: 1, cursor: "pointer", minWidth: 0 }}>
-                <input type="checkbox" checked onChange={() => toggle(p.id)} disabled={saving} />
-                <span style={{ textDecoration: "line-through", color: "var(--text-tertiary)", fontSize: "var(--text-sm)" }}>
-                  {p.title}
-                </span>
+              <label className="hq-priority-label">
+                <input type="checkbox" checked onChange={() => toggle(p.id)} disabled={saving} className="hq-priority-check" />
+                <span className="hq-priority-title hq-priority-title--done">{p.title}</span>
               </label>
               <button
                 type="button"
@@ -145,21 +159,13 @@ export function PriorityList({ initialData, compact = false }) {
         </div>
       )}
 
-      <form onSubmit={addItem} style={{ display: "flex", gap: 8, marginTop: 14 }}>
+      <form id="priorities-add-form" onSubmit={addItem} className="hq-priority-add-form">
         <input
           value={newTitle}
           onChange={(e) => setNewTitle(e.target.value)}
           placeholder={atCap ? "Clear or finish one before adding…" : "Add a priority…"}
           disabled={atCap || saving}
-          style={{
-            flex: 1,
-            padding: "7px 10px",
-            fontSize: "var(--text-sm)",
-            background: "var(--bg-base)",
-            border: "1px solid var(--border-default)",
-            borderRadius: "var(--radius-lg)",
-            color: "var(--text-primary)",
-          }}
+          className="hq-priority-add-input"
         />
         <Button type="submit" variant="secondary" size="sm" loading={saving} disabled={atCap}>
           Add

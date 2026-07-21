@@ -1,8 +1,11 @@
+import Link from "next/link";
+import { PageTitleBridge } from "./PageChrome";
 import { SaveStatusChip } from "./SaveStatus";
 
 export function TopBar({ title, subtitle, actions, crumbs }) {
   return (
     <div className="hq-topbar">
+      <PageTitleBridge title={title} />
       <div className="hq-topbar-main">
         {crumbs?.length ? (
           <nav className="hq-crumbs" aria-label="Breadcrumb">
@@ -10,9 +13,9 @@ export function TopBar({ title, subtitle, actions, crumbs }) {
               <span key={`${c.href || c.label}-${i}`} className="hq-crumb">
                 {i > 0 ? <span className="hq-crumb-sep" aria-hidden="true">/</span> : null}
                 {c.href ? (
-                  <a href={c.href} className="hq-crumb-link">
+                  <Link href={c.href} className="hq-crumb-link">
                     {c.label}
-                  </a>
+                  </Link>
                 ) : (
                   <span className="hq-crumb-current">{c.label}</span>
                 )}

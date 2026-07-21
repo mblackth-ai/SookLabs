@@ -10,6 +10,11 @@ export default async function SooklyActionPlanPage() {
       <TopBar
         title="Sookly MVP1 Action Plan"
         subtitle="sookly.co website + app.sookly.com — primary build checklist"
+        crumbs={[
+          { label: "Overview", href: "/hq" },
+          { label: "Sookly", href: "/hq/sookly" },
+          { label: "Action Plan" },
+        ]}
       />
       <div className="hq-page-content">
         <ActionPlanBoard initialData={ops} streamKeys={["sooklyWebsite", "sooklyApp"]} columns={2} />

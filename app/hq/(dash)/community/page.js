@@ -19,6 +19,10 @@ export default async function CommunityPlanPage() {
       <TopBar
         title="Community"
         subtitle="Discord pillars · click-and-play cadence — hosting later (Future API)"
+        crumbs={[
+          { label: "Overview", href: "/hq" },
+          { label: "Community" },
+        ]}
         actions={
           <Badge variant="warning" size="sm">
             Manual · 0 OAuth

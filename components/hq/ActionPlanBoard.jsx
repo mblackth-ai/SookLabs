@@ -73,82 +73,117 @@ function StreamColumn({
         ) : null}
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        {visibleItems.map((item) => (
-          <div key={item.id} id={`item-${item.id}`} className="hq-board-card">
-            <input
-              className="hq-board-title-input"
-              value={titleValue(item)}
-              disabled={saving}
-              onChange={(e) => setTitleDrafts((prev) => ({ ...prev, [item.id]: e.target.value }))}
-              onBlur={() => {
-                const next = titleDrafts[item.id];
-                if (next === undefined || next === item.title) return;
-                const trimmed = next.trim();
-                if (!trimmed) {
+        {visibleItems.map((item) => {
+          const isP0 = item.priority === "P0";
+          const statusVariant =
+            item.status === "done"
+              ? "success"
+              : item.status === "blocked"
+                ? "warning"
+                : item.status === "doing"
+                  ? "accent"
+                  : "outline";
+          return (
+          <div
+            key={item.id}
+            id={`item-${item.id}`}
+            className={`hq-board-card${isP0 ? " hq-board-card--p0" : ""}${item.status === "done" ? " hq-board-card--done" : ""}`}
+          >
+            <div className="hq-board-card-head">
+              <input
+                className="hq-board-title-input"
+                value={titleValue(item)}
+                disabled={saving}
+                onChange={(e) => setTitleDrafts((prev) => ({ ...prev, [item.id]: e.target.value }))}
+                onBlur={() => {
+                  const next = titleDrafts[item.id];
+                  if (next === undefined || next === item.title) return;
+                  const trimmed = next.trim();
+                  if (!trimmed) {
+                    setTitleDrafts((prev) => {
+                      const copy = { ...prev };
+                      delete copy[item.id];
+                      return copy;
+                    });
+                    return;
+                  }
                   setTitleDrafts((prev) => {
                     const copy = { ...prev };
                     delete copy[item.id];
                     return copy;
                   });
-                  return;
-                }
-                setTitleDrafts((prev) => {
-                  const copy = { ...prev };
-                  delete copy[item.id];
-                  return copy;
-                });
-                updateItem(item.id, { title: trimmed });
-              }}
-            />
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
-              <select
-                value={item.status}
-                onChange={(e) => updateItem(item.id, { status: e.target.value })}
-                disabled={saving}
-                style={selectStyle}
-                aria-label="Status"
-              >
-                {STATUSES.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={item.priority}
-                onChange={(e) => updateItem(item.id, { priority: e.target.value })}
-                disabled={saving}
-                style={selectStyle}
-                aria-label="Priority"
-              >
-                {PRIORITIES.map((p) => (
-                  <option key={p} value={p}>
-                    {p}
-                  </option>
-                ))}
-              </select>
-              <input
-                defaultValue={item.owner || ""}
-                key={`${item.id}-owner-${item.owner || ""}`}
-                onBlur={(e) => {
-                  if (e.target.value === (item.owner || "")) return;
-                  updateItem(item.id, { owner: e.target.value });
+                  updateItem(item.id, { title: trimmed });
                 }}
-                disabled={saving}
-                placeholder="Owner"
-                style={{ ...selectStyle, width: 72 }}
-                aria-label="Owner"
               />
-              <input
-                type="date"
-                value={item.due || ""}
-                onChange={(e) => updateItem(item.id, { due: e.target.value })}
-                disabled={saving}
-                style={selectStyle}
-                aria-label="Due"
-              />
+              <div className="hq-board-scan-chips">
+                {isP0 ? (
+                  <Badge variant="warning" size="sm">
+                    P0
+                  </Badge>
+                ) : (
+                  <span className="hq-board-priority-chip">{item.priority}</span>
+                )}
+                <Badge variant={statusVariant} size="sm">
+                  {item.status}
+                </Badge>
+              </div>
             </div>
-            <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
+            <details className="hq-board-meta">
+              <summary className="hq-board-meta-summary">
+                {item.owner || "Owner"}
+                {item.due ? ` · due ${item.due}` : ""}
+                <span className="hq-board-meta-hint">Edit fields</span>
+              </summary>
+              <div className="hq-board-meta-fields">
+                <select
+                  value={item.status}
+                  onChange={(e) => updateItem(item.id, { status: e.target.value })}
+                  disabled={saving}
+                  className="hq-board-select"
+                  aria-label="Status"
+                >
+                  {STATUSES.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={item.priority}
+                  onChange={(e) => updateItem(item.id, { priority: e.target.value })}
+                  disabled={saving}
+                  className="hq-board-select"
+                  aria-label="Priority"
+                >
+                  {PRIORITIES.map((p) => (
+                    <option key={p} value={p}>
+                      {p}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  defaultValue={item.owner || ""}
+                  key={`${item.id}-owner-${item.owner || ""}`}
+                  onBlur={(e) => {
+                    if (e.target.value === (item.owner || "")) return;
+                    updateItem(item.id, { owner: e.target.value });
+                  }}
+                  disabled={saving}
+                  placeholder="Owner"
+                  className="hq-board-select hq-board-select--owner"
+                  aria-label="Owner"
+                />
+                <input
+                  type="date"
+                  value={item.due || ""}
+                  onChange={(e) => updateItem(item.id, { due: e.target.value })}
+                  disabled={saving}
+                  className="hq-board-select"
+                  aria-label="Due"
+                />
+              </div>
+            </details>
+            <div className="hq-board-actions">
               <Button
                 variant="ghost"
                 size="sm"
@@ -183,7 +218,8 @@ function StreamColumn({
               </div>
             )}
           </div>
-        ))}
+          );
+        })}
         {!visibleItems.length ? (
           <p style={{ fontSize: "var(--text-sm)", color: "var(--text-tertiary)", margin: 0 }}>
             {hideDone && doneCount ? "All open items done — toggle Show done to review." : "No tasks yet."}
@@ -204,15 +240,6 @@ function StreamColumn({
     </Card>
   );
 }
-
-const selectStyle = {
-  fontSize: "var(--text-xs)",
-  padding: "4px 8px",
-  background: "var(--bg-base)",
-  border: "1px solid var(--border-default)",
-  borderRadius: "var(--radius-md)",
-  color: "var(--text-primary)",
-};
 
 const inputStyle = {
   flex: 1,
