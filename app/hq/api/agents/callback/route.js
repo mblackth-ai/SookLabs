@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { readOpsData, patchOpsData } from "@/lib/hq/ops";
 import { parseBriefingSections } from "@/lib/hq/briefing-llm";
+import { isHqSessionValid } from "@/lib/hq/session";
 
-function isAuthorized(request) {
+function isSecretAuthorized(request) {
   const secret = process.env.HQ_AGENT_CALLBACK_SECRET?.trim();
   if (!secret) return false;
   const auth = request.headers.get("authorization") || "";
@@ -12,11 +13,13 @@ function isAuthorized(request) {
 }
 
 /**
- * Ingest agent result from n8n / Cursor / Codex / Claude manual path.
+ * Ingest agent result from n8n / Cursor / Codex / Claude manual path,
+ * or from the HQ UI while logged in (session cookie).
  * Body: { jobId, text, provider?, status?, summary?, sections? }
  */
 export async function POST(request) {
-  if (!isAuthorized(request)) {
+  const sessionOk = await isHqSessionValid();
+  if (!sessionOk && !isSecretAuthorized(request)) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
 

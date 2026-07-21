@@ -1,0 +1,214 @@
+{
+  "name": "HQ Agent Callback",
+  "nodes": [
+    {
+      "id": "note-cb",
+      "name": "Callback bridge",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -200,
+        -200
+      ],
+      "parameters": {
+        "content": "## HQ Agent Callback\n\nManual Claude / external runners POST here → forwards to HQ callback with server-side secret.\n\nBody: `{ jobId, text, provider?, status? }`",
+        "height": 200,
+        "width": 340
+      }
+    },
+    {
+      "id": "webhook-cb",
+      "name": "Callback Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "hq-agent-callback",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "hq-agent-callback",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "validate-cb",
+      "name": "Validate Callback",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nconst headers = item.headers || {};\nconst body = item.body ?? item;\nconst secret = $env.HQ_AGENT_WEBHOOK_SECRET || $env.HQ_AGENT_CALLBACK_SECRET || '';\nconst auth = String(headers.authorization || headers.Authorization || '');\nconst bearer = auth.startsWith('Bearer ') ? auth.slice(7).trim() : '';\nconst headerSecret = String(headers['x-hq-agent-dispatch-secret'] || '').trim();\nconst authorized = Boolean(secret) && (bearer === secret || headerSecret === secret);\nif (!authorized) {\n  return [{ json: { ok: false, statusCode: 401, error: 'Unauthorized' } }];\n}\nconst jobId = body.jobId || body.id || '';\nconst text = String(body.text || body.result || body.briefing || '').trim();\nconst status = String(body.status || 'completed').toLowerCase();\nconst provider = body.provider || 'claude';\nif (!jobId) return [{ json: { ok: false, statusCode: 400, error: 'jobId required' } }];\nif (status === 'completed' && !text) return [{ json: { ok: false, statusCode: 400, error: 'text required' } }];\nconst callbackUrl = ($env.HQ_PUBLIC_BASE_URL || 'https://hq.sooklabs.com').replace(/\\/$/, '') + '/hq/api/agents/callback';\nreturn [{ json: { ok: true, jobId, text, status, provider, summary: body.summary || '', callbackUrl } }];"
+      }
+    },
+    {
+      "id": "if-cb",
+      "name": "Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "v1",
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "respond-cb-err",
+      "name": "Respond CB Error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        720,
+        160
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: false, error: $json.error } }}",
+        "options": {
+          "responseCode": "={{ $json.statusCode || 400 }}"
+        }
+      }
+    },
+    {
+      "id": "http-hq-cb",
+      "name": "POST HQ Callback",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        720,
+        -40
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.callbackUrl }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ 'Bearer ' + $env.HQ_AGENT_CALLBACK_SECRET }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ jobId: $json.jobId, provider: $json.provider, status: $json.status, text: $json.text, summary: $json.summary }) }}",
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "respond-cb-ok",
+      "name": "Respond CB OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        960,
+        -40
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, forwarded: true, hqStatus: $json.statusCode || $json.status || null, hqBody: $json } }}",
+        "options": {
+          "responseCode": 200
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Callback Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate Callback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Callback": {
+      "main": [
+        [
+          {
+            "node": "Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Valid?": {
+      "main": [
+        [
+          {
+            "node": "POST HQ Callback",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond CB Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST HQ Callback": {
+      "main": [
+        [
+          {
+            "node": "Respond CB OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Bangkok"
+  }
+}

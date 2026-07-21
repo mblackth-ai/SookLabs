@@ -47,3 +47,5 @@ next-env.d.ts
 _tmp_*/
 
 .vercel
+# n8n provision run artifacts (local only)
+docs/n8n/hq-provision-result.json

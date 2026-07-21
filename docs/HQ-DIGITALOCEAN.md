@@ -30,10 +30,11 @@ Without `HQ_DATABASE_URL`, HQ falls back to git-tracked `data/hq/ops.json` (loca
 | `HQ_DATABASE_URL` | Yes (prod) | Postgres ops store |
 | `HQ_CRON_SECRET` | Yes (automation) | Authorizes morning cron |
 | `HQ_AGENT_MODE` | No | `webhook` (default) or `anthropic` |
-| `HQ_AGENT_WEBHOOK_URL` | Recommended | n8n webhook for agent dispatch |
+| `HQ_AGENT_WEBHOOK_URL` | Recommended | n8n webhook for agent dispatch (`https://hooks.sookly.co/webhook/hq-agent`) |
+| `HQ_AGENT_WEBHOOK_SECRET` | Recommended | Dispatch auth to n8n (same value as callback secret is fine) |
 | `HQ_AGENT_CALLBACK_SECRET` | Yes (agents) | Secures `/hq/api/agents/callback` |
 | `HQ_AGENT_DEFAULT_PROVIDER` | No | `cursor` \| `codex` \| `claude` |
-| `HQ_N8N_BASE_URL` | No | Link on Automation Registry |
+| `HQ_N8N_BASE_URL` | No | Link on Automation Registry (`https://hooks.sookly.co`) |
 | `NEXT_PUBLIC_SEOS_URL` | Recommended | Link to SEOS app |
 | `ANTHROPIC_API_KEY` | Optional | Only if `HQ_AGENT_MODE=anthropic` |
 | `HQ_LLM_MODEL` | No | Default `claude-sonnet-4-20250514` |
@@ -61,7 +62,13 @@ CRON_TZ=Asia/Bangkok
 
 ## 4. n8n agent router
 
-Import [`docs/n8n/hq-agent-router.json`](./n8n/hq-agent-router.json) on the droplet n8n instance. Set `HQ_AGENT_WEBHOOK_URL` to the Production webhook URL.
+Live on `https://hooks.sookly.co` (see [`HQ-AGENTS.md`](./HQ-AGENTS.md)). Set:
+
+- `HQ_AGENT_WEBHOOK_URL=https://hooks.sookly.co/webhook/hq-agent`
+- `HQ_N8N_BASE_URL=https://hooks.sookly.co`
+- `HQ_AGENT_WEBHOOK_SECRET` (= callback secret)
+
+Re-provision: `node scripts/provision-hq-n8n-workflows.mjs`
 
 ## 5. Verify subdomain
 

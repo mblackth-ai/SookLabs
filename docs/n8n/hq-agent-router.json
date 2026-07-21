@@ -2,180 +2,277 @@
   "name": "HQ Agent Router",
   "nodes": [
     {
+      "id": "note-overview",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -320,
+        -300
+      ],
       "parameters": {
-        "httpMethod": "POST",
-        "path": "hq-agent",
-        "responseMode": "onReceived",
-        "options": {}
-      },
+        "content": "## HQ Agent Router (auto briefing)\n\n1. Validate dispatch secret\n2. Ack HQ immediately\n3. **cursor/auto**: OpenAI → POST HQ callback (full automation)\n4. **codex/claude**: remain Manual (pending / Complete UI)\n\nProduction → `HQ_AGENT_WEBHOOK_URL`",
+        "height": 300,
+        "width": 400
+      }
+    },
+    {
       "id": "webhook-hq-agent",
       "name": "HQ Webhook",
       "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "hq-agent-router",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "hq-agent",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "validate-dispatch",
+      "name": "Validate & Normalize",
+      "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [0, 0],
-      "webhookId": "hq-agent-router"
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nconst headers = item.headers || {};\nconst body = item.body ?? item;\nconst secret = $env.HQ_AGENT_WEBHOOK_SECRET || $env.HQ_AGENT_CALLBACK_SECRET || '';\nconst auth = String(headers.authorization || headers.Authorization || '');\nconst bearer = auth.startsWith('Bearer ') ? auth.slice(7).trim() : '';\nconst headerSecret = String(headers['x-hq-agent-dispatch-secret'] || headers['X-HQ-Agent-Dispatch-Secret'] || '').trim();\n\nconst authorized = Boolean(secret) && (bearer === secret || headerSecret === secret);\nif (!authorized) {\n  return [{ json: { ok: false, statusCode: 401, error: 'Unauthorized dispatch', authorized: false } }];\n}\n\nconst jobId = body.jobId || body.id || '';\nconst provider = String(body.provider || 'cursor').toLowerCase();\nconst type = body.type || 'briefing-ask-ai';\nconst callbackUrl = body.callbackUrl || (($env.HQ_PUBLIC_BASE_URL || 'https://hq.sooklabs.com').replace(/\\/$/, '') + '/hq/api/agents/callback');\nconst context = String(body.context || '');\nconst followUp = String(body.followUp || '');\n\nif (!jobId) {\n  return [{ json: { ok: false, statusCode: 400, error: 'jobId required', authorized: true } }];\n}\n\n// cursor / n8n / unknown → auto LLM path; codex / claude stay manual\nconst autoProviders = new Set(['cursor', 'n8n', 'auto', '']);\nconst mode = autoProviders.has(provider) ? 'auto' : 'manual';\n\nreturn [{\n  json: {\n    ok: true,\n    statusCode: 200,\n    authorized: true,\n    jobId,\n    provider,\n    type,\n    mode,\n    followUp,\n    callbackUrl,\n    context,\n    contextPreview: context.slice(0, 500),\n    opsSnapshot: body.opsSnapshot || null,\n    startedAt: body.startedAt || new Date().toISOString(),\n    routedAt: new Date().toISOString(),\n  }\n}];"
+      }
     },
     {
+      "id": "if-authorized",
+      "name": "Authorized?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        0
+      ],
       "parameters": {
-        "rules": {
-          "values": [
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
             {
-              "conditions": {
-                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
-                "conditions": [
-                  {
-                    "leftValue": "={{ $json.body.provider || $json.provider }}",
-                    "rightValue": "cursor",
-                    "operator": { "type": "string", "operation": "equals" }
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": true,
-              "outputKey": "cursor"
-            },
-            {
-              "conditions": {
-                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
-                "conditions": [
-                  {
-                    "leftValue": "={{ $json.body.provider || $json.provider }}",
-                    "rightValue": "codex",
-                    "operator": { "type": "string", "operation": "equals" }
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": true,
-              "outputKey": "codex"
-            },
-            {
-              "conditions": {
-                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
-                "conditions": [
-                  {
-                    "leftValue": "={{ $json.body.provider || $json.provider }}",
-                    "rightValue": "claude",
-                    "operator": { "type": "string", "operation": "equals" }
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": true,
-              "outputKey": "claude"
+              "id": "c1",
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
             }
-          ]
+          ],
+          "combinator": "and"
         },
-        "options": { "fallbackOutput": "extra" }
-      },
-      "id": "switch-provider",
-      "name": "Route by provider",
-      "type": "n8n-nodes-base.switch",
-      "typeVersion": 3,
-      "position": [260, 0]
+        "options": {}
+      }
     },
     {
+      "id": "respond-error",
+      "name": "Respond Error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        720,
+        220
+      ],
       "parameters": {
-        "content": "## Cursor path\n\n1. Job is queued in HQ (`GET /hq/api/agents/pending?provider=cursor`).\n2. Open Cursor with the **hq-ops** skill.\n3. Generate briefing from `payload.context`.\n4. POST result to `callbackUrl` with Bearer `HQ_AGENT_CALLBACK_SECRET`.\n\nOptional: set env `HQ_CURSOR_TUNNEL_URL` and add an HTTP Request node here.",
-        "height": 280
-      },
-      "id": "note-cursor",
-      "name": "Cursor instructions",
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1,
-      "position": [520, -200]
+        "respondWith": "json",
+        "responseBody": "={{ { ok: false, error: $json.error || 'Rejected', jobId: $json.jobId || null } }}",
+        "options": {
+          "responseCode": "={{ $json.statusCode || 401 }}"
+        }
+      }
     },
     {
+      "id": "if-auto",
+      "name": "Auto briefing?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        720,
+        -40
+      ],
       "parameters": {
-        "assignments": {
-          "assignments": [
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
             {
               "id": "a1",
-              "name": "jobId",
-              "value": "={{ $json.body.jobId || $json.jobId }}",
-              "type": "string"
-            },
-            {
-              "id": "a2",
-              "name": "provider",
-              "value": "cursor",
-              "type": "string"
-            },
-            {
-              "id": "a3",
-              "name": "status",
-              "value": "queued",
-              "type": "string"
-            },
-            {
-              "id": "a4",
-              "name": "hint",
-              "value": "Poll https://hq.sooklabs.com/hq/api/agents/pending?provider=cursor",
-              "type": "string"
+              "leftValue": "={{ $json.mode }}",
+              "rightValue": "auto",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
             }
-          ]
+          ],
+          "combinator": "and"
         },
         "options": {}
-      },
-      "id": "set-cursor",
-      "name": "Cursor queued",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [560, -40]
+      }
     },
     {
+      "id": "respond-auto-ack",
+      "name": "Respond Auto Ack",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        980,
+        -160
+      ],
       "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "b1",
-              "name": "jobId",
-              "value": "={{ $json.body.jobId || $json.jobId }}",
-              "type": "string"
-            },
-            {
-              "id": "b2",
-              "name": "provider",
-              "value": "codex",
-              "type": "string"
-            },
-            {
-              "id": "b3",
-              "name": "hint",
-              "value": "Forward to Codex runner (scripts/hq-agent-runner.example.mjs)",
-              "type": "string"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "id": "set-codex",
-      "name": "Codex queued",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [560, 120]
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, jobId: $json.jobId, provider: $json.provider, status: 'auto_generating', hint: 'n8n OpenAI → HQ callback' } }}",
+        "options": {
+          "responseCode": 200
+        }
+      }
     },
     {
+      "id": "build-prompt",
+      "name": "Build LLM Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        980,
+        -40
+      ],
       "parameters": {
-        "content": "## Claude (manual)\n\n1. Copy `context` from the webhook body.\n2. Paste into Claude (or Claude-in-Cursor).\n3. Paste the reply into the next Manual Task / form, then HTTP Request → HQ callback.",
-        "height": 220
-      },
-      "id": "note-claude",
-      "name": "Claude manual",
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1,
-      "position": [520, 280]
+        "jsCode": "const j = $input.first().json;\nconst system = `You are the SookLabs HQ executive briefing assistant. Be concise, actionable, and honest.\nDo not invent revenue metrics or live integrations. Focus on priorities, risks, and decisions based only on the ops context provided.\nFormat with markdown sections exactly:\n## Priorities focus\n## Risks & blockers\n## Decisions to make\n## Suggested actions today`;\n\nconst user = j.followUp\n  ? j.context + '\\n\\n---\\nFollow-up from founder:\\n' + j.followUp\n  : j.context + '\\n\\n---\\nGenerate a morning executive briefing draft for today based on this ops data.';\n\nreturn [{\n  json: {\n    ...j,\n    llmModel: $env.HQ_BRIEFING_MODEL || 'qwen-flash-character',\n    llmBaseUrl: ($env.HQ_BRIEFING_BASE_URL || 'https://ws-ufcul7gmeu5kilzd.ap-southeast-1.maas.aliyuncs.com/compatible-mode/v1').replace(/\\/$/, ''),\n    llmSystem: system,\n    llmUser: user,\n    callbackAuth: 'Bearer ' + String($env.HQ_AGENT_CALLBACK_SECRET || ''),\n  }\n}];"
+      }
     },
     {
+      "id": "http-openai",
+      "name": "OpenAI Briefing",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1220,
+        -40
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000,
+      "credentials": {
+        "openAiApi": {
+          "id": "ozG9OstvT42hegQ7",
+          "name": "OpenAI account"
+        }
+      },
       "parameters": {
         "method": "POST",
-        "url": "={{ $json.body.callbackUrl || $json.callbackUrl || 'https://hq.sooklabs.com/hq/api/agents/callback' }}",
+        "url": "={{ $json.llmBaseUrl + '/chat/completions' }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: $json.llmModel || 'qwen-flash-character', temperature: 0.3, max_tokens: 1200, messages: [{ role: 'system', content: $json.llmSystem }, { role: 'user', content: $json.llmUser }] }) }}",
+        "options": {
+          "timeout": 90000,
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "extract-briefing",
+      "name": "Extract Briefing",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1460,
+        -40
+      ],
+      "parameters": {
+        "jsCode": "const j = $input.first().json;\nconst prev = $('Build LLM Prompt').first().json;\nlet payload = j;\nif (typeof j.data === 'string') {\n  try { payload = JSON.parse(j.data); } catch (e) { payload = j; }\n} else if (j.body && typeof j.body === 'object') {\n  payload = j.body;\n} else if (typeof j.body === 'string') {\n  try { payload = JSON.parse(j.body); } catch (e) { payload = j; }\n}\nlet text = '';\ntry {\n  text = payload.choices?.[0]?.message?.content\n    || payload.message?.content\n    || '';\n} catch (e) {\n  text = '';\n}\ntext = String(text || '').trim();\nif (!text) {\n  const errMsg = payload.error?.message || payload.message || 'Empty LLM response';\n  return [{ json: { ...prev, ok: false, briefingError: String(errMsg).slice(0, 300), briefingText: '' } }];\n}\nreturn [{\n  json: {\n    ...prev,\n    ok: true,\n    briefingText: text,\n    briefingSummary: text.slice(0, 180) + (text.length > 180 ? '…' : ''),\n  }\n}];"
+      }
+    },
+    {
+      "id": "if-briefing-ok",
+      "name": "Briefing OK?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1680,
+        -40
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b1",
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "http-callback-ok",
+      "name": "POST HQ Callback",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1920,
+        -120
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.callbackUrl }}",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "Authorization",
-              "value": "=Bearer {{ $env.HQ_AGENT_CALLBACK_SECRET }}"
+              "value": "={{ $json.callbackAuth }}"
             },
             {
               "name": "Content-Type",
@@ -185,31 +282,264 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"jobId\": \"{{ $json.body.jobId || $json.jobId }}\",\n  \"provider\": \"claude\",\n  \"text\": \"{{ $json.manualBriefing || $json.text || 'Replace with Claude output' }}\",\n  \"summary\": \"Claude manual callback\"\n}",
-        "options": {}
-      },
-      "id": "http-callback-claude",
-      "name": "POST HQ callback",
+        "jsonBody": "={{ JSON.stringify({ jobId: $json.jobId, provider: $json.provider || 'n8n', status: 'completed', text: $json.briefingText, summary: $json.briefingSummary || 'n8n auto briefing' }) }}",
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "http-callback-fail",
+      "name": "POST HQ Fail",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [820, 320]
+      "position": [
+        1920,
+        60
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.callbackUrl }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $json.callbackAuth }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ jobId: $json.jobId, provider: $json.provider || 'n8n', status: 'failed', summary: $json.briefingError || 'n8n auto briefing failed' }) }}",
+        "options": {
+          "timeout": 20000,
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "note-manual",
+      "name": "Manual path",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        980,
+        160
+      ],
+      "parameters": {
+        "content": "## Codex / Claude\nAck only — complete via HQ Complete UI or callback webhook.",
+        "height": 160,
+        "width": 280
+      }
+    },
+    {
+      "id": "set-manual",
+      "name": "Manual queued",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        980,
+        280
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "m1",
+              "name": "ok",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "m2",
+              "name": "jobId",
+              "value": "={{ $json.jobId }}",
+              "type": "string"
+            },
+            {
+              "id": "m3",
+              "name": "provider",
+              "value": "={{ $json.provider }}",
+              "type": "string"
+            },
+            {
+              "id": "m4",
+              "name": "status",
+              "value": "awaiting_manual_briefing",
+              "type": "string"
+            },
+            {
+              "id": "m5",
+              "name": "hint",
+              "value": "Complete in HQ LLM & Agents, or POST /webhook/hq-agent-callback",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "respond-manual",
+      "name": "Respond Manual Ack",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1220,
+        280
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, jobId: $json.jobId, provider: $json.provider, status: $json.status, hint: $json.hint } }}",
+        "options": {
+          "responseCode": 200
+        }
+      }
     }
   ],
   "connections": {
     "HQ Webhook": {
-      "main": [[{ "node": "Route by provider", "type": "main", "index": 0 }]]
-    },
-    "Route by provider": {
       "main": [
-        [{ "node": "Cursor queued", "type": "main", "index": 0 }],
-        [{ "node": "Codex queued", "type": "main", "index": 0 }],
-        [{ "node": "POST HQ callback", "type": "main", "index": 0 }]
+        [
+          {
+            "node": "Validate & Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate & Normalize": {
+      "main": [
+        [
+          {
+            "node": "Authorized?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Authorized?": {
+      "main": [
+        [
+          {
+            "node": "Auto briefing?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto briefing?": {
+      "main": [
+        [
+          {
+            "node": "Respond Auto Ack",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Build LLM Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Manual queued",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build LLM Prompt": {
+      "main": [
+        [
+          {
+            "node": "OpenAI Briefing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Briefing": {
+      "main": [
+        [
+          {
+            "node": "Extract Briefing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Briefing": {
+      "main": [
+        [
+          {
+            "node": "Briefing OK?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Briefing OK?": {
+      "main": [
+        [
+          {
+            "node": "POST HQ Callback",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "POST HQ Fail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual queued": {
+      "main": [
+        [
+          {
+            "node": "Respond Manual Ack",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     }
   },
-  "settings": { "executionOrder": "v1" },
-  "meta": {
-    "templateCredsSetupCompleted": false,
-    "description": "Import into n8n on the Sookly droplet. Activate webhook, copy Production URL into Vercel HQ_AGENT_WEBHOOK_URL. Set n8n env HQ_AGENT_CALLBACK_SECRET to match Vercel."
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Bangkok"
   }
 }

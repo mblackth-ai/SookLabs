@@ -3,6 +3,7 @@ import { ActionPlanBoard } from "@/components/hq/ActionPlanBoard";
 import { PlatformMatrixCard } from "@/components/hq/PlatformMatrixCard";
 import { Badge } from "@/components/hq/Badge";
 import { Card } from "@/components/hq/Card";
+import { ClickPlaySandbox } from "@/components/hq/ClickPlaySandbox";
 import { readOpsData } from "@/lib/hq/ops";
 
 export default async function SeosSocialGtmPage() {
@@ -12,21 +13,21 @@ export default async function SeosSocialGtmPage() {
     <div>
       <TopBar
         title="SEOS Social GTM"
-        subtitle="Content refactor → multi-platform publish · checklist only — no live OAuth"
+        subtitle="Content refactor → multi-platform draft · click-and-play — no live OAuth"
         actions={
           <Badge variant="warning" size="sm">
-            Manual · Future OAuth
+            Manual · 0 OAuth
           </Badge>
         }
       />
       <div className="hq-page-content">
         <Card padding="md" style={{ marginBottom: "var(--space-4)" }}>
           <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", margin: 0, lineHeight: 1.55 }}>
-            SEOS Expansion OS distributes social packs from one source article. Platforms stay Manual / Draft / Future
-            OAuth until you approve credentials. Business facts still live in SEOS Knowledge Base — never duplicate tone
-            or claims here.
+            Generate a Draft Export pack below, then tick the durable board. Platforms stay Manual / Draft / Future OAuth
+            until you approve credentials. Business facts stay in SEOS Knowledge Base.
           </p>
         </Card>
+        <ClickPlaySandbox sectionId="seosSocial" />
         <div className="hq-grid-2" style={{ alignItems: "start", marginBottom: "var(--space-4)" }}>
           <PlatformMatrixCard platforms={ops.platformMatrix} />
           <Card padding="md">

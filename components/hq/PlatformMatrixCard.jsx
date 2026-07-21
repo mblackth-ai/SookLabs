@@ -21,7 +21,7 @@ export function PlatformMatrixCard({ platforms }) {
         </Badge>
       </div>
       <p style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)", margin: "0 0 var(--space-3)", lineHeight: 1.5 }}>
-        No fake Connected badges. Live OAuth deferred to Phase 3.
+        Honest modes only. Click-and-play drafts stay Manual / Draft Export — live OAuth is Future.
       </p>
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {platforms.map((p) => (
