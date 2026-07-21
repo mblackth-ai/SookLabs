@@ -44,7 +44,7 @@ export function PriorityList({ initialData, compact = false }) {
 
   return (
     <Card accent={!compact} padding="md" id="priorities">
-      <div className="hq-card-header" style={{ marginBottom: "var(--space-3)" }}>
+      <div className="hq-card-header hq-priority-header" style={{ marginBottom: "var(--space-3)" }}>
         <div>
           <div className="hq-card-title">Today&apos;s priorities</div>
           {!compact && (

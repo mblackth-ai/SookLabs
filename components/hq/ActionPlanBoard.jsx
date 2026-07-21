@@ -224,6 +224,8 @@ const ID_PREFIX = {
   personal: "pe",
 };
 
+const HIDE_DONE_KEY = "hq-board-hide-done";
+
 /**
  * @param {{ initialData: object, streamKeys: string[], columns?: 1|2|3 }} props
  */
@@ -232,6 +234,28 @@ export function ActionPlanBoard({ initialData, streamKeys, columns = 2 }) {
   const keys = streamKeys || ["sooklyWebsite", "sooklyApp"];
   const openPriorityCount = (data.todayPriorities || []).filter((p) => !p.done).length;
   const [hideDone, setHideDone] = useState(true);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(HIDE_DONE_KEY);
+      if (saved === "0") setHideDone(false);
+      else if (saved === "1") setHideDone(true);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  function toggleHideDone() {
+    setHideDone((v) => {
+      const next = !v;
+      try {
+        localStorage.setItem(HIDE_DONE_KEY, next ? "1" : "0");
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
+  }
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -277,7 +301,7 @@ export function ActionPlanBoard({ initialData, streamKeys, columns = 2 }) {
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
-        <Button variant="ghost" size="sm" onClick={() => setHideDone((v) => !v)}>
+        <Button variant="ghost" size="sm" onClick={toggleHideDone}>
           {hideDone ? "Show done" : "Hide done"}
         </Button>
       </div>

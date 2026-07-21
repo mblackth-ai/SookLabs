@@ -6,6 +6,13 @@ import { Button } from "./Button";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+const STARTER_JOB = {
+  id: "starter",
+  provider: "cursor",
+  type: "briefing-ask-ai",
+  summary: "Focus on today priorities, blockers, and one decision from HQ ops.",
+};
+
 function buildCursorPrompt(job) {
   return `You are completing a SookLabs HQ agent job. Use the hq-ops skill.
 
@@ -116,9 +123,23 @@ export function AgentJobLog({ jobs = [], compact = false }) {
         </div>
       </div>
       {!recent.length ? (
-        <p style={{ fontSize: "var(--text-sm)", color: "var(--text-tertiary)", margin: 0 }}>
-          No agent runs yet. Use Briefing · Ask AI — jobs appear here when dispatched or completed.
-        </p>
+        <div>
+          <p style={{ fontSize: "var(--text-sm)", color: "var(--text-tertiary)", margin: 0, lineHeight: 1.55 }}>
+            No agent runs yet. Dispatch from Briefing · Ask AI — or paste a starter prompt into Cursor and complete via
+            Automation.
+          </p>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
+            <Button variant="accent" size="sm" href="/hq/briefing">
+              Ask AI on Briefing →
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => copyPrompt(STARTER_JOB)}>
+              Copy starter prompt
+            </Button>
+            <Button variant="ghost" size="sm" href="/hq/automation">
+              Complete job →
+            </Button>
+          </div>
+        </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {recent.map((job) => (

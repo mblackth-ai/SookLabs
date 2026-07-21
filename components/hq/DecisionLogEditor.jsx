@@ -25,6 +25,7 @@ export function DecisionLogEditor({ initialData }) {
   const [editingId, setEditingId] = useState(null);
   const [editTitle, setEditTitle] = useState("");
   const [editBody, setEditBody] = useState("");
+  const [todayOnly, setTodayOnly] = useState(false);
 
   async function addDecision(e) {
     e.preventDefault();
@@ -73,6 +74,7 @@ export function DecisionLogEditor({ initialData }) {
   const today = new Date().toISOString().slice(0, 10);
   const decidedToday = (data.decisions || []).some((d) => String(d.date || "").startsWith(today));
   const todayDecisions = (data.decisions || []).filter((d) => String(d.date || "").startsWith(today));
+  const visibleDecisions = todayOnly ? todayDecisions : data.decisions || [];
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
@@ -137,12 +139,19 @@ export function DecisionLogEditor({ initialData }) {
       </Card>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        {decidedToday && todayDecisions.length > 0 && (
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
           <p style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)", margin: 0 }}>
-            {todayDecisions.length} logged today · scroll for history
+            {decidedToday
+              ? `${todayDecisions.length} logged today${todayOnly ? "" : " · scroll for history"}`
+              : `${(data.decisions || []).length} total · none today yet`}
           </p>
-        )}
-        {data.decisions.map((entry) => (
+          {(data.decisions || []).length > 0 && (
+            <Button variant={todayOnly ? "accent" : "ghost"} size="sm" onClick={() => setTodayOnly((v) => !v)}>
+              {todayOnly ? "Show all" : "Today only"}
+            </Button>
+          )}
+        </div>
+        {visibleDecisions.map((entry) => (
           <Card key={entry.id} padding="md">
             {editingId === entry.id ? (
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -192,8 +201,10 @@ export function DecisionLogEditor({ initialData }) {
             )}
           </Card>
         ))}
-        {data.decisions.length === 0 && (
-          <p style={{ color: "var(--text-tertiary)", fontSize: "var(--text-sm)" }}>No decisions logged yet.</p>
+        {visibleDecisions.length === 0 && (
+          <p style={{ color: "var(--text-tertiary)", fontSize: "var(--text-sm)" }}>
+            {todayOnly ? "No decisions logged today — use the form above." : "No decisions logged yet."}
+          </p>
         )}
       </div>
     </div>
