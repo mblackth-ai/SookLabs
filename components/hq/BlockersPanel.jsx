@@ -83,7 +83,7 @@ export function BlockersPanel({ initialData }) {
             <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap", justifyContent: "flex-end" }}>
               {b.href && (
                 <Button variant="ghost" size="sm" href={b.href}>
-                  Board
+                  {b.sourceItemId || String(b.id).startsWith("ws-") ? "Open item →" : "Board"}
                 </Button>
               )}
               {!String(b.id).startsWith("ws-") && (
@@ -95,11 +95,6 @@ export function BlockersPanel({ initialData }) {
                     Resolve
                   </Button>
                 </>
-              )}
-              {String(b.id).startsWith("ws-") && b.href && (
-                <Button variant="ghost" size="sm" href={b.href}>
-                  Unblock on board
-                </Button>
               )}
             </div>
           </div>

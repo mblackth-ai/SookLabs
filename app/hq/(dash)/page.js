@@ -61,7 +61,7 @@ export default async function OverviewPage() {
             <span className="hq-section-label">Blockers</span>
             <strong className={blockers.length ? "hq-text-danger" : undefined}>{blockers.length}</strong>
           </a>
-          <a className="hq-overview-pulse-item" href="/hq/goals">
+          <a className="hq-overview-pulse-item" href="#goals">
             <span className="hq-section-label">Goals</span>
             <strong>{activeGoals}</strong>
           </a>
@@ -105,7 +105,9 @@ export default async function OverviewPage() {
         <MorningLoopCard initialData={ops} />
 
         <div className="hq-grid-2">
-          <GoalsPanel initialData={ops} compact />
+          <div id="goals">
+            <GoalsPanel initialData={ops} compact />
+          </div>
           <div id="blockers">
             <BlockersPanel initialData={ops} />
           </div>

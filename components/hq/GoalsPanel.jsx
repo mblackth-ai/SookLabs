@@ -7,6 +7,29 @@ import { Button } from "./Button";
 import { useOpsData } from "./useOpsData";
 import { newId } from "@/lib/hq/ops-shared";
 
+const PRODUCT_LABELS = {
+  hq: "HQ",
+  sookly: "Sookly",
+  seos: "SEOS",
+  personal: "Personal",
+  general: "General",
+};
+
+const PRODUCT_BOARD = {
+  hq: "/hq",
+  sookly: "/hq/sookly/action-plan",
+  seos: "/hq/seos/social-gtm",
+  personal: "/hq/goals",
+};
+
+const PRODUCT_VARIANT = {
+  hq: "accent",
+  sookly: "success",
+  seos: "warning",
+  personal: "neutral",
+  general: "outline",
+};
+
 export function GoalsPanel({ initialData, compact = false }) {
   const { data, save, saving, error } = useOpsData(initialData);
   const [title, setTitle] = useState("");
@@ -68,13 +91,29 @@ export function GoalsPanel({ initialData, compact = false }) {
               borderRadius: "var(--radius-md)",
             }}
           >
-            <div>
-              <div style={{ fontSize: "var(--text-sm)", fontWeight: 500 }}>{g.title}</div>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                <div style={{ fontSize: "var(--text-sm)", fontWeight: 500 }}>{g.title}</div>
+                <Badge variant={PRODUCT_VARIANT[g.product] || "outline"} size="sm">
+                  {PRODUCT_LABELS[g.product] || g.product || "General"}
+                </Badge>
+              </div>
               <div style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)", marginTop: 4 }}>
-                {g.horizon || "—"} · {g.product || "general"}
+                {g.horizon || "ongoing"}
+                {PRODUCT_BOARD[g.product] ? (
+                  <>
+                    {" · "}
+                    <a
+                      href={PRODUCT_BOARD[g.product]}
+                      style={{ color: "var(--text-accent)", textDecoration: "none" }}
+                    >
+                      Open board →
+                    </a>
+                  </>
+                ) : null}
               </div>
             </div>
-            <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+            <div style={{ display: "flex", gap: 6, alignItems: "center", flexShrink: 0 }}>
               <Badge variant={g.status === "active" ? "accent" : "outline"} size="sm">
                 {g.status}
               </Badge>

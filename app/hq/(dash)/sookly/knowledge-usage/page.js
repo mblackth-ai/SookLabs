@@ -9,14 +9,21 @@ export default function KnowledgeUsagePage() {
     <div>
       <TopBar
         title="Knowledge Usage"
-        subtitle="Static demo · which KB records could power auto-replies (not live sync)"
+        subtitle="Static sample data — not live Sookly or SEOS KB sync"
         actions={
-          <Badge variant="warning" size="sm">
-            Demo · Manual
+          <Badge variant="warning" size="sm" title="Illustrative rows only; no API connection">
+            Demo
           </Badge>
         }
       />
       <div className="hq-page-content">
+        <Card padding="md" style={{ marginBottom: "var(--space-4)" }}>
+          <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", margin: 0, lineHeight: 1.55 }}>
+            This page mirrors how receptionist intents <em>could</em> map to SEOS Knowledge Base records. Every row is{" "}
+            <strong>Manual</strong> — edit truth in SEOS KB; Sookly consumes exports when wired. No fake &quot;Connected&quot;
+            or live channel sync.
+          </p>
+        </Card>
         <Card padding="none">
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "var(--text-sm)" }}>
             <thead>
@@ -24,7 +31,12 @@ export default function KnowledgeUsagePage() {
                 <th style={{ padding: "var(--space-3)" }}>Intent</th>
                 <th style={{ padding: "var(--space-3)" }}>Channel</th>
                 <th style={{ padding: "var(--space-3)" }}>KB record</th>
-                <th style={{ padding: "var(--space-3)" }}>Sync</th>
+                <th style={{ padding: "var(--space-3)" }}>
+                  Sync{" "}
+                  <span style={{ fontWeight: 400, color: "var(--text-tertiary)", fontSize: "var(--text-xs)" }}>
+                    (honest status)
+                  </span>
+                </th>
               </tr>
             </thead>
             <tbody>

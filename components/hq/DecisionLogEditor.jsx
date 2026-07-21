@@ -70,9 +70,45 @@ export function DecisionLogEditor({ initialData }) {
     await save({ decisions: data.decisions.filter((d) => d.id !== id) });
   }
 
+  const today = new Date().toISOString().slice(0, 10);
+  const decidedToday = (data.decisions || []).some((d) => String(d.date || "").startsWith(today));
+  const todayDecisions = (data.decisions || []).filter((d) => String(d.date || "").startsWith(today));
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
-      <Card padding="md">
+      {!decidedToday && (
+        <Card
+          padding="md"
+          style={{
+            border: "1px solid var(--border-accent, rgba(99,102,241,.35))",
+            background: "var(--color-accent-muted, rgba(99,102,241,.06))",
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", alignItems: "flex-start" }}>
+            <div>
+              <div className="hq-card-title" style={{ marginBottom: 6 }}>
+                Nothing logged today yet
+              </div>
+              <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", margin: 0, lineHeight: 1.55 }}>
+                One sentence is enough — what did you choose, defer, or kill? Future-you will thank present-you.
+              </p>
+            </div>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => {
+                setTitle("Today: ");
+                document.getElementById("decision-log-form")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                document.querySelector("#decision-log-form input")?.focus();
+              }}
+            >
+              Log today&apos;s decision
+            </Button>
+          </div>
+        </Card>
+      )}
+
+      <Card padding="md" id="decision-log-form">
         <div className="hq-card-title" style={{ marginBottom: "var(--space-4)" }}>
           Log a decision
         </div>
@@ -101,6 +137,11 @@ export function DecisionLogEditor({ initialData }) {
       </Card>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {decidedToday && todayDecisions.length > 0 && (
+          <p style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)", margin: 0 }}>
+            {todayDecisions.length} logged today · scroll for history
+          </p>
+        )}
         {data.decisions.map((entry) => (
           <Card key={entry.id} padding="md">
             {editingId === entry.id ? (
