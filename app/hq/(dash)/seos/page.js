@@ -46,15 +46,15 @@ export default function SeosHubPage() {
           {PROJECT_LINKS.map((link) => {
             const href = link.external ? seosUrl : link.href;
             return (
-              <Link key={link.title} href={href} style={{ textDecoration: "none", color: "inherit" }}>
-                <Card interactive padding="md">
-                  <div className="hq-card-header" style={{ marginBottom: "var(--space-2)" }}>
+              <Link key={link.title} href={href} className="hq-tile-link">
+                <Card padding="md" className="hq-card--tile">
+                  <div className="hq-card-header hq-mb-2">
                     <div className="hq-card-title">{link.title}</div>
                     <Badge variant="outline" size="sm">
                       {link.badge}
                     </Badge>
                   </div>
-                  <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", margin: 0 }}>{link.subtitle}</p>
+                  <p className="hq-text-sm-secondary">{link.subtitle}</p>
                 </Card>
               </Link>
             );

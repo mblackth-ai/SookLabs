@@ -24,6 +24,12 @@ function webhookHostHint() {
   }
 }
 
+function envTone(ok, warn = false) {
+  if (ok) return "ok";
+  if (warn) return "warn";
+  return "muted";
+}
+
 export default function SettingsPage() {
   const seosUrl = getSeosAppUrl();
   const storage = getOpsStorageMode();
@@ -35,6 +41,49 @@ export default function SettingsPage() {
   const hasCron = envSet("HQ_CRON_SECRET") || envSet("CRON_SECRET");
   const agentMode = getAgentMode();
   const webhookHost = webhookHostHint();
+
+  const envRows = [
+    {
+      label: "Ops store",
+      value: hasHqDb ? "Postgres" : "File (ops.json)",
+      tone: envTone(hasHqDb, !hasHqDb),
+    },
+    {
+      label: "SEOS Authority token",
+      value: hasSeosToken ? "configured" : "not set",
+      tone: envTone(hasSeosToken),
+    },
+    {
+      label: "Agent webhook",
+      value: hasWebhook ? `set${webhookHost ? ` · ${webhookHost}` : ""}` : "optional / unset",
+      tone: envTone(hasWebhook),
+    },
+    {
+      label: "n8n base URL",
+      value: hasN8nBase ? "set" : "optional / unset",
+      tone: envTone(hasN8nBase),
+    },
+    {
+      label: "Callback secret",
+      value: hasCallback ? "set" : "missing",
+      tone: envTone(hasCallback, !hasCallback),
+    },
+    {
+      label: "Cron secret",
+      value: hasCron ? "set" : "missing",
+      tone: envTone(hasCron, !hasCron),
+    },
+    {
+      label: "Agent mode",
+      value: agentMode,
+      tone: "muted",
+    },
+    {
+      label: "Sync badges policy",
+      value: "Manual / Draft / Workflow Ready / Future API",
+      tone: "muted",
+    },
+  ];
 
   return (
     <div>
@@ -55,17 +104,17 @@ export default function SettingsPage() {
           </Badge>
         }
       />
-      <div className="hq-page-content" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div className="hq-page-content hq-stack-3">
         <Card padding="md">
           <div className="hq-card-title">Access</div>
-          <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", marginTop: 8, lineHeight: 1.6 }}>
+          <p className="hq-text-sm-secondary hq-mt-2">
             HQ uses a shared password session (<code>HQ_ACCESS_PASSWORD</code>). This is a private command centre, not
             multi-user SaaS IAM.
           </p>
         </Card>
         <Card padding="md">
           <div className="hq-card-title">Product links</div>
-          <ul style={{ marginTop: 8, paddingLeft: 18, fontSize: "var(--text-sm)", color: "var(--text-secondary)", lineHeight: 1.7 }}>
+          <ul className="hq-text-sm-secondary hq-mt-2" style={{ paddingLeft: 18, lineHeight: 1.7 }}>
             <li>
               SEOS operator desk:{" "}
               <a href={seosUrl} style={{ color: "var(--text-accent)" }}>
@@ -78,47 +127,29 @@ export default function SettingsPage() {
         </Card>
         <Card padding="md">
           <div className="hq-card-title">Environment health</div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
-            <Badge variant={hasHqDb ? "success" : "outline"} size="sm">
-              Ops store: {hasHqDb ? "Postgres" : "File (ops.json)"}
-            </Badge>
-            <Badge variant={hasSeosToken ? "success" : "outline"} size="sm">
-              SEOS Authority token: {hasSeosToken ? "configured" : "not set"}
-            </Badge>
-            <Badge variant={hasWebhook ? "success" : "outline"} size="sm">
-              Agent webhook: {hasWebhook ? `set${webhookHost ? ` · ${webhookHost}` : ""}` : "optional / unset"}
-            </Badge>
-            <Badge variant={hasN8nBase ? "success" : "outline"} size="sm">
-              n8n base URL: {hasN8nBase ? "set" : "optional / unset"}
-            </Badge>
-            <Badge variant={hasCallback ? "success" : "outline"} size="sm">
-              Callback secret: {hasCallback ? "set" : "missing"}
-            </Badge>
-            <Badge variant={hasCron ? "success" : "outline"} size="sm">
-              Cron secret: {hasCron ? "set" : "missing"}
-            </Badge>
-            <Badge variant="outline" size="sm">
-              Agent mode: {agentMode}
-            </Badge>
-            <Badge variant="outline" size="sm">
-              Sync badges: Manual / Draft / Workflow Ready / Future API only
-            </Badge>
-          </div>
-          <p style={{ fontSize: "var(--text-sm)", color: "var(--text-tertiary)", marginTop: 12, lineHeight: 1.6 }}>
+          <dl className="hq-env-list">
+            {envRows.map((row) => (
+              <div key={row.label} className="hq-env-row">
+                <dt className="hq-env-key">{row.label}</dt>
+                <dd className={`hq-env-value hq-env-value--${row.tone}`}>{row.value}</dd>
+              </div>
+            ))}
+          </dl>
+          <p className="hq-text-sm-secondary hq-mt-3">
             Webhook set ≠ Connected social/OAuth. It only means Ask AI / morning can POST to n8n. Completion still uses
             callback or Cursor pending poll — never fake “Live” sync.
           </p>
           {!hasHqDb && (
-            <p style={{ fontSize: "var(--text-sm)", color: "var(--color-warning)", marginTop: 12, lineHeight: 1.6 }}>
+            <p className="hq-text-sm-secondary hq-mt-3" style={{ color: "var(--color-warning)" }}>
               Production on Vercel should set <code>HQ_DATABASE_URL</code>. File mode can wipe founder ops on redeploy.
             </p>
           )}
           {hasHqDb && (
-            <p style={{ fontSize: "var(--text-sm)", color: "var(--text-tertiary)", marginTop: 12, lineHeight: 1.6 }}>
+            <p className="hq-text-xs-muted hq-mt-3">
               Durable ops enabled via <code>HQ_DATABASE_URL</code>. Confirm Overview badge shows Postgres after deploy.
             </p>
           )}
-          <p style={{ fontSize: "var(--text-sm)", color: "var(--text-tertiary)", marginTop: 12, lineHeight: 1.6 }}>
+          <p className="hq-text-xs-muted hq-mt-3">
             Agent wiring:{" "}
             <a href="/hq/automation" style={{ color: "var(--text-accent)" }}>
               LLM &amp; Agents

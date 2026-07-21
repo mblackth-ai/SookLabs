@@ -10,9 +10,9 @@ export function HubPage({ title, subtitle, links, footerNote }) {
       <div className="hq-page-content">
         <div className="hq-grid-2" style={{ gap: "var(--space-3)" }}>
           {links.map((link) => (
-            <Link key={link.href} href={link.href} style={{ textDecoration: "none", color: "inherit" }}>
-              <Card interactive padding="md">
-                <div className="hq-card-header" style={{ marginBottom: "var(--space-2)" }}>
+            <Link key={link.href} href={link.href} className="hq-tile-link">
+              <Card padding="md" className="hq-card--tile">
+                <div className="hq-card-header hq-mb-2">
                   <div className="hq-card-title">{link.title}</div>
                   {link.badge && (
                     <Badge variant="outline" size="sm">
@@ -20,16 +20,14 @@ export function HubPage({ title, subtitle, links, footerNote }) {
                     </Badge>
                   )}
                 </div>
-                <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", margin: 0, lineHeight: "var(--leading-relaxed)" }}>
-                  {link.subtitle}
-                </p>
+                <p className="hq-text-sm-secondary">{link.subtitle}</p>
               </Card>
             </Link>
           ))}
         </div>
         {footerNote && (
-          <Card padding="md" style={{ marginTop: "var(--space-4)" }}>
-            <p style={{ fontSize: "var(--text-sm)", color: "var(--text-tertiary)", margin: 0 }}>{footerNote}</p>
+          <Card padding="md" className="hq-mt-4">
+            <p className="hq-text-xs-muted">{footerNote}</p>
           </Card>
         )}
       </div>

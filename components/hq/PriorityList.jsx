@@ -112,9 +112,9 @@ export function PriorityList({ initialData, compact = false }) {
           </div>
         ))}
         {open.length === 0 && (
-          <div className="hq-priority-empty">
-            <p>No open priorities — pick up to 3 for today.</p>
-            <div className="hq-priority-empty-actions">
+          <div className="hq-empty">
+            <p className="hq-empty__text">No open priorities — pick up to 3 for today.</p>
+            <div className="hq-empty__actions">
               <Button
                 variant="secondary"
                 size="sm"

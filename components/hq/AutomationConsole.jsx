@@ -265,7 +265,7 @@ export function AutomationConsole({
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
+    <div className="hq-stack-3">
       <Card padding="md">
         <div className="hq-card-header">
           <span className="hq-card-title">Agent mode</span>
@@ -273,18 +273,18 @@ export function AutomationConsole({
             {mode}
           </Badge>
         </div>
-        <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", margin: "8px 0 0" }}>
+        <p className="hq-text-sm-secondary hq-mt-2">
           Webhook mode queues jobs in ops, routes through n8n when configured, and completes via Cursor poll or one-click
           paste below. No LLM API keys required in Vercel.
         </p>
-        <div className="hq-grid-2" style={{ marginTop: 16, gap: 12 }}>
-          <div style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)" }}>
+        <div className="hq-grid-2 hq-mt-4" style={{ gap: "var(--space-3)" }}>
+          <div className="hq-text-xs-muted">
             Callback secret:{" "}
             <Badge variant={callbackConfigured ? "success" : "warning"} size="sm">
               {callbackConfigured ? "Set" : "Missing"}
             </Badge>
           </div>
-          <div style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)" }}>
+          <div className="hq-text-xs-muted">
             Webhook URL:{" "}
             <Badge variant={webhookConfigured ? "success" : "warning"} size="sm">
               {webhookConfigured ? "Set" : "Optional / unset"}
@@ -294,15 +294,15 @@ export function AutomationConsole({
       </Card>
 
       <Card padding="md">
-        <div className="hq-card-header" style={{ marginBottom: 12 }}>
+        <div className="hq-card-header hq-mb-2">
           <span className="hq-card-title">One-click actions</span>
           {(toast || error) && (
-            <span style={{ fontSize: "var(--text-xs)", color: error ? "var(--color-error)" : "var(--text-tertiary)" }}>
+            <span className="hq-text-xs-muted" style={{ color: error ? "var(--color-error)" : undefined }}>
               {error || toast}
             </span>
           )}
         </div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+        <div className="hq-row-2">
           <AskAIButtonFull showFocus />
           <Button variant="secondary" size="sm" loading={busy === "morning"} onClick={runMorning}>
             Run morning
@@ -322,16 +322,16 @@ export function AutomationConsole({
             Briefing →
           </Button>
         </div>
-        <p style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)", margin: "12px 0 0" }}>
+        <p className="hq-text-xs-muted hq-mt-3">
           With n8n webhook set, <strong>Ask AI / Run morning</strong> auto-write the briefing (OpenAI → callback). Copy
           Cursor prompt / Complete stay available for Codex, Claude, or overrides.
         </p>
       </Card>
 
       <Card padding="md" className="hq-automation-running">
-        <div className="hq-card-header" style={{ marginBottom: 12 }}>
+        <div className="hq-card-header hq-mb-2">
           <span className="hq-card-title">Running jobs</span>
-          <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+          <div className="hq-row-2">
             <Badge variant={running.length ? "warning" : "outline"} size="sm">
               {running.length}
             </Badge>
@@ -348,37 +348,38 @@ export function AutomationConsole({
           </div>
         </div>
         {!running.length ? (
-          <p style={{ fontSize: "var(--text-sm)", color: "var(--text-tertiary)", margin: 0 }}>
-            No running jobs. Use Ask AI or Run morning to dispatch.
-          </p>
+          <div className="hq-empty">
+            <p className="hq-empty__text">No running jobs. Use Ask AI or Run morning to dispatch.</p>
+            <div className="hq-empty__actions">
+              <Button variant="secondary" size="sm" href="/hq/briefing">
+                Ask AI on Briefing →
+              </Button>
+              <Button variant="ghost" size="sm" loading={busy === "morning"} onClick={runMorning}>
+                Run morning
+              </Button>
+            </div>
+          </div>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div className="hq-job-list">
             {running.map((job) => (
-              <div
-                key={job.id}
-                style={{
-                  paddingTop: 4,
-                  borderTop: "1px solid var(--border-subtle)",
-                }}
-              >
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "flex-start" }}>
+              <div key={job.id} className="hq-job-card">
+                <div className="hq-flex-between">
                   <div>
-                    <div style={{ fontSize: "var(--text-sm)", fontWeight: 500 }}>
+                    <div className="hq-job-title">
                       {job.type}
-                      <span style={{ color: "var(--text-tertiary)", fontWeight: 400 }}>
+                      <span className="hq-job-title-meta">
                         {" "}
                         · {job.provider || "cursor"} · {job.id}
                       </span>
                     </div>
-                    <div style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)", marginTop: 4 }}>
+                    <div className="hq-job-meta">
                       {job.startedAt ? new Date(job.startedAt).toLocaleString() : ""}
                       {job.summary ? ` · ${String(job.summary).slice(0, 100)}` : ""}
                     </div>
                   </div>
-                  <div style={{ display: "flex", gap: 6, flexShrink: 0, flexWrap: "wrap", justifyContent: "flex-end" }}>
-                    <Button variant="accent" size="sm" onClick={() => copyPrompt(job)}>
-                      Copy Cursor prompt
-                    </Button>
+                </div>
+                <div className="hq-job-actions">
+                  <div className="hq-job-actions-primary">
                     <Button
                       variant="secondary"
                       size="sm"
@@ -389,6 +390,11 @@ export function AutomationConsole({
                     >
                       Complete
                     </Button>
+                    <Button variant="accent" size="sm" onClick={() => copyPrompt(job)}>
+                      Copy Cursor prompt
+                    </Button>
+                  </div>
+                  <div className="hq-job-actions-secondary">
                     <Button
                       variant="ghost"
                       size="sm"
@@ -400,25 +406,15 @@ export function AutomationConsole({
                   </div>
                 </div>
                 {completeId === job.id && (
-                  <div style={{ marginTop: 10 }}>
+                  <div className="hq-job-complete-panel">
                     <textarea
                       value={completeText}
                       onChange={(e) => setCompleteText(e.target.value)}
                       placeholder="Paste briefing markdown (## Priorities focus / ## Risks / ## Decisions)…"
                       rows={8}
-                      style={{
-                        width: "100%",
-                        fontFamily: "var(--font-mono, var(--font-sans))",
-                        fontSize: "var(--text-xs)",
-                        padding: 10,
-                        borderRadius: "var(--radius-md)",
-                        border: "1px solid var(--border-default)",
-                        background: "var(--bg-base)",
-                        color: "var(--text-primary)",
-                        resize: "vertical",
-                      }}
+                      className="hq-job-complete-textarea"
                     />
-                    <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                    <div className="hq-row-2 hq-mt-2">
                       <Button
                         variant="primary"
                         size="sm"
@@ -442,25 +438,25 @@ export function AutomationConsole({
       <div className="hq-grid-2" style={{ gap: "var(--space-3)" }}>
         {providers.map((p) => (
           <Card key={p.id} padding="md">
-            <div className="hq-card-header" style={{ marginBottom: 8 }}>
+            <div className="hq-card-header hq-mb-2">
               <div className="hq-card-title">{p.label}</div>
               <Badge variant={BADGE_VARIANT[p.badge] || "outline"} size="sm">
                 {p.badge}
               </Badge>
             </div>
-            <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", margin: 0 }}>{p.note}</p>
+            <p className="hq-text-sm-secondary">{p.note}</p>
             {p.id === "n8n" && n8nBase ? (
-              <Button variant="ghost" size="sm" href={n8nBase} external style={{ marginTop: 10 }}>
+              <Button variant="ghost" size="sm" href={n8nBase} external className="hq-mt-2">
                 Open n8n →
               </Button>
             ) : null}
             {p.id === "cursor" && running[0] ? (
-              <Button variant="ghost" size="sm" style={{ marginTop: 10 }} onClick={() => copyPrompt(running[0])}>
+              <Button variant="ghost" size="sm" className="hq-mt-2" onClick={() => copyPrompt(running[0])}>
                 Copy latest Cursor prompt
               </Button>
             ) : null}
             {p.id === "anthropic" && anthropicConfigured ? (
-              <p style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)", margin: "8px 0 0" }}>
+              <p className="hq-text-xs-muted hq-mt-2">
                 Set HQ_AGENT_MODE=anthropic to use the key (Future API path).
               </p>
             ) : null}

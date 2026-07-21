@@ -14,11 +14,11 @@ export function PortfolioStrip({ products }) {
   if (!products?.length) return null;
 
   return (
-    <div className="hq-grid-4" style={{ marginBottom: "var(--space-4)" }}>
+    <div className="hq-grid-4 hq-mb-4">
       {products.map((p) => (
-        <Link key={p.id} href={p.href} style={{ textDecoration: "none", color: "inherit" }}>
-          <Card interactive padding="md">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8, marginBottom: 8 }}>
+        <Link key={p.id} href={p.href} className="hq-tile-link">
+          <Card padding="md" className="hq-card--tile">
+            <div className="hq-flex-between hq-mb-2">
               <div className="hq-card-title" style={{ fontSize: "var(--text-sm)" }}>
                 {p.name}
               </div>
@@ -27,7 +27,7 @@ export function PortfolioStrip({ products }) {
               </Badge>
             </div>
             <div style={{ fontSize: "var(--text-2xl)", fontWeight: 600, color: "var(--text-accent)" }}>{p.pct}%</div>
-            <div style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)", marginTop: 4 }}>
+            <div className="hq-text-xs-muted hq-mt-1">
               {p.open} open
               {p.blocked ? ` · ${p.blocked} blocked` : ""}
               {` · ${p.done}/${p.total} done`}

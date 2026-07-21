@@ -64,17 +64,17 @@ export default async function PortfolioPage() {
               { open: 0, blocked: 0, p0: 0 }
             );
             return (
-              <Link key={b.href} href={b.href} style={{ textDecoration: "none", color: "inherit" }}>
-                <Card interactive padding="md">
-                  <div className="hq-card-header" style={{ marginBottom: 8 }}>
+              <Link key={b.href} href={b.href} className="hq-tile-link">
+                <Card padding="md" className="hq-card--tile">
+                  <div className="hq-card-header hq-mb-2">
                     <div className="hq-card-title">{b.title}</div>
                     <Badge variant={counts.blocked ? "error" : counts.p0 ? "warning" : "accent"} size="sm">
                       {counts.open} open
                     </Badge>
                   </div>
-                  <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", margin: 0 }}>{b.subtitle}</p>
+                  <p className="hq-text-sm-secondary">{b.subtitle}</p>
                   {(counts.blocked > 0 || counts.p0 > 0) && (
-                    <p style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)", margin: "8px 0 0" }}>
+                    <p className="hq-text-xs-muted hq-mt-2">
                       {counts.p0 ? `${counts.p0} P0` : null}
                       {counts.p0 && counts.blocked ? " · " : null}
                       {counts.blocked ? `${counts.blocked} blocked` : null}

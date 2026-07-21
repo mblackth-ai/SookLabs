@@ -36,7 +36,6 @@ export function AgentJobLog({ jobs = [], compact = false }) {
   const [toast, setToast] = useState("");
   const router = useRouter();
   const recent = jobs.slice(0, compact ? 3 : 8);
-  const running = recent.filter((j) => j.status === "running");
 
   async function runMorning() {
     setLoading(true);
@@ -105,34 +104,27 @@ export function AgentJobLog({ jobs = [], compact = false }) {
     <Card padding="md">
       <div className="hq-card-header">
         <span className="hq-card-title">Agent jobs</span>
-        <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
-          {toast ? (
-            <span style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)" }}>{toast}</span>
-          ) : null}
+        <div className="hq-row-2">
+          {toast ? <span className="hq-text-xs-muted">{toast}</span> : null}
           <Button variant="ghost" size="sm" loading={loading} onClick={runMorning}>
             Run morning
           </Button>
-          {running[0] ? (
-            <Button variant="accent" size="sm" onClick={() => copyPrompt(running[0])}>
-              Copy Cursor prompt
-            </Button>
-          ) : null}
           <Button variant="ghost" size="sm" href="/hq/automation">
             Complete →
           </Button>
         </div>
       </div>
       {!recent.length ? (
-        <div>
-          <p style={{ fontSize: "var(--text-sm)", color: "var(--text-tertiary)", margin: 0, lineHeight: 1.55 }}>
+        <div className="hq-empty">
+          <p className="hq-empty__text">
             No agent runs yet. Dispatch from Briefing · Ask AI — or paste a starter prompt into Cursor and complete via
             Automation.
           </p>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
-            <Button variant="accent" size="sm" href="/hq/briefing">
+          <div className="hq-empty__actions">
+            <Button variant="secondary" size="sm" href="/hq/briefing">
               Ask AI on Briefing →
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => copyPrompt(STARTER_JOB)}>
+            <Button variant="accent" size="sm" onClick={() => copyPrompt(STARTER_JOB)}>
               Copy starter prompt
             </Button>
             <Button variant="ghost" size="sm" href="/hq/automation">
@@ -141,32 +133,22 @@ export function AgentJobLog({ jobs = [], compact = false }) {
           </div>
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <div className="hq-job-list">
           {recent.map((job) => (
-            <div key={job.id} style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "flex-start" }}>
-              <div>
-                <div style={{ fontSize: "var(--text-sm)", fontWeight: 500 }}>
-                  {job.type}
-                  {job.provider ? (
-                    <span style={{ color: "var(--text-tertiary)", fontWeight: 400 }}> · {job.provider}</span>
-                  ) : null}
+            <div key={job.id} className="hq-job-card">
+              <div className="hq-flex-between">
+                <div>
+                  <div className="hq-job-title">
+                    {job.type}
+                    {job.provider ? (
+                      <span className="hq-job-title-meta"> · {job.provider}</span>
+                    ) : null}
+                  </div>
+                  <div className="hq-job-meta">
+                    {job.startedAt ? new Date(job.startedAt).toLocaleString() : ""}
+                    {job.summary ? ` · ${job.summary.slice(0, 80)}` : ""}
+                  </div>
                 </div>
-                <div style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)", marginTop: 4 }}>
-                  {job.startedAt ? new Date(job.startedAt).toLocaleString() : ""}
-                  {job.summary ? ` · ${job.summary.slice(0, 80)}` : ""}
-                </div>
-              </div>
-              <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                {job.status === "running" ? (
-                  <>
-                    <Button variant="ghost" size="sm" onClick={() => copyPrompt(job)}>
-                      Copy
-                    </Button>
-                    <Button variant="ghost" size="sm" disabled={loading} onClick={() => dismissJob(job)}>
-                      Dismiss
-                    </Button>
-                  </>
-                ) : null}
                 <Badge
                   variant={job.status === "completed" ? "success" : job.status === "failed" ? "error" : "warning"}
                   size="sm"
@@ -174,6 +156,23 @@ export function AgentJobLog({ jobs = [], compact = false }) {
                   {job.status}
                 </Badge>
               </div>
+              {job.status === "running" ? (
+                <div className="hq-job-actions">
+                  <div className="hq-job-actions-primary">
+                    <Button variant="secondary" size="sm" href="/hq/automation">
+                      Complete
+                    </Button>
+                    <Button variant="accent" size="sm" onClick={() => copyPrompt(job)}>
+                      Copy prompt
+                    </Button>
+                  </div>
+                  <div className="hq-job-actions-secondary">
+                    <Button variant="ghost" size="sm" disabled={loading} onClick={() => dismissJob(job)}>
+                      Dismiss
+                    </Button>
+                  </div>
+                </div>
+              ) : null}
             </div>
           ))}
         </div>
