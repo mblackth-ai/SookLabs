@@ -43,55 +43,28 @@ export default function HqLoginPage() {
   return (
     <div className="hq-login-page">
       <form onSubmit={onSubmit} className="hq-login-form">
-        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2-5)" }}>
+        <div className="hq-login-brand">
           <Image
             src={GLYPH}
             alt="SookLabs"
-            width={32}
-            height={32}
+            width={36}
+            height={36}
             priority
-            style={{ borderRadius: "var(--radius-lg)", objectFit: "cover" }}
+            className="hq-login-glyph"
           />
-          <span
-            style={{
-              fontSize: "var(--text-base)",
-              fontWeight: "var(--weight-semibold)",
-              letterSpacing: "var(--tracking-snug)",
-              color: "var(--text-primary)",
-            }}
-          >
-            SookLabs HQ
-          </span>
-        </div>
-
-        <div>
-          <div
-            style={{
-              fontSize: "var(--text-lg)",
-              fontWeight: "var(--weight-semibold)",
-              letterSpacing: "var(--tracking-snug)",
-              color: "var(--text-primary)",
-            }}
-          >
-            Restricted access
+          <div>
+            <div className="hq-login-brand-name">SookLabs HQ</div>
+            <div className="hq-login-brand-tag">Private founder command centre</div>
           </div>
-          <p
-            style={{
-              fontSize: "var(--text-sm)",
-              color: "var(--text-tertiary)",
-              marginTop: "var(--space-1)",
-              lineHeight: "var(--leading-normal)",
-            }}
-          >
-            Enter the access password to continue.
-          </p>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1-5)" }}>
-          <label
-            htmlFor="hq-password"
-            style={{ fontSize: "var(--text-xs)", fontWeight: "var(--weight-medium)", color: "var(--text-secondary)" }}
-          >
+        <div className="hq-login-intro">
+          <h1 className="hq-login-heading">Restricted access</h1>
+          <p className="hq-login-lead">Enter the access password to continue.</p>
+        </div>
+
+        <div className="hq-login-field">
+          <label htmlFor="hq-password" className="hq-login-label">
             Password
           </label>
           <input
@@ -101,38 +74,18 @@ export default function HqLoginPage() {
             onChange={(e) => setPassword(e.target.value)}
             autoFocus
             autoComplete="current-password"
-            style={{
-              width: "100%",
-              padding: "var(--space-2) var(--space-3)",
-              fontSize: "var(--text-sm)",
-              fontFamily: "var(--font-sans)",
-              color: "var(--text-primary)",
-              background: "var(--bg-base)",
-              border: "1px solid var(--border-default)",
-              borderRadius: "var(--radius-lg)",
-              outline: "none",
-            }}
+            className="hq-login-input"
+            placeholder="Access password"
           />
         </div>
 
-        {error && (
-          <div
-            style={{
-              fontSize: "var(--text-xs)",
-              color: "var(--color-error)",
-              background: "var(--color-error-muted)",
-              border: "1px solid rgba(239,68,68,0.2)",
-              borderRadius: "var(--radius-md)",
-              padding: "var(--space-2) var(--space-2-5)",
-            }}
-          >
-            {error}
-          </div>
-        )}
+        {error ? <div className="hq-login-error" role="alert">{error}</div> : null}
 
         <Button type="submit" variant="primary" size="md" fullWidth loading={loading}>
           Sign in
         </Button>
+
+        <p className="hq-login-footnote">Session ends when you sign out from the sidebar.</p>
       </form>
     </div>
   );
