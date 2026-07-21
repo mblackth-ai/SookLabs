@@ -908,6 +908,12 @@
   background: var(--bg-base);
 }
 
+.hq-board-card--focus {
+  outline: 2px solid var(--border-accent);
+  outline-offset: 2px;
+  transition: outline-color 200ms ease;
+}
+
 @media (max-width: 640px) {
   .hq-grid-4,
   .hq-grid-3 {

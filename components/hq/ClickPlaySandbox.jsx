@@ -108,6 +108,7 @@ export function ClickPlaySandbox({ sectionId }) {
         priority: "P2",
         owner: "Mark",
         due: "",
+        notes: result.summary || "",
         links: [{ label: "Click-play draft", url: board.boardHref }],
       };
       const items = [item, ...(stream.items || [])];

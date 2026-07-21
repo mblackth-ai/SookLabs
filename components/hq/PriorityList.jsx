@@ -84,7 +84,21 @@ export function PriorityList({ initialData, compact = false }) {
                 disabled={saving}
                 style={{ marginTop: 3, accentColor: "var(--accent)" }}
               />
-              <span style={{ fontSize: "var(--text-sm)", color: "var(--text-primary)", lineHeight: 1.45 }}>{p.title}</span>
+              <span style={{ fontSize: "var(--text-sm)", color: "var(--text-primary)", lineHeight: 1.45 }}>
+                {p.title}
+                {p.boardHref ? (
+                  <>
+                    {" "}
+                    <a
+                      href={p.boardHref}
+                      onClick={(e) => e.stopPropagation()}
+                      style={{ fontSize: "var(--text-xs)", color: "var(--text-accent)", fontWeight: 500 }}
+                    >
+                      Board →
+                    </a>
+                  </>
+                ) : null}
+              </span>
             </label>
             <button
               type="button"

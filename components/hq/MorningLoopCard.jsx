@@ -82,22 +82,22 @@ export function MorningLoopCard({ initialData }) {
       </ol>
       <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
         <span style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)" }}>Primary board:</span>
-        <Button
-          variant={primaryHref.includes("sookly") ? "accent" : "ghost"}
-          size="sm"
-          disabled={saving}
-          onClick={() => setPrimary("/hq/sookly/action-plan")}
-        >
-          Sookly
-        </Button>
-        <Button
-          variant={primaryHref.includes("social-gtm") ? "accent" : "ghost"}
-          size="sm"
-          disabled={saving}
-          onClick={() => setPrimary("/hq/seos/social-gtm")}
-        >
-          SEOS Social
-        </Button>
+        {[
+          { href: "/hq/sookly/action-plan", label: "Sookly", match: "sookly" },
+          { href: "/hq/seos/social-gtm", label: "SEOS Social", match: "social-gtm" },
+          { href: "/hq/community", label: "Community", match: "community" },
+          { href: "/hq/roastmyopsec", label: "RoastMyOpSec", match: "roastmyopsec" },
+        ].map((b) => (
+          <Button
+            key={b.href}
+            variant={primaryHref.includes(b.match) ? "accent" : "ghost"}
+            size="sm"
+            disabled={saving}
+            onClick={() => setPrimary(b.href)}
+          >
+            {b.label}
+          </Button>
+        ))}
         <Link href="/hq/automation" className="hq-morning-loop-alt">
           LLM & Agents →
         </Link>

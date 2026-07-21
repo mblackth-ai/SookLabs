@@ -1,16 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useOpsData } from "./useOpsData";
 import { Card } from "./Card";
 import { Button } from "./Button";
+import { Badge } from "./Badge";
 import { newId } from "@/lib/hq/ops-shared";
 
 const STATUSES = ["todo", "doing", "blocked", "done"];
 const PRIORITIES = ["P0", "P1", "P2"];
 
-function StreamColumn({ streamKey, stream, idPrefix, onUpdate, onPromote, saving, openPriorityCount }) {
+function StreamColumn({
+  streamKey,
+  stream,
+  idPrefix,
+  onUpdate,
+  onPromote,
+  saving,
+  openPriorityCount,
+  hideDone,
+}) {
   const [draft, setDraft] = useState("");
+  const [titleDrafts, setTitleDrafts] = useState({});
+
+  const visibleItems = (stream.items || []).filter((item) => !(hideDone && item.status === "done"));
+  const doneCount = (stream.items || []).filter((item) => item.status === "done").length;
 
   async function updateItem(itemId, patch) {
     const items = stream.items.map((item) => (item.id === itemId ? { ...item, ...patch } : item));
@@ -44,19 +58,38 @@ function StreamColumn({ streamKey, stream, idPrefix, onUpdate, onPromote, saving
     if (ok) setDraft("");
   }
 
+  function titleValue(item) {
+    return titleDrafts[item.id] !== undefined ? titleDrafts[item.id] : item.title;
+  }
+
   return (
     <Card padding="md" style={{ height: "100%" }}>
-      <div className="hq-card-title" style={{ marginBottom: "var(--space-4)" }}>
-        {stream.label}
+      <div className="hq-card-header" style={{ marginBottom: "var(--space-4)" }}>
+        <div className="hq-card-title">{stream.label}</div>
+        {doneCount > 0 ? (
+          <Badge variant="outline" size="sm">
+            {hideDone ? `${doneCount} done hidden` : `${doneCount} done`}
+          </Badge>
+        ) : null}
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        {(stream.items || []).map((item) => (
-          <div key={item.id} className="hq-board-card">
+        {visibleItems.map((item) => (
+          <div key={item.id} id={`item-${item.id}`} className="hq-board-card">
             <input
               className="hq-board-title-input"
-              value={item.title}
+              value={titleValue(item)}
               disabled={saving}
-              onChange={(e) => updateItem(item.id, { title: e.target.value })}
+              onChange={(e) => setTitleDrafts((prev) => ({ ...prev, [item.id]: e.target.value }))}
+              onBlur={() => {
+                const next = titleDrafts[item.id];
+                if (next === undefined || next === item.title) return;
+                setTitleDrafts((prev) => {
+                  const copy = { ...prev };
+                  delete copy[item.id];
+                  return copy;
+                });
+                updateItem(item.id, { title: next });
+              }}
             />
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
               <select
@@ -86,8 +119,12 @@ function StreamColumn({ streamKey, stream, idPrefix, onUpdate, onPromote, saving
                 ))}
               </select>
               <input
-                value={item.owner || ""}
-                onChange={(e) => updateItem(item.id, { owner: e.target.value })}
+                defaultValue={item.owner || ""}
+                key={`${item.id}-owner-${item.owner || ""}`}
+                onBlur={(e) => {
+                  if (e.target.value === (item.owner || "")) return;
+                  updateItem(item.id, { owner: e.target.value });
+                }}
                 disabled={saving}
                 placeholder="Owner"
                 style={{ ...selectStyle, width: 72 }}
@@ -107,7 +144,7 @@ function StreamColumn({ streamKey, stream, idPrefix, onUpdate, onPromote, saving
                 variant="ghost"
                 size="sm"
                 disabled={saving || openPriorityCount >= 3 || item.status === "done"}
-                onClick={() => onPromote(item)}
+                onClick={() => onPromote(item, streamKey)}
                 title={openPriorityCount >= 3 ? "Already 3 open priorities" : "Add to today’s priorities"}
               >
                 → Today
@@ -116,11 +153,16 @@ function StreamColumn({ streamKey, stream, idPrefix, onUpdate, onPromote, saving
                 Delete
               </Button>
             </div>
+            {item.notes ? (
+              <p style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)", margin: "8px 0 0", lineHeight: 1.45 }}>
+                {item.notes}
+              </p>
+            ) : null}
             {item.links?.length > 0 && (
               <div style={{ marginTop: 8, display: "flex", gap: 8, flexWrap: "wrap" }}>
                 {item.links.map((link) => (
                   <a
-                    key={link.url}
+                    key={`${link.url}-${link.label}`}
                     href={link.url}
                     target={link.url.startsWith("http") ? "_blank" : undefined}
                     rel={link.url.startsWith("http") ? "noreferrer" : undefined}
@@ -133,6 +175,11 @@ function StreamColumn({ streamKey, stream, idPrefix, onUpdate, onPromote, saving
             )}
           </div>
         ))}
+        {!visibleItems.length ? (
+          <p style={{ fontSize: "var(--text-sm)", color: "var(--text-tertiary)", margin: 0 }}>
+            {hideDone && doneCount ? "All open items done — toggle Show done to review." : "No tasks yet."}
+          </p>
+        ) : null}
       </div>
       <form onSubmit={addItem} style={{ display: "flex", gap: 8, marginTop: 14 }}>
         <input
@@ -184,21 +231,43 @@ export function ActionPlanBoard({ initialData, streamKeys, columns = 2 }) {
   const { data, save, saving, error } = useOpsData(initialData);
   const keys = streamKeys || ["sooklyWebsite", "sooklyApp"];
   const openPriorityCount = (data.todayPriorities || []).filter((p) => !p.done).length;
+  const [hideDone, setHideDone] = useState(true);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const focus = params.get("focus");
+    if (!focus) return;
+    const el = document.getElementById(`item-${focus}`);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.classList.add("hq-board-card--focus");
+      setTimeout(() => el.classList.remove("hq-board-card--focus"), 2400);
+    }
+  }, [data.updatedAt]);
 
   async function updateStream(streamKey, items) {
     const existing = data.workstreams[streamKey] || {};
-    await save({
+    return save({
       workstreams: {
         [streamKey]: { ...existing, items },
       },
     });
   }
 
-  async function promote(item) {
+  async function promote(item, streamKey) {
     if (openPriorityCount >= 3) return;
+    const boardHref = data.workstreams?.[streamKey]?.boardHref || "";
     const todayPriorities = [
       ...(data.todayPriorities || []),
-      { id: newId("tp"), title: item.title, done: false, stream: item.priority || "board" },
+      {
+        id: newId("tp"),
+        title: item.title,
+        done: false,
+        stream: streamKey || "board",
+        sourceItemId: item.id,
+        boardHref: boardHref ? `${boardHref}?focus=${encodeURIComponent(item.id)}` : "",
+      },
     ];
     await save({ todayPriorities });
   }
@@ -207,6 +276,11 @@ export function ActionPlanBoard({ initialData, streamKeys, columns = 2 }) {
 
   return (
     <div>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
+        <Button variant="ghost" size="sm" onClick={() => setHideDone((v) => !v)}>
+          {hideDone ? "Show done" : "Hide done"}
+        </Button>
+      </div>
       {error && <p style={{ color: "var(--color-error)", fontSize: "var(--text-sm)", marginBottom: 12 }}>{error}</p>}
       <div
         className={gridClass}
@@ -225,6 +299,7 @@ export function ActionPlanBoard({ initialData, streamKeys, columns = 2 }) {
               onPromote={promote}
               saving={saving}
               openPriorityCount={openPriorityCount}
+              hideDone={hideDone}
             />
           );
         })}

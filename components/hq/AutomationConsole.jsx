@@ -202,6 +202,30 @@ export function AutomationConsole({
     setBusy("");
   }
 
+  async function pruneFinishedJobs() {
+    setBusy("prune");
+    try {
+      const resGet = await fetch("/hq/api/ops");
+      const jsonGet = await resGet.json();
+      if (!resGet.ok || !jsonGet.ok) throw new Error(jsonGet.error || "Could not load ops");
+      const kept = (jsonGet.data?.agentJobs || []).filter((j) => j.status === "running");
+      const res = await fetch("/hq/api/ops", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ agentJobs: kept }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.ok) throw new Error(json.error || "Prune failed");
+      setJobs(kept);
+      flash(`Cleared finished jobs · ${kept.length} running kept`);
+      router.refresh();
+    } catch (e) {
+      flash(e.message || "Prune failed", true);
+    } finally {
+      setBusy("");
+    }
+  }
+
   async function submitComplete(job) {
     const text = completeText.trim();
     if (!text) {
@@ -231,6 +255,7 @@ export function AutomationConsole({
         )
       );
       flash(`Briefing saved for ${job.id}`);
+      router.push("/hq/briefing");
       router.refresh();
     } catch (e) {
       flash(e.message || "Complete failed", true);
@@ -284,6 +309,9 @@ export function AutomationConsole({
           </Button>
           <Button variant="ghost" size="sm" loading={busy === "refresh"} onClick={refreshPending}>
             Refresh queue
+          </Button>
+          <Button variant="ghost" size="sm" loading={busy === "prune"} onClick={pruneFinishedJobs}>
+            Clear finished jobs
           </Button>
           {n8nBase ? (
             <Button variant="ghost" size="sm" href={n8nBase} external>
