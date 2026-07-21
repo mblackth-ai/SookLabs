@@ -67,6 +67,33 @@ export function AgentJobLog({ jobs = [], compact = false }) {
     }
   }
 
+  async function dismissJob(job) {
+    setLoading(true);
+    try {
+      const res = await fetch("/hq/api/agents/callback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jobId: job.id,
+          provider: job.provider || "cursor",
+          status: "failed",
+          summary: "Dismissed from Overview agent jobs",
+        }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json.ok) {
+        setToast(json.error || "Dismiss failed");
+        setTimeout(() => setToast(""), 2500);
+        return;
+      }
+      setToast(`Dismissed ${job.id}`);
+      setTimeout(() => setToast(""), 2500);
+      router.refresh();
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <Card padding="md">
       <div className="hq-card-header">
@@ -110,9 +137,14 @@ export function AgentJobLog({ jobs = [], compact = false }) {
               </div>
               <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
                 {job.status === "running" ? (
-                  <Button variant="ghost" size="sm" onClick={() => copyPrompt(job)}>
-                    Copy
-                  </Button>
+                  <>
+                    <Button variant="ghost" size="sm" onClick={() => copyPrompt(job)}>
+                      Copy
+                    </Button>
+                    <Button variant="ghost" size="sm" disabled={loading} onClick={() => dismissJob(job)}>
+                      Dismiss
+                    </Button>
+                  </>
                 ) : null}
                 <Badge
                   variant={job.status === "completed" ? "success" : job.status === "failed" ? "error" : "warning"}

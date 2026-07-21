@@ -122,6 +122,15 @@ export default async function OverviewPage() {
 
         <AgentJobLog jobs={ops.agentJobs} compact />
 
+        {(ops.agentJobs || []).some((j) => j.status === "running") ? (
+          <p style={{ fontSize: "var(--text-sm)", color: "var(--text-tertiary)", margin: "0 0 var(--space-4)" }}>
+            Running agent jobs —{" "}
+            <a href="/hq/automation" style={{ color: "var(--text-accent)" }}>
+              open Automation to complete or dismiss →
+            </a>
+          </p>
+        ) : null}
+
         <PortfolioStrip products={portfolio} />
       </div>
     </div>

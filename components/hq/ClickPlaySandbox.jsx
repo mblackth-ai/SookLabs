@@ -229,16 +229,39 @@ export function ClickPlaySandbox({ sectionId }) {
           <p style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)", margin: "8px 0 12px" }}>
             Not posted. No OAuth. Promote adds a P2 todo on the board checklist.
           </p>
-          {board ? (
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-              <Button size="sm" variant="secondary" loading={promoting} onClick={promoteToBoard}>
-                Promote to board
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(result.summary || "");
+                  setToast("Copied draft summary");
+                  setTimeout(() => setToast(""), 2500);
+                } catch {
+                  setToast("Copy failed");
+                  setTimeout(() => setToast(""), 2500);
+                }
+              }}
+            >
+              Copy summary
+            </Button>
+            {board ? (
+              <>
+                <Button size="sm" variant="secondary" loading={promoting} onClick={promoteToBoard}>
+                  Promote to board
+                </Button>
+                <Button size="sm" variant="ghost" href={board.boardHref}>
+                  Open board →
+                </Button>
+              </>
+            ) : null}
+            {sectionId === "sooklyReceptionist" ? (
+              <Button size="sm" variant="ghost" href="/hq/seos/knowledge-base">
+                Fix gaps in SEOS KB →
               </Button>
-              <Button size="sm" variant="ghost" href={board.boardHref}>
-                Open board →
-              </Button>
-            </div>
-          ) : null}
+            ) : null}
+          </div>
         </div>
       ) : null}
     </Card>
