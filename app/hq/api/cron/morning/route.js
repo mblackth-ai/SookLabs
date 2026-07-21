@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { readOpsData, writeOpsData } from "@/lib/hq/ops";
 import { runMorningBriefing } from "@/lib/hq/morning-run";
+import { isHqSessionValid } from "@/lib/hq/session";
 
-function isAuthorized(request) {
+function isCronSecretAuthorized(request) {
   const secret =
     process.env.HQ_CRON_SECRET?.trim() || process.env.CRON_SECRET?.trim();
   if (!secret) return false;
@@ -13,7 +14,8 @@ function isAuthorized(request) {
 }
 
 export async function POST(request) {
-  if (!isAuthorized(request)) {
+  const sessionOk = await isHqSessionValid();
+  if (!sessionOk && !isCronSecretAuthorized(request)) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
 

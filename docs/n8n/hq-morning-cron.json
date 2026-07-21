@@ -1,0 +1,157 @@
+{
+  "name": "HQ Morning Cron",
+  "nodes": [
+    {
+      "id": "note-morning",
+      "name": "Morning loop",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -200,
+        -220
+      ],
+      "parameters": {
+        "content": "## HQ Morning Cron\n\n06:00 Asia/Bangkok → `POST /hq/api/cron/morning`\n\nDuplicates Vercel Cron as droplet backup. Safe if both fire (idempotent-ish: creates a new job each time — prefer one source of truth).",
+        "height": 220,
+        "width": 360
+      }
+    },
+    {
+      "id": "sched-morning",
+      "name": "Every day 06:00 BKK",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 6 * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "http-morning",
+      "name": "POST Morning Cron",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        280,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "parameters": {
+        "method": "POST",
+        "url": "={{ ($env.HQ_PUBLIC_BASE_URL || 'https://hq.sooklabs.com').replace(/\\/$/, '') + '/hq/api/cron/morning' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ 'Bearer ' + $env.HQ_CRON_SECRET }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-HQ-Cron-Source",
+              "value": "n8n-morning"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 60000,
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "set-morning-result",
+      "name": "Normalize Result",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        540,
+        0
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "m1",
+              "name": "ok",
+              "value": "={{ ($json.ok === true) || ($json.statusCode >= 200 && $json.statusCode < 300) }}",
+              "type": "boolean"
+            },
+            {
+              "id": "m2",
+              "name": "jobId",
+              "value": "={{ $json.jobId || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "m3",
+              "name": "status",
+              "value": "={{ $json.status || String($json.statusCode || '') }}",
+              "type": "string"
+            },
+            {
+              "id": "m4",
+              "name": "summary",
+              "value": "={{ $json.summary || JSON.stringify($json).slice(0,200) }}",
+              "type": "string"
+            },
+            {
+              "id": "m5",
+              "name": "ranAt",
+              "value": "={{ $now.toISO() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Every day 06:00 BKK": {
+      "main": [
+        [
+          {
+            "node": "POST Morning Cron",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST Morning Cron": {
+      "main": [
+        [
+          {
+            "node": "Normalize Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Bangkok"
+  }
+}

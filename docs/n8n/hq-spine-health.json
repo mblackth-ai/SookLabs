@@ -1,0 +1,147 @@
+{
+  "name": "HQ Spine Health",
+  "nodes": [
+    {
+      "id": "note-health",
+      "name": "Health",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -200,
+        -200
+      ],
+      "parameters": {
+        "content": "## HQ Spine Health\n\nEvery 6h: ping n8n healthz + HQ morning auth gate (expect 401 without secret) + pending poll with cron secret.\n\nDoes **not** create briefing jobs.",
+        "height": 200,
+        "width": 360
+      }
+    },
+    {
+      "id": "sched-health",
+      "name": "Every 6 hours",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 6
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "http-n8n-health",
+      "name": "n8n healthz",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        260,
+        0
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "https://hooks.sookly.co/healthz",
+        "options": {
+          "timeout": 15000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "http-pending",
+      "name": "HQ pending poll",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        500,
+        0
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ ($env.HQ_PUBLIC_BASE_URL || 'https://hq.sooklabs.com').replace(/\\/$/, '') + '/hq/api/agents/pending?provider=cursor' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ 'Bearer ' + $env.HQ_CRON_SECRET }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 20000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "merge-health",
+      "name": "Summarize checks",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        740,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const n8nItem = $('n8n healthz').first().json;\nconst pendingItem = $input.first().json;\nconst n8nBody = n8nItem.body || n8nItem;\nconst pendingBody = pendingItem.body || pendingItem;\nconst n8nOk = n8nItem.statusCode === 200 || n8nBody.status === 'ok';\nconst pendingOk = pendingItem.statusCode === 200;\nconst jobs = pendingBody.jobs || pendingBody.data || [];\nreturn [{\n  json: {\n    ok: Boolean(n8nOk && pendingOk),\n    checkedAt: new Date().toISOString(),\n    n8nOk,\n    pendingOk,\n    pendingJobCount: Array.isArray(jobs) ? jobs.length : null,\n  }\n}];"
+      }
+    }
+  ],
+  "connections": {
+    "Every 6 hours": {
+      "main": [
+        [
+          {
+            "node": "n8n healthz",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "n8n healthz": {
+      "main": [
+        [
+          {
+            "node": "HQ pending poll",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HQ pending poll": {
+      "main": [
+        [
+          {
+            "node": "Summarize checks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Bangkok"
+  }
+}

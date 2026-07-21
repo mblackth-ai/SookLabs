@@ -18,31 +18,31 @@ HQ Ask AI / cron
 | Variable | Required | Purpose |
 |----------|----------|---------|
 | `HQ_AGENT_MODE` | No (default `webhook`) | `webhook` or `anthropic` |
-| `HQ_AGENT_WEBHOOK_URL` | Recommended | n8n Production webhook URL |
+| `HQ_AGENT_WEBHOOK_URL` | Recommended | n8n Production webhook URL (`https://hooks.sookly.co/webhook/hq-agent`) |
+| `HQ_AGENT_WEBHOOK_SECRET` | Recommended | Shared with n8n; sent as Bearer + `X-HQ-Agent-Dispatch-Secret` (defaults to callback secret if unset) |
 | `HQ_AGENT_CALLBACK_SECRET` | Yes for callback | Shared secret for callback + optional poll |
 | `HQ_AGENT_DEFAULT_PROVIDER` | No | `cursor` \| `codex` \| `claude` (default `cursor`) |
-| `HQ_N8N_BASE_URL` | No | Link shown on Automation Registry |
+| `HQ_N8N_BASE_URL` | No | Link shown on Automation Registry (`https://hooks.sookly.co`) |
 | `HQ_PUBLIC_BASE_URL` | No | Defaults to `https://hq.sooklabs.com` |
 
-## Cursor path (recommended first)
+## Cursor / auto path (recommended)
 
-1. In HQ Briefing, pick **Cursor** and click **Ask AI**.
-2. Job appears on Overview → Agent jobs with `status: running`.
-3. In Cursor (this repo), run an agent with the **hq-ops** skill:
+With n8n Agent Router active, **Ask AI** and **Run morning** (provider `cursor`) are fully automated:
 
 ```
-Poll GET https://hq.sooklabs.com/hq/api/agents/pending?provider=cursor
-with Authorization: Bearer $HQ_CRON_SECRET (or HQ_AGENT_CALLBACK_SECRET).
-
-For each job, write a concise executive briefing from payload.context
-(Priorities focus / Risks / Decisions / Suggested actions).
-
-POST https://hq.sooklabs.com/hq/api/agents/callback
-Authorization: Bearer $HQ_AGENT_CALLBACK_SECRET
-{ "jobId": "<id>", "provider": "cursor", "text": "<markdown briefing>" }
+HQ → POST hooks.sookly.co/webhook/hq-agent
+  → n8n (Qwen / OpenAI-compatible) generates briefing
+  → POST /hq/api/agents/callback
+  → briefingNotes updated in Postgres
 ```
 
-4. Refresh Briefing — notes should update.
+No copy-paste required. Codex / Claude remain Manual (Complete UI or callback webhook).
+
+### Override (optional)
+
+On **LLM & Agents**, **Copy Cursor prompt** / **Complete** still work if you want a human rewrite.
+
+
 
 ### Optional: local poller
 
@@ -68,14 +68,33 @@ node scripts/hq-agent-runner.example.mjs
 2. In n8n, use a Manual Task / sticky note: copy `context`, paste into Claude (or Claude-in-Cursor).
 3. Paste the reply into n8n and HTTP Request → HQ callback (see `docs/n8n/hq-agent-router.json`).
 
-## n8n import
+## n8n on hooks.sookly.co
 
-1. Open n8n on the droplet.
-2. Import [`docs/n8n/hq-agent-router.json`](./n8n/hq-agent-router.json).
-3. Activate the workflow; copy the **Production** webhook URL.
-4. Set on Vercel: `HQ_AGENT_WEBHOOK_URL=<that URL>`.
-5. Set n8n env `HQ_AGENT_CALLBACK_SECRET` to match Vercel.
-6. Redeploy HQ.
+Live suite (provisioned via API):
+
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| **HQ Agent Router** | `POST /webhook/hq-agent` | Ask AI / morning dispatch → route by provider |
+| **HQ Agent Callback** | `POST /webhook/hq-agent-callback` | Manual Claude / external → HQ callback |
+| **HQ Morning Cron** | 06:00 Asia/Bangkok | Backup morning trigger (also Vercel Cron) |
+| **HQ Spine Health** | every 6h | healthz + pending poll smoke |
+| **HQ SookLabs Automations** | board only | Sticky suite map (`/workflow/mCOGgJLgolbF2TyP`) |
+
+### Import / re-provision
+
+```bash
+# From sooklabs app dir; needs N8N_API_KEY (Settings → API) with workflow scopes
+N8N_API_KEY=… node scripts/provision-hq-n8n-workflows.mjs
+node scripts/battle-test-hq-n8n.mjs
+```
+
+JSON exports: [`docs/n8n/hq-agent-router.json`](./n8n/hq-agent-router.json), `hq-agent-callback.json`, `hq-morning-cron.json`, `hq-spine-health.json`.
+
+Droplet n8n env (compose): `HQ_PUBLIC_BASE_URL`, `HQ_CRON_SECRET`, `HQ_AGENT_CALLBACK_SECRET`, `HQ_AGENT_WEBHOOK_SECRET`, `N8N_BLOCK_ENV_ACCESS_IN_NODE=false`.
+
+1. Activate workflows; Production URL for Agent Router → Vercel `HQ_AGENT_WEBHOOK_URL`.
+2. Set `HQ_AGENT_WEBHOOK_SECRET` to match n8n (same as callback secret is fine).
+3. Redeploy HQ.
 
 ## Honest badges
 
