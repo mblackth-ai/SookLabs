@@ -34,14 +34,25 @@ export function ClickPlaySandbox({ sectionId }) {
   const [promotedItemId, setPromotedItemId] = useState(null);
   const [promoting, setPromoting] = useState(false);
 
-  const canRun = useMemo(() => {
-    if (!section) return false;
-    return section.steps.every((step) => {
+  const stepStates = useMemo(() => {
+    if (!section) return [];
+    return section.steps.map((step) => {
       const v = values[step.id];
-      if (step.type === "multi") return Array.isArray(v) && v.length > 0;
-      return String(v || "").trim().length > 0;
+      const complete =
+        step.type === "multi"
+          ? Array.isArray(v) && v.length > 0
+          : String(v || "").trim().length > 0;
+      return { step, complete };
     });
   }, [section, values]);
+
+  const completedCount = stepStates.filter((s) => s.complete).length;
+  const totalSteps = stepStates.length;
+
+  const canRun = useMemo(() => {
+    if (!section) return false;
+    return stepStates.every((s) => s.complete);
+  }, [section, stepStates]);
 
   useEffect(() => {
     try {
@@ -173,13 +184,52 @@ export function ClickPlaySandbox({ sectionId }) {
         {section.blurb}
       </p>
 
-      <div className="hq-click-play-steps" style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-        {section.steps.map((step) => (
-          <div key={step.id}>
-            <label
-              htmlFor={`cp-${sectionId}-${step.id}`}
-              style={{ display: "block", fontSize: "var(--text-xs)", color: "var(--text-tertiary)", marginBottom: 6 }}
+      <div className="hq-click-play-progress" aria-label="Step progress">
+        <div className="hq-click-play-progress-meta">
+          <span className="hq-section-label">Steps</span>
+          <span className="hq-click-play-progress-count">
+            {completedCount}/{totalSteps} complete
+          </span>
+        </div>
+        <div className="hq-click-play-progress-track" role="progressbar" aria-valuemin={0} aria-valuemax={totalSteps} aria-valuenow={completedCount}>
+          <span
+            className="hq-click-play-progress-fill"
+            style={{ width: totalSteps ? `${(completedCount / totalSteps) * 100}%` : "0%" }}
+          />
+        </div>
+        <ol className="hq-click-play-progress-dots">
+          {stepStates.map(({ step, complete }, i) => (
+            <li
+              key={step.id}
+              className={[
+                "hq-click-play-progress-dot",
+                complete ? "hq-click-play-progress-dot--done" : "",
+                !complete && stepStates.slice(0, i).every((s) => s.complete) ? "hq-click-play-progress-dot--next" : "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+              title={step.label}
             >
+              {complete ? "✓" : i + 1}
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <div className="hq-click-play-steps">
+        {stepStates.map(({ step, complete }, i) => (
+          <div
+            key={step.id}
+            className={[
+              "hq-click-play-step",
+              complete ? "hq-click-play-step--done" : "",
+              !complete && stepStates.slice(0, i).every((s) => s.complete) ? "hq-click-play-step--next" : "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
+          >
+            <label htmlFor={`cp-${sectionId}-${step.id}`} className="hq-click-play-step-label">
+              <span className="hq-click-play-step-num">{complete ? "✓" : i + 1}</span>
               {step.label}
             </label>
             {step.type === "select" ? (

@@ -114,18 +114,11 @@ export default async function OverviewPage() {
         </section>
 
         {/* Review / more */}
-        <EndOfDayCard initialData={ops} />
-
         <OverviewMoreToday defaultOpen={hasRunningJobs}>
           <ClickPlayDraftHint />
           <AgentJobLog jobs={ops.agentJobs} compact />
-          {hasRunningJobs ? (
-            <p className="hq-running-jobs-hint">
-              Running agent jobs —{" "}
-              <a href="/hq/automation">open Automation to complete or dismiss →</a>
-            </p>
-          ) : null}
           <PortfolioStrip products={portfolio} />
+          <EndOfDayCard initialData={ops} />
         </OverviewMoreToday>
       </div>
     </div>

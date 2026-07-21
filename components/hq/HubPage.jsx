@@ -49,7 +49,7 @@ export function StatusBadge({ status }) {
     future_api: "Future API",
   };
   return (
-    <Badge variant={map[status] || "neutral"} size="sm">
+    <Badge variant={map[status] || "neutral"} size="sm" caps>
       {labels[status] || status}
     </Badge>
   );

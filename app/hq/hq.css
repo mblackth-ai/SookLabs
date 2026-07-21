@@ -2072,6 +2072,289 @@
   background: var(--bg-base);
 }
 
+/* ── Click-play step progress ─────────────────────────────────── */
+
+.hq-click-play-steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3-5);
+}
+
+.hq-click-play-progress {
+  margin-bottom: var(--space-4);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-raised);
+}
+
+.hq-click-play-progress-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.hq-click-play-progress-count {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+.hq-click-play-progress-track {
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: var(--border-subtle);
+  overflow: hidden;
+}
+
+.hq-click-play-progress-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  transition: width 160ms var(--ease-default);
+}
+
+.hq-click-play-progress-dots {
+  display: flex;
+  gap: var(--space-2);
+  margin: var(--space-2-5) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hq-click-play-progress-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: var(--weight-semibold);
+  color: var(--text-tertiary);
+  background: var(--bg-base);
+  border: 1px solid var(--border-default);
+}
+
+.hq-click-play-progress-dot--done {
+  color: var(--color-success);
+  border-color: rgba(34, 197, 94, 0.35);
+  background: var(--color-success-muted);
+}
+
+.hq-click-play-progress-dot--next {
+  color: var(--text-accent);
+  border-color: var(--border-accent);
+  background: var(--accent-muted);
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.1);
+}
+
+.hq-click-play-step {
+  padding: var(--space-2) var(--space-2-5);
+  margin: 0 calc(-1 * var(--space-2-5));
+  border-radius: var(--radius-md);
+  transition: background 120ms var(--ease-default);
+}
+
+.hq-click-play-step--next {
+  background: rgba(34, 211, 238, 0.04);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+.hq-click-play-step--done {
+  opacity: 0.92;
+}
+
+.hq-click-play-step-label {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-1-5);
+}
+
+.hq-click-play-step-num {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: var(--weight-semibold);
+  color: var(--text-accent);
+  background: var(--accent-muted);
+  border: 1px solid var(--border-accent);
+}
+
+.hq-click-play-step--done .hq-click-play-step-num {
+  color: var(--color-success);
+  border-color: rgba(34, 197, 94, 0.35);
+  background: var(--color-success-muted);
+}
+
+/* ── Blocker rows ─────────────────────────────────────────────── */
+
+.hq-blocker-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.hq-blocker-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-2-5);
+  padding: var(--space-2-5) var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-raised);
+}
+
+.hq-blocker-body {
+  min-width: 0;
+  flex: 1;
+}
+
+.hq-blocker-title {
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+}
+
+.hq-blocker-detail {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.hq-blocker-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.hq-blocker-actions-primary {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.hq-blocker-actions-secondary {
+  display: flex;
+  gap: var(--space-1-5);
+  flex-shrink: 0;
+}
+
+.hq-blocker-add {
+  margin-top: var(--space-3);
+  display: flex;
+  gap: var(--space-2);
+}
+
+.hq-blocker-input {
+  flex: 1;
+  padding: var(--space-2) var(--space-2-5);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+}
+
+/* ── End of day (quiet review footer) ─────────────────────────── */
+
+.hq-eod-card {
+  border-style: dashed;
+  border-color: var(--border-subtle);
+  background: transparent;
+}
+
+.hq-eod-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.hq-eod-title {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text-secondary);
+}
+
+.hq-eod-subtitle {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  margin-top: 4px;
+}
+
+.hq-eod-nudge {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  margin: var(--space-2-5) 0 0;
+  line-height: 1.5;
+}
+
+.hq-eod-nudge a {
+  color: var(--text-accent);
+}
+
+.hq-eod-actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-top: var(--space-3);
+}
+
+.hq-eod-confirm {
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-accent);
+  background: var(--accent-muted);
+}
+
+.hq-eod-confirm-text {
+  margin: 0 0 var(--space-2-5);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* ── Agent job log compact (Overview) ───────────────────────────── */
+
+.hq-agent-log--compact .hq-card-title {
+  font-size: var(--text-sm);
+}
+
+.hq-agent-log-compact-meta {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.hq-agent-log-compact-empty {
+  padding-top: var(--space-1);
+}
+
+.hq-job-card--compact {
+  padding-top: var(--space-2);
+}
+
+.hq-agent-log-compact-running {
+  margin-top: var(--space-1-5);
+}
+
 .hq-board-card--focus {
   outline: 2px solid var(--border-accent);
   outline-offset: 2px;
@@ -2126,6 +2409,27 @@
 
   .hq-click-play-chips button {
     min-height: 40px;
+  }
+
+  .hq-blocker-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hq-blocker-actions {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hq-blocker-actions-primary,
+  .hq-blocker-actions-secondary {
+    width: 100%;
+  }
+
+  .hq-blocker-actions-primary button,
+  .hq-blocker-actions-secondary button {
+    flex: 1 1 auto;
   }
 
   .hq-job-actions {

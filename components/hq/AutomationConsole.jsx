@@ -440,7 +440,7 @@ export function AutomationConsole({
           <Card key={p.id} padding="md">
             <div className="hq-card-header hq-mb-2">
               <div className="hq-card-title">{p.label}</div>
-              <Badge variant={BADGE_VARIANT[p.badge] || "outline"} size="sm">
+              <Badge variant={BADGE_VARIANT[p.badge] || "outline"} size="sm" caps>
                 {p.badge}
               </Badge>
             </div>
