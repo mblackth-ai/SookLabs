@@ -83,12 +83,21 @@ function StreamColumn({
               onBlur={() => {
                 const next = titleDrafts[item.id];
                 if (next === undefined || next === item.title) return;
+                const trimmed = next.trim();
+                if (!trimmed) {
+                  setTitleDrafts((prev) => {
+                    const copy = { ...prev };
+                    delete copy[item.id];
+                    return copy;
+                  });
+                  return;
+                }
                 setTitleDrafts((prev) => {
                   const copy = { ...prev };
                   delete copy[item.id];
                   return copy;
                 });
-                updateItem(item.id, { title: next });
+                updateItem(item.id, { title: trimmed });
               }}
             />
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>

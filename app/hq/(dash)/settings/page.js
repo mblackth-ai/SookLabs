@@ -2,6 +2,7 @@ import { TopBar } from "@/components/hq/TopBar";
 import { Card } from "@/components/hq/Card";
 import { Badge } from "@/components/hq/Badge";
 import { getAgentMode } from "@/lib/hq/agent-provider";
+import { getOpsStorageMode } from "@/lib/hq/ops";
 import { getSeosAppUrl } from "@/lib/hq/paths";
 
 function envSet(key) {
@@ -25,6 +26,7 @@ function webhookHostHint() {
 
 export default function SettingsPage() {
   const seosUrl = getSeosAppUrl();
+  const storage = getOpsStorageMode();
   const hasHqDb = envSet("HQ_DATABASE_URL") || envSet("DATABASE_URL");
   const hasSeosToken = tokenConfigured();
   const hasWebhook = envSet("HQ_AGENT_WEBHOOK_URL");
@@ -39,6 +41,19 @@ export default function SettingsPage() {
       <TopBar
         title="Settings"
         subtitle="Private founder HQ — access, links, and storage honesty."
+        actions={
+          <Badge
+            variant={storage === "postgres" ? "success" : "warning"}
+            size="sm"
+            title={
+              storage === "file"
+                ? "File ops.json may reset on serverless deploys — set HQ_DATABASE_URL"
+                : "Postgres ops store"
+            }
+          >
+            {storage === "postgres" ? "Ops: Postgres" : "Ops: File"}
+          </Badge>
+        }
       />
       <div className="hq-page-content" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         <Card padding="md">

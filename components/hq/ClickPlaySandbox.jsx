@@ -31,6 +31,7 @@ export function ClickPlaySandbox({ sectionId }) {
   const [result, setResult] = useState(null);
   const [recentDrafts, setRecentDrafts] = useState([]);
   const [toast, setToast] = useState("");
+  const [promotedItemId, setPromotedItemId] = useState(null);
   const [promoting, setPromoting] = useState(false);
 
   const canRun = useMemo(() => {
@@ -100,6 +101,7 @@ export function ClickPlaySandbox({ sectionId }) {
   function run() {
     const built = buildClickPlayResult(sectionId, values);
     setResult(built);
+    setPromotedItemId(null);
     persistDraft(built);
     setToast("Draft saved in this browser session (Draft Export — not published)");
     setTimeout(() => setToast(""), 3500);
@@ -110,12 +112,14 @@ export function ClickPlaySandbox({ sectionId }) {
     for (const step of section.steps) init[step.id] = step.type === "multi" ? [] : "";
     setValues(init);
     setResult(null);
+    setPromotedItemId(null);
   }
 
   async function promoteToBoard() {
     if (!result || !board) return;
     setPromoting(true);
     setToast("");
+    setPromotedItemId(null);
     try {
       const resGet = await fetch("/hq/api/ops");
       const jsonGet = await resGet.json();
@@ -145,6 +149,7 @@ export function ClickPlaySandbox({ sectionId }) {
       });
       const json = await res.json();
       if (!res.ok || !json.ok) throw new Error(json.error || "Promote failed");
+      setPromotedItemId(item.id);
       setToast(`Added to board as P2 · ${title.slice(0, 48)}`);
       setTimeout(() => setToast(""), 4000);
       router.refresh();
@@ -235,6 +240,15 @@ export function ClickPlaySandbox({ sectionId }) {
         </Button>
         {toast ? (
           <span style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)" }}>{toast}</span>
+        ) : null}
+        {promotedItemId && board ? (
+          <Button
+            size="sm"
+            variant="ghost"
+            href={`${board.boardHref}?focus=${encodeURIComponent(promotedItemId)}`}
+          >
+            View promoted item →
+          </Button>
         ) : null}
       </div>
 

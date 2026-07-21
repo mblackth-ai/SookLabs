@@ -78,6 +78,38 @@ export function GoalsPanel({ initialData, compact = false }) {
       {error && (
         <p style={{ color: "var(--color-error)", fontSize: "var(--text-sm)" }}>{error}</p>
       )}
+      {!compact && goals.length === 0 && (
+        <div
+          style={{
+            marginBottom: 12,
+            padding: "var(--space-4)",
+            borderRadius: "var(--radius-lg)",
+            border: "1px solid var(--border-accent, rgba(99,102,241,.35))",
+            background: "var(--color-accent-muted, rgba(99,102,241,.06))",
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", alignItems: "flex-start" }}>
+            <div>
+              <div className="hq-card-title" style={{ marginBottom: 6 }}>
+                Set your first master goal
+              </div>
+              <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", margin: 0, lineHeight: 1.55 }}>
+                One line is enough — what outcome matters this quarter across HQ, Sookly, or SEOS?
+              </p>
+            </div>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => {
+                document.getElementById("goals-add-form")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                document.querySelector("#goals-add-form input")?.focus();
+              }}
+            >
+              Add goal below
+            </Button>
+          </div>
+        </div>
+      )}
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {(compact ? active.slice(0, 4) : goals).map((g) => (
           <div
@@ -130,14 +162,31 @@ export function GoalsPanel({ initialData, compact = false }) {
             </div>
           </div>
         ))}
-        {active.length === 0 && (
+        {active.length === 0 && compact && (
+          <div
+            style={{
+              padding: "12px 14px",
+              borderRadius: "var(--radius-md)",
+              border: "1px dashed var(--border-subtle)",
+              background: "var(--bg-raised)",
+            }}
+          >
+            <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", margin: "0 0 10px", lineHeight: 1.5 }}>
+              No active goals yet — anchor the quarter before diving into boards.
+            </p>
+            <Button variant="secondary" size="sm" href="/hq/goals">
+              Add your first goal →
+            </Button>
+          </div>
+        )}
+        {active.length === 0 && !compact && (
           <p style={{ fontSize: "var(--text-sm)", color: "var(--text-tertiary)", margin: 0 }}>
             No active goals. Add one below.
           </p>
         )}
       </div>
       {!compact && (
-        <form onSubmit={addGoal} style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <form id="goals-add-form" onSubmit={addGoal} style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}

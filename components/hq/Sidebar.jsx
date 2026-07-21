@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Avatar } from "./Avatar";
+import { OpsStorageChip } from "./OpsStorageChip";
 import { icons } from "@/lib/hq/icons";
 import { nav, currentUser } from "@/lib/hq/mock-data";
 import { isHqNavActive } from "@/lib/hq/paths";
@@ -24,6 +25,7 @@ function NavRow({ row, active, onNavigate }) {
       />
       <span className="hq-sidebar-nav-label">{row.label}</span>
       {row.badge != null && <span className="hq-sidebar-nav-badge">{row.badge}</span>}
+      {row.id === "settings" ? <OpsStorageChip /> : null}
     </Link>
   );
 }
