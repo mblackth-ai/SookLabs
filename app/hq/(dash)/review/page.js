@@ -58,7 +58,7 @@ export default async function WeeklyReviewPage() {
           </Card>
           <Card padding="md">
             <div className="hq-card-header" style={{ marginBottom: 12 }}>
-              <span className="hq-card-title">Goals marked done</span>
+              <span className="hq-card-title">Goals marked done (all-time status)</span>
               <Badge variant="outline" size="sm">
                 {goalsDone.length}
               </Badge>
@@ -76,11 +76,14 @@ export default async function WeeklyReviewPage() {
         </div>
         <Card padding="md" style={{ marginTop: 16 }}>
           <div className="hq-card-header" style={{ marginBottom: 12 }}>
-            <span className="hq-card-title">Board items done (all time on boards)</span>
+            <span className="hq-card-title">Board items currently done</span>
             <Badge variant="outline" size="sm">
               {doneBoard.length}
             </Badge>
           </div>
+          <p style={{ margin: "0 0 10px", fontSize: "var(--text-xs)", color: "var(--text-tertiary)" }}>
+            Snapshot of items with status=done on boards — not a “completed this week” counter (boards don’t store completedAt yet).
+          </p>
           {doneBoard.length === 0 ? (
             <p style={{ margin: 0, fontSize: "var(--text-sm)", color: "var(--text-tertiary)" }}>No done items yet.</p>
           ) : (

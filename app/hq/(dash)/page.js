@@ -49,22 +49,22 @@ export default async function OverviewPage() {
 
       <div className="hq-page-content">
         <div className="hq-overview-pulse" aria-label="Day pulse">
-          <div className="hq-overview-pulse-item">
+          <a className="hq-overview-pulse-item" href="#priorities">
             <span className="hq-section-label">Priorities</span>
             <strong>{openPriorities}</strong>
-          </div>
-          <div className="hq-overview-pulse-item">
+          </a>
+          <a className="hq-overview-pulse-item" href="/hq/portfolio">
             <span className="hq-section-label">Tasks</span>
             <strong>{openTasks}</strong>
-          </div>
-          <div className="hq-overview-pulse-item">
+          </a>
+          <a className="hq-overview-pulse-item" href="#blockers">
             <span className="hq-section-label">Blockers</span>
             <strong className={blockers.length ? "hq-text-danger" : undefined}>{blockers.length}</strong>
-          </div>
-          <div className="hq-overview-pulse-item">
+          </a>
+          <a className="hq-overview-pulse-item" href="/hq/goals">
             <span className="hq-section-label">Goals</span>
             <strong>{activeGoals}</strong>
-          </div>
+          </a>
           <div className="hq-overview-pulse-item hq-overview-pulse-item--wide">
             <Badge
               variant={storage === "postgres" ? "success" : "warning"}

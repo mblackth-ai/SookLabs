@@ -13,6 +13,8 @@ export function EndOfDayCard({ initialData }) {
   const { data, save, saving } = useOpsData(initialData);
   const open = (data.todayPriorities || []).filter((p) => !p.done);
   const done = (data.todayPriorities || []).filter((p) => p.done);
+  const today = new Date().toISOString().slice(0, 10);
+  const decidedToday = (data.decisions || []).some((d) => String(d.date || "").startsWith(today));
 
   async function clearDone() {
     await save({ todayPriorities: open });
@@ -46,6 +48,14 @@ export function EndOfDayCard({ initialData }) {
           {done.length} done · {open.length} open
         </Badge>
       </div>
+      {!decidedToday ? (
+        <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", margin: "12px 0 0", lineHeight: 1.5 }}>
+          No decision logged today — optional, but useful when you chose a path.{" "}
+          <a href="/hq/decision-log" style={{ color: "var(--text-accent)" }}>
+            Log one →
+          </a>
+        </p>
+      ) : null}
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
         <Button variant="secondary" size="sm" disabled={saving || !done.length} onClick={clearDone}>
           Clear done priorities

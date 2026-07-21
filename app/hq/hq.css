@@ -547,6 +547,8 @@
   flex-direction: column;
   gap: 2px;
   min-width: 56px;
+  text-decoration: none;
+  color: inherit;
 }
 
 .hq-overview-pulse-item strong {
