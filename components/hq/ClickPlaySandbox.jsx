@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "./Card";
 import { Badge } from "./Badge";
@@ -29,6 +29,7 @@ export function ClickPlaySandbox({ sectionId }) {
     return init;
   });
   const [result, setResult] = useState(null);
+  const [recentDrafts, setRecentDrafts] = useState([]);
   const [toast, setToast] = useState("");
   const [promoting, setPromoting] = useState(false);
 
@@ -41,7 +42,27 @@ export function ClickPlaySandbox({ sectionId }) {
     });
   }, [section, values]);
 
+  useEffect(() => {
+    try {
+      const key = `hq-click-play:${sectionId}`;
+      const prev = JSON.parse(sessionStorage.getItem(key) || "[]");
+      setRecentDrafts(Array.isArray(prev) ? prev.slice(0, 2) : []);
+    } catch {
+      setRecentDrafts([]);
+    }
+  }, [sectionId]);
+
   if (!section) return null;
+
+  function loadRecentDrafts() {
+    try {
+      const key = `hq-click-play:${sectionId}`;
+      const prev = JSON.parse(sessionStorage.getItem(key) || "[]");
+      setRecentDrafts(Array.isArray(prev) ? prev.slice(0, 2) : []);
+    } catch {
+      setRecentDrafts([]);
+    }
+  }
 
   function setField(id, value) {
     setValues((prev) => ({ ...prev, [id]: value }));
@@ -70,6 +91,7 @@ export function ClickPlaySandbox({ sectionId }) {
           boardHref: board?.boardHref || null,
         })
       );
+      loadRecentDrafts();
     } catch {
       /* ignore */
     }
@@ -263,6 +285,46 @@ export function ClickPlaySandbox({ sectionId }) {
               </Button>
             ) : null}
           </div>
+          {recentDrafts.length > 0 ? (
+            <div className="hq-click-play-recent" style={{ marginTop: 16, paddingTop: 12, borderTop: "1px solid var(--border-subtle)" }}>
+              <div style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)", marginBottom: 8 }}>
+                Last {recentDrafts.length} session draft{recentDrafts.length > 1 ? "s" : ""} (browser only)
+              </div>
+              <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 8 }}>
+                {recentDrafts.map((draft, idx) => (
+                  <li key={draft.createdAt || idx}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setResult(draft);
+                        setToast("Loaded session draft");
+                        setTimeout(() => setToast(""), 2000);
+                      }}
+                      style={{
+                        width: "100%",
+                        textAlign: "left",
+                        padding: "8px 10px",
+                        borderRadius: "var(--radius-md)",
+                        border: "1px solid var(--border-subtle)",
+                        background: "var(--bg-raised)",
+                        cursor: "pointer",
+                        fontFamily: "var(--font-sans)",
+                      }}
+                    >
+                      <span style={{ display: "block", fontSize: "var(--text-xs)", color: "var(--text-tertiary)", marginBottom: 4 }}>
+                        {draft.createdAt ? new Date(draft.createdAt).toLocaleString() : "Session draft"}
+                        {idx === 0 ? " · latest" : ""}
+                      </span>
+                      <span style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", lineHeight: 1.45 }}>
+                        {(draft.summary || "").slice(0, 120)}
+                        {(draft.summary || "").length > 120 ? "…" : ""}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
         </div>
       ) : null}
     </Card>

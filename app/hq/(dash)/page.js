@@ -12,6 +12,7 @@ import { BlockersPanel } from "@/components/hq/BlockersPanel";
 import { EndOfDayCard } from "@/components/hq/EndOfDayCard";
 import { AgentJobLog } from "@/components/hq/AgentJobLog";
 import { ClickPlayDraftHint } from "@/components/hq/ClickPlayDraftHint";
+import { OverviewStorageWarn } from "@/components/hq/OverviewStorageWarn";
 import {
   readOpsData,
   getTopOpenItems,
@@ -92,13 +93,7 @@ export default async function OverviewPage() {
           </div>
         </div>
 
-        {storage === "file" && (
-          <p className="hq-storage-warn">
-            Ops store is file-backed. On Vercel/ephemeral hosts, set <code>HQ_DATABASE_URL</code> (Postgres) so
-            priorities and boards survive deploys.{" "}
-            <a href="/hq/settings">Settings →</a>
-          </p>
-        )}
+        {storage === "file" && <OverviewStorageWarn />}
 
         <ClickPlayDraftHint primaryBoardHref={ops.primaryBoardHref} />
 

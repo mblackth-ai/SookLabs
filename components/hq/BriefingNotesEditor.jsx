@@ -13,6 +13,34 @@ const SECTIONS = [
   { key: "decisions", label: "Decisions to make" },
 ];
 
+const SECTION_TEMPLATES = {
+  priorities: `Today (max 3):
+- 
+- 
+
+This week:
+- 
+
+Delegated / waiting on:
+- `,
+  risks: `Blockers:
+- 
+
+Dependencies:
+- 
+
+Watch (no action yet):
+- `,
+  decisions: `Decide today:
+- 
+
+Decide this week:
+- 
+
+Parked (needs more info):
+- `,
+};
+
 export function BriefingNotesEditor({ initialData }) {
   const { data, save, saving, error } = useOpsData(initialData);
   const sections = data.briefingNotes?.sections || {};
@@ -42,6 +70,14 @@ export function BriefingNotesEditor({ initialData }) {
     });
   }
 
+  async function insertTemplate(key) {
+    const template = SECTION_TEMPLATES[key];
+    const current = drafts[key] || "";
+    const next = current.trim() ? `${current.trim()}\n\n${template}` : template;
+    setDrafts((d) => ({ ...d, [key]: next }));
+    await updateSection(key, next);
+  }
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
       <PriorityList initialData={data} compact />
@@ -55,8 +91,11 @@ export function BriefingNotesEditor({ initialData }) {
       <div className="hq-grid-2">
         {SECTIONS.map(({ key, label }) => (
           <Card key={key} padding="md">
-            <div className="hq-card-title" style={{ marginBottom: "var(--space-3)" }}>
-              {label}
+            <div className="hq-card-header" style={{ marginBottom: "var(--space-3)" }}>
+              <div className="hq-card-title">{label}</div>
+              <Button variant="ghost" size="sm" disabled={saving} onClick={() => insertTemplate(key)}>
+                Insert template
+              </Button>
             </div>
             <textarea
               value={drafts[key] || ""}

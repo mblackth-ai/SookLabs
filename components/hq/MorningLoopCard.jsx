@@ -5,6 +5,7 @@ import { Card } from "@/components/hq/Card";
 import { Badge } from "@/components/hq/Badge";
 import { Button } from "@/components/hq/Button";
 import { useOpsData } from "@/components/hq/useOpsData";
+import { getBoardOpenCounts } from "@/lib/hq/ops-shared";
 
 const STEP_DEFS = [
   { id: "priorities", href: "#priorities", label: "Priorities", detail: "Set up to 3 for today · clear yesterday’s done" },
@@ -27,6 +28,7 @@ export function MorningLoopCard({ initialData }) {
   const loop = data.morningLoop?.date === today ? data.morningLoop : { date: today, stepsChecked: [] };
   const checked = new Set(loop.stepsChecked || []);
   const primaryHref = data.primaryBoardHref || "/hq/sookly/action-plan";
+  const boardStats = getBoardOpenCounts(data, primaryHref);
 
   async function toggle(stepId) {
     const next = new Set(checked);
@@ -58,6 +60,10 @@ export function MorningLoopCard({ initialData }) {
         {STEP_DEFS.map((s, i) => {
           const href = s.id === "board" ? primaryHref : s.href;
           const isDone = checked.has(s.id);
+          const detail =
+            s.id === "board"
+              ? `${boardStats.p0} open P0 · ${boardStats.open} open total on primary board`
+              : s.detail;
           return (
             <li key={s.id} className={isDone ? "hq-morning-step--done" : undefined}>
               <button
@@ -73,8 +79,13 @@ export function MorningLoopCard({ initialData }) {
               <div>
                 <Link href={href || "#"} className="hq-morning-loop-link">
                   {s.label}
+                  {s.id === "board" && boardStats.p0 > 0 ? (
+                    <Badge variant="warning" size="sm" style={{ marginLeft: 8 }}>
+                      {boardStats.p0} P0
+                    </Badge>
+                  ) : null}
                 </Link>
-                <span className="hq-morning-loop-detail"> — {s.detail}</span>
+                <span className="hq-morning-loop-detail"> — {detail}</span>
               </div>
             </li>
           );

@@ -672,6 +672,22 @@
   color: var(--text-accent);
 }
 
+.hq-storage-warn-dismiss {
+  margin-left: 8px;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.hq-storage-warn-dismiss:hover {
+  color: var(--text-secondary);
+}
+
 .hq-board-card {
   padding: 12px;
   border-radius: var(--radius-lg);
