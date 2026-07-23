@@ -7,7 +7,8 @@ import "./sooklabs-v2.css";
 import { GlyphSparkOverlay } from "@/components/brand/GlyphSparkOverlay";
 import { ToolsNavDropdown, ToolsNavAccordion } from "@/components/nav/ToolsNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
-import { DISCORD_INVITE_URL } from "@/lib/site";
+import { DISCORD_INVITE_URL, DISCORD_WIDGET_ID, DISCORD_SERVER_NAME } from "@/lib/site";
+import { DiscordWidget } from "@/components/site/DiscordWidget";
 
 const GLYPH = "/assets/sooklabs/sooklabs-glyph.png";
 const LOGO = "/assets/sooklabs/sooklabs-glyph.png";
@@ -373,7 +374,7 @@ function Card({
   );
 }
 
-function Badge({ children, tone = "neutral", dot, mono, style }) {
+function Badge({ children, tone = "neutral", dot, live = false, mono, style }) {
   const T = {
     neutral: ["var(--silver-300)", "rgba(174,187,206,.10)", "var(--silver-400)"],
     blue: ["var(--blue-300)", "rgba(47,124,240,.14)", "var(--blue-400)"],
@@ -383,6 +384,7 @@ function Badge({ children, tone = "neutral", dot, mono, style }) {
   }[tone];
   return (
     <span
+      className={live ? "sl-live-badge" : undefined}
       style={{
         display: "inline-flex",
         alignItems: "center",
@@ -402,6 +404,7 @@ function Badge({ children, tone = "neutral", dot, mono, style }) {
     >
       {dot && (
         <span
+          className={live ? "sl-live-dot" : undefined}
           style={{
             width: 6,
             height: 6,
@@ -1325,7 +1328,7 @@ const PRODUCTS = [
     key: "SookLabs Community",
     icon: Icons.Community,
     tone: "neutral",
-    status: "Discord",
+    status: "Live",
     tag: "Builder community",
     desc: "A focused Discord community around technology, psychology, and investment. Sharper thinking, long-term leverage.",
   },
@@ -1388,7 +1391,12 @@ function Ecosystem() {
                   >
                     <p.icon size={22} />
                   </span>
-                  <Badge tone={p.tone === "neutral" ? "neutral" : p.tone} mono dot>
+                  <Badge
+                    tone={p.status === "Live" ? "success" : p.tone === "neutral" ? "neutral" : p.tone}
+                    live={p.status === "Live"}
+                    mono
+                    dot
+                  >
                     {p.status}
                   </Badge>
                 </div>
@@ -1451,6 +1459,41 @@ function Ecosystem() {
             </Reveal>
             );
           })}
+        </div>
+
+        <div className="sl-community-path" id="community">
+          <div className="sl-community-path-copy">
+            <div className="sl-community-path-eyebrow">Community · Live</div>
+            <h3 className="sl-community-path-title">Choose your path</h3>
+            <p className="sl-community-path-sub">
+              Join {DISCORD_SERVER_NAME} — Technology, Psychology, and Investment pillars. Peek who’s online, then
+              pick a channel and start where it matters.
+            </p>
+            <ul className="sl-community-path-pillars">
+              <li>Technology</li>
+              <li>Psychology</li>
+              <li>Investment</li>
+            </ul>
+            {DISCORD_INVITE_URL ? (
+              <a
+                href={DISCORD_INVITE_URL}
+                className="sl-community-path-cta"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Open Discord invite <Icons.Arrow size={15} />
+              </a>
+            ) : (
+              <p className="sl-community-path-note">Invite link lands when configured — widget stays Manual / Live preview.</p>
+            )}
+          </div>
+          <div className="sl-community-path-widget">
+            <DiscordWidget
+              serverId={DISCORD_WIDGET_ID}
+              title={`${DISCORD_SERVER_NAME} online`}
+              className="sl-discord-widget"
+            />
+          </div>
         </div>
       </Container>
     </section>
