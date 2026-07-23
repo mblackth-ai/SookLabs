@@ -3,8 +3,17 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
 import "./tools-nav.css";
+import { ToolsCoverflow } from "./ToolsCoverflow";
 
-const TOOLS = [
+export const TOOLS = [
+  {
+    id: "sookly",
+    title: "Sookly App",
+    status: "live",
+    statusLabel: "Live",
+    description: "Open the live omnichat and AI receptionist workspace.",
+    href: "https://app.sookly.co",
+  },
   {
     id: "seo-audit",
     title: "SEO Audit",
@@ -114,11 +123,13 @@ function ToolsList({ onNavigate }) {
   );
 }
 
-export function ToolsNavDropdown({ className = "" }) {
+/** @param {{ className?: string, variant?: "grid" | "coverflow" }} props */
+export function ToolsNavDropdown({ className = "", variant = "coverflow" }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef(null);
   const closeTimer = useRef(null);
   const panelId = useId();
+  const isCoverflow = variant === "coverflow";
 
   const close = useCallback(() => setOpen(false), []);
   const openMenu = useCallback(() => {
@@ -176,22 +187,28 @@ export function ToolsNavDropdown({ className = "" }) {
       </button>
       <div
         id={panelId}
-        className="sl-tools-panel"
+        className={`sl-tools-panel${isCoverflow ? " sl-tools-panel--coverflow" : ""}`}
         role="region"
         aria-label="SookLabs tools"
         onMouseEnter={openMenu}
         onMouseLeave={scheduleClose}
       >
         <div className="sl-tools-panel-grid-bg" aria-hidden />
-        <ToolsList onNavigate={close} />
+        {isCoverflow ? (
+          <ToolsCoverflow tools={TOOLS} onNavigate={close} />
+        ) : (
+          <ToolsList onNavigate={close} />
+        )}
       </div>
     </div>
   );
 }
 
-export function ToolsNavAccordion({ onNavigate, className = "" }) {
+/** @param {{ onNavigate?: () => void, className?: string, variant?: "grid" | "coverflow" }} props */
+export function ToolsNavAccordion({ onNavigate, className = "", variant = "coverflow" }) {
   const [open, setOpen] = useState(false);
   const panelId = useId();
+  const isCoverflow = variant === "coverflow";
 
   return (
     <div className={`sl-tools-accordion${open ? " is-open" : ""}${className ? ` ${className}` : ""}`}>
@@ -206,13 +223,28 @@ export function ToolsNavAccordion({ onNavigate, className = "" }) {
         <Chevron />
       </button>
       {open && (
-        <div id={panelId} className="sl-tools-accordion-panel" role="region" aria-label="SookLabs tools">
-          <ToolsList
-            onNavigate={() => {
-              setOpen(false);
-              onNavigate?.();
-            }}
-          />
+        <div
+          id={panelId}
+          className={`sl-tools-accordion-panel${isCoverflow ? " sl-tools-accordion-panel--coverflow" : ""}`}
+          role="region"
+          aria-label="SookLabs tools"
+        >
+          {isCoverflow ? (
+            <ToolsCoverflow
+              tools={TOOLS}
+              onNavigate={() => {
+                setOpen(false);
+                onNavigate?.();
+              }}
+            />
+          ) : (
+            <ToolsList
+              onNavigate={() => {
+                setOpen(false);
+                onNavigate?.();
+              }}
+            />
+          )}
         </div>
       )}
     </div>

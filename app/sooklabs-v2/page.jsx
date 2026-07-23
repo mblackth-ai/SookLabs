@@ -955,7 +955,7 @@ function Header() {
               {l.label}
             </a>
           ))}
-          <ToolsNavDropdown />
+          <ToolsNavDropdown variant="coverflow" />
         </nav>
         <div className="sl-desk" style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <Button variant="primary" size="sm" href="https://sookly.co" iconRight={<Icons.Arrow size={15} />}>
@@ -1000,7 +1000,7 @@ function Header() {
               {l.label}
             </a>
           ))}
-          <ToolsNavAccordion onNavigate={() => setOpen(false)} />
+          <ToolsNavAccordion variant="coverflow" onNavigate={() => setOpen(false)} />
           <Button variant="primary" size="sm" href="https://sookly.co">
             Explore Sookly
           </Button>
