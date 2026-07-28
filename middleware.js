@@ -5,6 +5,18 @@ function isHqHost(host) {
   return host === "hq.sooklabs.com" || host === "hq.localhost";
 }
 
+function withSecurityHeaders(response) {
+  response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
+  response.headers.set("X-Frame-Options", "DENY");
+  response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  response.headers.set(
+    "Permissions-Policy",
+    "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
+  );
+  return response;
+}
+
 // Maps the hq.sooklabs.com subdomain onto the /hq route subtree and guards
 // every HQ route behind the Phase 1 password session. The public SookLabs
 // site (any non-hq host on non-/hq paths) passes straight through untouched.
@@ -25,7 +37,7 @@ export async function middleware(request) {
 
   // Only HQ routes are governed by this middleware.
   if (!pathname.startsWith("/hq")) {
-    return NextResponse.next();
+    return withSecurityHeaders(NextResponse.next());
   }
 
   // Unauthenticated entry points (cron / agent callback / pending poll use secrets in the route itself).
@@ -37,7 +49,8 @@ export async function middleware(request) {
     pathname === "/hq/api/agents/callback" ||
     pathname === "/hq/api/agents/pending";
   if (isOpenPath) {
-    return rewroteHost ? NextResponse.rewrite(url) : NextResponse.next();
+    const res = rewroteHost ? NextResponse.rewrite(url) : NextResponse.next();
+    return withSecurityHeaders(res);
   }
 
   const token = request.cookies.get(HQ_COOKIE)?.value;
@@ -48,10 +61,11 @@ export async function middleware(request) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/hq/login";
     // Rewrite (not redirect) so the originally requested URL is preserved.
-    return NextResponse.rewrite(loginUrl);
+    return withSecurityHeaders(NextResponse.rewrite(loginUrl));
   }
 
-  return rewroteHost ? NextResponse.rewrite(url) : NextResponse.next();
+  const res = rewroteHost ? NextResponse.rewrite(url) : NextResponse.next();
+  return withSecurityHeaders(res);
 }
 
 export const config = {
