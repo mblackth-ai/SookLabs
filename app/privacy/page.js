@@ -13,11 +13,11 @@ import { legalPageSchemaGraph } from "@/lib/schema";
 export const metadata = {
   title: "Privacy Policy — SookLabs",
   description:
-    "How SookLabs handles information on sooklabs.com, in our Discord community, and through our Discord bot and applications.",
+    "How SookLabs handles information on sooklabs.com, in Discord, and when SEOS or other products connect to platforms such as Reddit under applicable developer terms.",
 };
 
 const description =
-  "How SookLabs handles information on sooklabs.com, in our Discord community, and through our Discord bot and applications.";
+  "How SookLabs handles information on sooklabs.com, in Discord, and when SEOS or other products connect to platforms such as Reddit under applicable developer terms.";
 
 function DiscordLink({ children }) {
   if (!DISCORD_INVITE_URL) return children;
@@ -35,9 +35,10 @@ export default function PrivacyPage() {
       <LegalPageShell title="Privacy Policy" lastUpdated={LEGAL_LAST_UPDATED}>
         <p>
           This policy describes how SookLabs (&quot;we&quot;, &quot;us&quot;) handles information when you use{" "}
-          <strong>sooklabs.com</strong>, join our Discord community, interact with our Discord bot, or use SookLabs
-          Discord applications and activities. It is written for visitors and community members. It is practical
-          guidance, not legal advice.
+          <strong>sooklabs.com</strong>, join our Discord community, interact with our Discord bot or Discord
+          applications, or use SookLabs products (including <strong>SEOS</strong>) that may connect to third-party
+          platforms such as Reddit. It is practical guidance for visitors, community members, and workspace operators —
+          not legal advice.
         </p>
 
         <h2>Who operates SookLabs</h2>
@@ -71,11 +72,25 @@ export default function PrivacyPage() {
             Discord applications, activities, and integrations we build or host as part of our first community
             iteration (for example onboarding flows, pillar channels, or builder tools inside Discord).
           </li>
+          <li>
+            Product platform connections operated by SookLabs (for example SEOS outbound social / SEO workflows),
+            including Reddit Data API access if and when Reddit grants approval under its{" "}
+            <a
+              href="https://support.reddithelp.com/hc/en-us/articles/42728983564564-Responsible-Builder-Policy"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Responsible Builder Policy
+            </a>
+            .
+          </li>
         </ul>
         <p>
-          Other SookLabs products (for example <a href="https://sookly.co">sookly.co</a> or{" "}
-          <a href="https://seos.sooklabs.com">seos.sooklabs.com</a>) may have their own policies. Internal HQ tools at{" "}
-          <strong>hq.sooklabs.com</strong> are password-protected and excluded from public search indexing.
+          Product surfaces such as <a href="https://sookly.co">sookly.co</a> and{" "}
+          <a href="https://seos.sooklabs.com">seos.sooklabs.com</a> may add product-specific notices, but Reddit and
+          other platform data handled by SookLabs products is covered here unless a product page states otherwise.
+          Internal HQ tools at <strong>hq.sooklabs.com</strong> are password-protected and excluded from public search
+          indexing.
         </p>
 
         <h2>Information we collect</h2>
@@ -128,6 +143,41 @@ export default function PrivacyPage() {
           codes, or sensitive financial or health information in public channels.
         </p>
 
+        <h3>SEOS and third-party platforms (including Reddit)</h3>
+        <p>
+          SEOS is an outgoing visibility and content-operations product. Today, Reddit workflows are primarily{" "}
+          <strong>Manual</strong>: operators draft briefings and paste content themselves. We do not present Reddit (or
+          other social channels) as &quot;Connected&quot; until a real, verified server-side credential exchange exists.
+        </p>
+        <p>
+          If and when Reddit approves SookLabs / SEOS under the Responsible Builder Policy and related{" "}
+          <a href="https://www.redditinc.com/policies/data-api-terms" target="_blank" rel="noopener noreferrer">
+            Data API Terms
+          </a>
+          , connecting a Reddit account or using approved API access may involve:
+        </p>
+        <ul>
+          <li>
+            <strong>OAuth tokens and account identifiers</strong> — access/refresh tokens, Reddit username or account
+            id, granted scopes, and connection verification timestamps, stored server-side and encrypted at rest where
+            implemented.
+          </li>
+          <li>
+            <strong>Public Reddit content and metadata</strong> — posts, comments, subreddit metadata, and related
+            public fields needed for listening, briefing, drafting, eligibility checks, or (only if explicitly approved
+            and enabled) publishing on behalf of a connected account.
+          </li>
+          <li>
+            <strong>Operator actions</strong> — which workspace connected the account, subreddit targets, human rule
+            checks, approvals, and dispatch / paste records needed for auditability.
+          </li>
+        </ul>
+        <p>
+          We request the minimum scopes needed for the stated use case. We do not use Reddit data to infer sensitive
+          characteristics about Redditors, re-identify users via off-platform matching, sell or license Reddit data, or
+          train machine-learning / AI models on Reddit data without Reddit&apos;s express written approval.
+        </p>
+
         <h2>How we use information</h2>
         <ul>
           <li>Operate the public website and respond to contact or audit requests.</li>
@@ -135,6 +185,10 @@ export default function PrivacyPage() {
           <li>Provide bot replies, routing, onboarding, and Discord application features.</li>
           <li>Develop and test community tooling and integrations inside Discord.</li>
           <li>Protect members, enforce community rules, and investigate abuse or spam.</li>
+          <li>
+            Operate SEOS workspace features: content refactor drafts, social briefing packs, eligibility gates, and —
+            only after verified connections and platform approval — scheduled or assisted publishing.
+          </li>
           <li>Understand aggregate usage to reduce repetition, interruptions, cognitive load, and waiting time.</li>
         </ul>
         <p>We do not sell your personal information.</p>
@@ -182,6 +236,15 @@ export default function PrivacyPage() {
             Discord processes and stores data on its infrastructure. Review Discord&apos;s privacy policy and settings in
             your Discord account.
           </li>
+          <li>
+            <strong>Reddit</strong> — if a workspace connects Reddit or we use approved Reddit Data API access, Reddit
+            processes authentication and content under Reddit&apos;s policies, including the Responsible Builder Policy,
+            Developer Terms, and Data API Terms. Review{" "}
+            <a href="https://www.reddit.com/policies/privacy-policy" target="_blank" rel="noopener noreferrer">
+              Reddit&apos;s Privacy Policy
+            </a>
+            .
+          </li>
         </ul>
         <p>
           Each provider processes data under its own terms. When you follow links to other SookLabs properties or leave
@@ -206,6 +269,13 @@ export default function PrivacyPage() {
             debugging, and product development, unless Discord&apos;s platform retention or applicable law requires
             longer storage.
           </li>
+          <li>
+            Reddit connection tokens are retained while a workspace keeps the connection active. On disconnect or
+            revocation we delete or cryptographically erase tokens and stop new API calls. Cached public Reddit content
+            used for drafts or briefings is kept only as long as needed for the workspace task, debugging, or legal
+            obligation, and we honour applicable Reddit deletion / retention requirements once live API access is in
+            use.
+          </li>
           <li>Aggregated analytics data is retained according to Vercel&apos;s analytics settings.</li>
         </ul>
 
@@ -225,16 +295,16 @@ export default function PrivacyPage() {
 
         <h2>International transfers</h2>
         <p>
-          Your information may be processed in Thailand and in countries where Vercel, Resend, or Discord operate
-          infrastructure (including the United States). By using our website or Discord services, you understand that
-          cross-border transfer may occur.
+          Your information may be processed in Thailand and in countries where Vercel, Resend, Discord, Reddit, or other
+          connected providers operate infrastructure (including the United States). By using our website, Discord
+          services, or connected product features, you understand that cross-border transfer may occur.
         </p>
 
         <h2>Changes</h2>
         <p>
-          We may update this page when our website, Discord community, bot, or application practices change. Material
-          updates may also be announced in Discord. The &quot;Last updated&quot; date at the top shows when this version
-          was published.
+          We may update this page when our website, Discord community, bot, application, or platform-integration
+          practices change. Material updates may also be announced in Discord or in-product. The &quot;Last updated&quot;
+          date at the top shows when this version was published.
         </p>
 
         <h2>Contact</h2>

@@ -13,11 +13,11 @@ import { legalPageSchemaGraph } from "@/lib/schema";
 export const metadata = {
   title: "Terms of Use — SookLabs",
   description:
-    "Terms for using sooklabs.com, joining the SookLabs Discord community, interacting with our bot, and participating in Discord application development.",
+    "Terms for using sooklabs.com, the SookLabs Discord community, and SookLabs products that may connect to platforms such as Reddit.",
 };
 
 const description =
-  "Terms for using sooklabs.com, joining the SookLabs Discord community, interacting with our bot, and participating in Discord application development.";
+  "Terms for using sooklabs.com, the SookLabs Discord community, and SookLabs products that may connect to platforms such as Reddit.";
 
 function DiscordLink({ children }) {
   if (!DISCORD_INVITE_URL) return children;
@@ -35,9 +35,10 @@ export default function TermsPage() {
       <LegalPageShell title="Terms of Use" lastUpdated={LEGAL_LAST_UPDATED}>
         <p>
           These terms apply to your use of the public SookLabs website at{" "}
-          <a href={SITE_URL}>{SITE_URL.replace(/^https?:\/\//, "")}</a>, our Discord community, our Discord bot, and
-          SookLabs Discord applications and activities we operate as part of our first community iteration. By using
-          these services, you agree to these terms. If you do not agree, please do not use them.
+          <a href={SITE_URL}>{SITE_URL.replace(/^https?:\/\//, "")}</a>, our Discord community, our Discord bot,
+          SookLabs Discord applications, and SookLabs products (including SEOS) that offer platform workflows such as
+          Reddit briefings or future API connections. By using these services, you agree to these terms. If you do not
+          agree, please do not use them.
         </p>
 
         <h2 id="discord-community">What we provide</h2>
@@ -86,6 +87,50 @@ export default function TermsPage() {
           important information yourself.
         </p>
 
+        <h3>SEOS and platform workflows (including Reddit)</h3>
+        <p>
+          SEOS helps operators draft and organise outbound visibility work. Reddit support today is{" "}
+          <strong>Manual</strong>: draft briefings and human paste only. We do not auto-post to Reddit and we do not
+          show a live &quot;Connected&quot; status until a verified server-side OAuth (or equivalent) connection exists
+          and Reddit access is approved.
+        </p>
+        <p>
+          If you use SEOS Reddit features — manual or future API — you agree to:
+        </p>
+        <ul>
+          <li>
+            Comply with Reddit&apos;s{" "}
+            <a
+              href="https://support.reddithelp.com/hc/en-us/articles/42728983564564-Responsible-Builder-Policy"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Responsible Builder Policy
+            </a>
+            ,{" "}
+            <a href="https://www.redditinc.com/policies/data-api-terms" target="_blank" rel="noopener noreferrer">
+              Data API Terms
+            </a>
+            , Developer Terms, User Agreement, and each subreddit&apos;s rules.
+          </li>
+          <li>
+            Be transparent about how and why Reddit data is accessed; do not mask use cases, spam, vote-manipulate, or
+            mass-crosspost without human review.
+          </li>
+          <li>
+            Not use SEOS to circumvent Reddit rate limits, scrape at abusive volume, re-identify Redditors, sell Reddit
+            data, or train AI / ML models on Reddit data without Reddit&apos;s express written approval.
+          </li>
+          <li>
+            Treat commercial use of Reddit data as requiring Reddit&apos;s separate commercial approval when applicable;
+            SookLabs does not grant Reddit commercial rights.
+          </li>
+        </ul>
+        <p>
+          Platform features for Meta, X, LinkedIn, TikTok, and others follow the same honesty rule: Manual, Draft,
+          Workflow Ready, or Future API until a real verified connection ships.
+        </p>
+
         <h2>Acceptable use</h2>
         <p>You agree not to:</p>
         <ul>
@@ -97,6 +142,10 @@ export default function TermsPage() {
           <li>Submit false, misleading, or abusive content through website forms or Discord interactions.</li>
           <li>Post unsolicited promotions, referral spam, or off-topic funnels without moderator approval.</li>
           <li>Share others&apos; private messages or personal data without consent.</li>
+          <li>
+            Use product platform integrations to spam Reddit or other networks, violate subreddit or platform rules, or
+            misrepresent automated posting as human participation.
+          </li>
         </ul>
         <p>
           Investment and technology discussions are for education and community exchange only. Nothing in the server or
@@ -178,10 +227,11 @@ export default function TermsPage() {
 
         <h2>Disclaimers</h2>
         <p>
-          The website, Discord community, bot, and applications are provided &quot;as is&quot; and &quot;as available&quot;.
-          We do not warrant uninterrupted, error-free, or fit-for-purpose operation. To the fullest extent permitted by
-          applicable law, SookLabs disclaims liability for indirect, incidental, or consequential damages arising from
-          use of these services.
+          The website, Discord community, bot, applications, and product platform workflows are provided &quot;as
+          is&quot; and &quot;as available&quot;. We do not warrant uninterrupted, error-free, or fit-for-purpose
+          operation. Platform approvals (including Reddit API access) are controlled by third parties and may be denied,
+          delayed, or revoked. To the fullest extent permitted by applicable law, SookLabs disclaims liability for
+          indirect, incidental, or consequential damages arising from use of these services.
         </p>
 
         <h2>Limitation of liability</h2>
