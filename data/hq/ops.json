@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-07T15:23:43.194Z",
+  "updatedAt": "2026-08-02T00:00:00.000Z",
   "todayPriorities": [
     {
       "id": "tp-1",
@@ -135,8 +135,184 @@
           "links": []
         }
       ]
+    },
+    "seosSocial": {
+      "label": "SEOS Social GTM",
+      "product": "seos",
+      "boardHref": "/hq/seos/social-gtm",
+      "items": [
+        {
+          "id": "ss-1",
+          "title": "Document Content Engine → Publishing Queue handoff (one article → assets)",
+          "status": "doing",
+          "priority": "P0",
+          "owner": "James",
+          "due": "2026-08-01",
+          "links": [{ "label": "SEOS Hub", "url": "/hq/seos" }]
+        },
+        {
+          "id": "ss-2",
+          "title": "Platform matrix UX: honest Manual / Draft / Future OAuth badges only",
+          "status": "todo",
+          "priority": "P0",
+          "owner": "James",
+          "due": "2026-08-02",
+          "links": []
+        },
+        {
+          "id": "ss-3",
+          "title": "Facebook Page adapter stub (no live Graph API yet)",
+          "status": "todo",
+          "priority": "P0",
+          "owner": "James",
+          "due": "2026-07-30",
+          "links": [],
+          "platform": "facebook_page"
+        },
+        {
+          "id": "ss-4",
+          "title": "Instagram draft-media publish path design",
+          "status": "todo",
+          "priority": "P1",
+          "owner": "James",
+          "due": "2026-08-05",
+          "links": [],
+          "platform": "instagram"
+        },
+        {
+          "id": "ss-5",
+          "title": "TikTok manual upload checklist in queue UI",
+          "status": "todo",
+          "priority": "P1",
+          "owner": "James",
+          "due": "2026-08-08",
+          "links": [],
+          "platform": "tiktok"
+        },
+        {
+          "id": "ss-6",
+          "title": "Reddit + LinkedIn + X adapter stubs (Future OAuth)",
+          "status": "todo",
+          "priority": "P1",
+          "owner": "James",
+          "due": "2026-08-12",
+          "links": []
+        },
+        {
+          "id": "ss-7",
+          "title": "Threads (#7) manual schedule notes + tone enforcement from KB",
+          "status": "todo",
+          "priority": "P2",
+          "owner": "James",
+          "due": "2026-08-15",
+          "links": [],
+          "platform": "threads"
+        },
+        {
+          "id": "ss-8",
+          "title": "OAuth credential store design (Phase 3) — no keys in repo",
+          "status": "todo",
+          "priority": "P2",
+          "owner": "James",
+          "due": "2026-08-20",
+          "links": []
+        },
+        {
+          "id": "ss-9",
+          "title": "Reddit RBP go-live: public Privacy + Terms cover Data API / Responsible Builder Policy",
+          "status": "done",
+          "priority": "P0",
+          "owner": "Mark",
+          "due": "2026-08-01",
+          "links": [
+            { "label": "Privacy", "url": "https://sooklabs.com/privacy" },
+            { "label": "Terms", "url": "https://sooklabs.com/terms" },
+            {
+              "label": "Responsible Builder Policy",
+              "url": "https://support.reddithelp.com/hc/en-us/articles/42728983564564-Responsible-Builder-Policy"
+            }
+          ],
+          "platform": "reddit"
+        },
+        {
+          "id": "ss-10",
+          "title": "Reddit access request pack: use case, scopes, volume, privacy URL, commercial path if needed",
+          "status": "done",
+          "priority": "P0",
+          "owner": "Mark",
+          "due": "2026-08-05",
+          "links": [
+            {
+              "label": "Access pack",
+              "url": "https://github.com/mblackth-ai/SEOS/blob/main/docs/REDDIT_ACCESS_REQUEST_PACK.md"
+            },
+            { "label": "Data API Terms", "url": "https://www.redditinc.com/policies/data-api-terms" },
+            { "label": "Privacy", "url": "https://sooklabs.com/privacy" }
+          ],
+          "platform": "reddit"
+        },
+        {
+          "id": "ss-11",
+          "title": "Reddit stay Manual until approved token + verified connection — never fake Connected",
+          "status": "done",
+          "priority": "P1",
+          "owner": "James",
+          "due": "2026-08-12",
+          "links": [
+            {
+              "label": "Access pack",
+              "url": "https://github.com/mblackth-ai/SEOS/blob/main/docs/REDDIT_ACCESS_REQUEST_PACK.md"
+            }
+          ],
+          "platform": "reddit"
+        }
+      ]
     }
   },
+  "platformMatrix": [
+    {
+      "id": "facebook_page",
+      "label": "Facebook Page",
+      "mode": "future_oauth",
+      "note": "Meta Graph — not connected"
+    },
+    {
+      "id": "instagram",
+      "label": "Instagram",
+      "mode": "future_oauth",
+      "note": "Draft media path first"
+    },
+    {
+      "id": "tiktok",
+      "label": "TikTok",
+      "mode": "manual",
+      "note": "Manual upload until OAuth"
+    },
+    {
+      "id": "reddit",
+      "label": "Reddit",
+      "mode": "manual",
+      "note": "Manual paste; RBP legal live; access pack ready; no Connected until verified"
+    },
+    {
+      "id": "linkedin",
+      "label": "LinkedIn",
+      "mode": "draft",
+      "note": "Draft-only until OAuth"
+    },
+    {
+      "id": "x",
+      "label": "X (Twitter)",
+      "mode": "draft",
+      "note": "Draft-only until OAuth"
+    },
+    {
+      "id": "threads",
+      "label": "Threads",
+      "mode": "manual",
+      "note": "Platform #7 — Manual"
+    }
+  ],
   "briefingNotes": {
     "date": "2026-07-07",
     "sections": {
@@ -179,7 +355,7 @@
       "id": "d-5",
       "date": "2026-08-01",
       "title": "Reddit go-live gated by Responsible Builder Policy + public legal pages",
-      "body": "Ship sooklabs.com/privacy and /terms covering Reddit Data API use before any access request. Stay Manual until Reddit approval and a verified connection; no fake Connected; no AI training on Reddit data without written approval.",
+      "body": "Privacy/terms live; access pack at SEOS docs/REDDIT_ACCESS_REQUEST_PACK.md. Stay Manual until Reddit approval and a verified connection; no fake Connected; no AI training on Reddit data without written approval. ss-9/ss-10/ss-11 done.",
       "tags": [
         "seos",
         "reddit",
