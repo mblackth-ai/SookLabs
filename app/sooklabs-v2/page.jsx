@@ -1320,9 +1320,10 @@ const PRODUCTS = [
     key: "RoastMyOpSec",
     icon: Icons.Roast,
     tone: "violet",
-    status: "TBA",
+    status: "Live",
     tag: "Security auditor",
     desc: "Plain-English exposure checks for founders and small teams. Know what is leaking, first.",
+    href: "https://roastmyopsec.com",
   },
   {
     key: "SookLabs Community",

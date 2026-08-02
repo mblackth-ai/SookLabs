@@ -1,6 +1,7 @@
 "use client";
 
 import { CONTACT_EMAIL, DISCORD_INVITE_URL, ORG_SUMMARY, SOCIAL_PROFILES } from "@/lib/site";
+import "./site-footer.css";
 
 const GLYPH = "/assets/sooklabs/sooklabs-glyph.png";
 
@@ -49,6 +50,7 @@ export function SiteFooter() {
   const linkHref = {
     Sookly: "https://sookly.co",
     SEOS: "/audit",
+    RoastMyOpSec: "https://roastmyopsec.com",
     "Operating rule": "/#operating-rule",
     Philosophy: "/#philosophy",
     Pillars: "/#pillars",
@@ -64,7 +66,7 @@ export function SiteFooter() {
       links: [
         "Sookly",
         "SEOS",
-        "RoastMyOpSec (TBA)",
+        "RoastMyOpSec",
         DISCORD_INVITE_URL ? "Discord Community" : "Discord Community (soon)",
       ],
     },
@@ -125,7 +127,7 @@ export function SiteFooter() {
                   target="_blank"
                   rel="me noopener noreferrer"
                   aria-label={profile.label}
-                  className="sl-navlink"
+                  className="sl-navlink sl-footer-social"
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
@@ -165,7 +167,7 @@ export function SiteFooter() {
                       {href ? (
                         <a
                           href={href}
-                          className="sl-navlink"
+                          className="sl-navlink sl-footer-link"
                           {...(isExternal
                             ? {
                                 target: href.startsWith("http") ? "_blank" : undefined,

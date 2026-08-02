@@ -3,21 +3,21 @@
   "todayPriorities": [
     {
       "id": "tp-1",
-      "title": "Review Sookly homepage hero and CTA alignment",
+      "title": "Submit Reddit commercial Data API request (FOUNDER)",
       "done": false,
-      "stream": "sookly-website"
+      "stream": "seos-social"
     },
     {
       "id": "tp-2",
-      "title": "Define app.sookly.com onboarding checklist",
+      "title": "Save Reddit ticket ID into HQ briefing / decisions",
       "done": false,
-      "stream": "sookly-app"
+      "stream": "seos-social"
     },
     {
       "id": "tp-3",
-      "title": "Sync SEOS Knowledge Base gaps with website pages",
+      "title": "Pick one other P0 on Sookly action plan after Reddit submit",
       "done": false,
-      "stream": "seos"
+      "stream": "sookly-website"
     }
   ],
   "workstreams": {
@@ -192,11 +192,16 @@
         {
           "id": "ss-6",
           "title": "Reddit + LinkedIn + X adapter stubs (Future OAuth)",
-          "status": "todo",
+          "status": "done",
           "priority": "P1",
           "owner": "James",
           "due": "2026-08-12",
-          "links": []
+          "links": [
+            {
+              "label": "social-connectors",
+              "url": "https://github.com/mblackth-ai/SEOS/blob/main/src/lib/social-connectors.ts"
+            }
+          ]
         },
         {
           "id": "ss-7",
@@ -265,6 +270,34 @@
             }
           ],
           "platform": "reddit"
+        },
+        {
+          "id": "ss-12",
+          "title": "FOUNDER: Submit Reddit commercial Data API request (paste pack → Help form → save ticket ID)",
+          "status": "doing",
+          "priority": "P0",
+          "owner": "Mark",
+          "due": "2026-08-03",
+          "links": [
+            {
+              "label": "Founder submit",
+              "url": "https://github.com/mblackth-ai/SEOS/blob/main/docs/REDDIT_FOUNDER_SUBMIT.md"
+            },
+            {
+              "label": "Reddit Help form",
+              "url": "https://support.reddithelp.com/hc/en-us/requests/new"
+            }
+          ],
+          "platform": "reddit"
+        },
+        {
+          "id": "ss-13",
+          "title": "LinkedIn + X vertical slice notes (stubs done — wait for credential store before Connect UI)",
+          "status": "todo",
+          "priority": "P2",
+          "owner": "James",
+          "due": "2026-08-20",
+          "links": []
         }
       ]
     }
