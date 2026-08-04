@@ -317,7 +317,7 @@ a.sl-tools-item--live:focus-visible {
     animation: none;
   }
 
-  .sl-tools-nav.is-open .sl-tools-panel {
+  .sl-tools-nav.is-open .sl-tools-panel:not(.sl-tools-panel--coverflow) {
     transform: none;
   }
 
