@@ -350,6 +350,24 @@ a.sl-tools-item--live:focus-visible {
   overflow: hidden;
 }
 
+/* Laptop / desktop: centre the stage in the full viewport */
+@media (min-width: 721px) {
+  .sl-tools-panel--coverflow {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    right: auto;
+    width: min(920px, calc(100vw - 64px));
+    max-width: calc(100vw - 48px);
+    transform: translate(-50%, calc(-50% + 12px));
+    z-index: 80;
+  }
+
+  .sl-tools-nav.is-open .sl-tools-panel--coverflow {
+    transform: translate(-50%, -50%);
+  }
+}
+
 .sl-tools-coverflow {
   position: relative;
   display: flex;
@@ -548,12 +566,32 @@ a.sl-tools-item--live:focus-visible {
   .sl-tools-cover-card {
     transform-style: flat;
   }
+
+  .sl-tools-panel--coverflow,
+  .sl-tools-nav.is-open .sl-tools-panel--coverflow {
+    transition: opacity 0.01ms, visibility 0.01ms;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (min-width: 721px) {
+  .sl-tools-panel--coverflow,
+  .sl-tools-nav.is-open .sl-tools-panel--coverflow {
+    transform: translate(-50%, -50%);
+  }
 }
 
 @media (max-width: 720px) {
   .sl-tools-panel--coverflow {
-    width: min(560px, calc(100vw - 32px));
+    position: absolute;
+    top: calc(100% + 14px);
+    left: auto;
     right: -16px;
+    width: min(560px, calc(100vw - 32px));
+    transform: translateY(8px);
+  }
+
+  .sl-tools-nav.is-open .sl-tools-panel--coverflow {
+    transform: translateY(0);
   }
 
   .sl-tools-cover-card {
