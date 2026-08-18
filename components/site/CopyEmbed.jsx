@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 
 const TAB_ORDER = ["html", "markdown", "plain"];
 
@@ -14,6 +14,7 @@ const TAB_LABELS = {
  * Tabbed copy surface for paste embeds. Only shows tabs that have non-empty content.
  */
 export function CopyEmbed({ html, markdown, plain, height = 180, label = "Copy" }) {
+  const uid = useId();
   const available = useMemo(
     () =>
       TAB_ORDER.filter((key) => {
@@ -40,7 +41,19 @@ export function CopyEmbed({ html, markdown, plain, height = 180, label = "Copy" 
     }
   }
 
+  function onTabKeyDown(event) {
+    if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
+    event.preventDefault();
+    const index = available.indexOf(active);
+    if (index < 0) return;
+    const delta = event.key === "ArrowRight" ? 1 : -1;
+    const next = available[(index + delta + available.length) % available.length];
+    setTab(next);
+  }
+
   if (!available.length) return null;
+
+  const panelId = `${uid}-panel`;
 
   return (
     <div
@@ -62,15 +75,24 @@ export function CopyEmbed({ html, markdown, plain, height = 180, label = "Copy" 
           flexWrap: "wrap",
         }}
       >
-        <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }} role="tablist" aria-label={label}>
+        <div
+          style={{ display: "flex", gap: 4, flexWrap: "wrap" }}
+          role="tablist"
+          aria-label={label}
+          onKeyDown={onTabKeyDown}
+        >
           {available.map((key) => {
             const selected = key === active;
+            const tabId = `${uid}-tab-${key}`;
             return (
               <button
                 key={key}
                 type="button"
                 role="tab"
+                id={tabId}
                 aria-selected={selected}
+                aria-controls={panelId}
+                tabIndex={selected ? 0 : -1}
                 onClick={() => setTab(key)}
                 style={{
                   padding: "6px 10px",
@@ -94,6 +116,7 @@ export function CopyEmbed({ html, markdown, plain, height = 180, label = "Copy" 
         <button
           type="button"
           onClick={onCopy}
+          className="sl-copy-flash"
           style={{
             padding: "7px 12px",
             borderRadius: 9,
@@ -111,6 +134,9 @@ export function CopyEmbed({ html, markdown, plain, height = 180, label = "Copy" 
         </button>
       </div>
       <pre
+        role="tabpanel"
+        id={panelId}
+        aria-labelledby={`${uid}-tab-${active}`}
         style={{
           margin: 0,
           padding: 14,

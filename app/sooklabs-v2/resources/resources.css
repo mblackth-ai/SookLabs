@@ -9,8 +9,26 @@
   }
 }
 
+.sl-field-input:focus-visible,
+.sl-sharebar a:focus-visible,
+.sl-sharebar button:focus-visible,
+.sl-copy-flash:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+@media (max-width: 560px) {
+  .sl-resources-page .sl-sharebar-intents {
+    display: none !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .sl-v2-root section {
     animation: none !important;
+  }
+
+  .sl-copy-flash {
+    transition: none !important;
   }
 }

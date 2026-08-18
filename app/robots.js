@@ -5,7 +5,7 @@ export default function robots() {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/hq", "/hq/"],
+      disallow: ["/hq", "/hq/", "/sooklabs-v2", "/sooklabs-v2/"],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,
   };

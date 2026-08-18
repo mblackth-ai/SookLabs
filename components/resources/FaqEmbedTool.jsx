@@ -3,21 +3,13 @@
 import { useMemo, useState } from "react";
 import { CopyEmbed } from "@/components/site/CopyEmbed";
 import { ShareBar } from "@/components/site/ShareBar";
-import { resourcesShareUrl } from "@/lib/resources";
+import { escapeHtml, publicHttpUrl, resourcesShareUrl } from "@/lib/resources";
 import { Field, ToolCard, inputStyle } from "./ToolCard";
-
-function escapeHtml(value) {
-  return String(value || "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
 
 function buildHtml(question, answer, sourceUrl) {
   const q = escapeHtml(question.trim() || "Your question");
   const a = escapeHtml(answer.trim() || "Your short answer.");
-  const source = sourceUrl.trim();
+  const source = publicHttpUrl(sourceUrl);
   const cite = source
     ? `\n  <p class="faq-source"><a href="${escapeHtml(source)}">Source</a></p>`
     : "";
@@ -32,21 +24,16 @@ function buildHtml(question, answer, sourceUrl) {
 function buildMarkdown(question, answer, sourceUrl) {
   const q = question.trim() || "Your question";
   const a = answer.trim() || "Your short answer.";
-  const source = sourceUrl.trim();
-  return [
-    `### ${q}`,
-    "",
-    a,
-    source ? `\nSource: ${source}` : "",
-  ]
-    .filter(Boolean)
-    .join("\n");
+  const source = publicHttpUrl(sourceUrl);
+  return [`### ${q}`, "", a, source ? `\nSource: ${source}` : ""].filter(Boolean).join("\n");
 }
 
 export function FaqEmbedTool() {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [sourceUrl, setSourceUrl] = useState("");
+  const safeSource = publicHttpUrl(sourceUrl);
+  const sourceHint = sourceUrl.trim() && !safeSource ? "Only http(s) URLs are included in the embed." : "Link to the page that owns this answer.";
 
   const html = useMemo(
     () => buildHtml(question, answer, sourceUrl),
@@ -88,7 +75,7 @@ export function FaqEmbedTool() {
             placeholder="One or two sentences a visitor or model can reuse."
           />
         </Field>
-        <Field label="Source URL (optional)" hint="Link to the page that owns this answer.">
+        <Field label="Source URL (optional)" hint={sourceHint}>
           <input
             style={inputStyle}
             value={sourceUrl}

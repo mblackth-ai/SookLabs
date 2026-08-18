@@ -3,24 +3,14 @@
 import { useMemo, useState } from "react";
 import { CopyEmbed } from "@/components/site/CopyEmbed";
 import { ShareBar } from "@/components/site/ShareBar";
-import { RESOURCES_PAGE, resourcesShareUrl } from "@/lib/resources";
+import {
+  RESOURCES_PAGE,
+  escapeHtml,
+  publicHttpUrl,
+  resourcesShareUrl,
+} from "@/lib/resources";
 import { absoluteUrl } from "@/lib/site";
 import { Field, ToolCard, inputStyle } from "./ToolCard";
-
-function escapeHtml(value) {
-  return String(value || "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
-function normaliseUrl(raw, fallback) {
-  const trimmed = (raw || "").trim();
-  if (!trimmed) return fallback;
-  if (/^https?:\/\//i.test(trimmed)) return trimmed;
-  return `https://${trimmed}`;
-}
 
 export function CiteShareTool() {
   const defaultUrl = resourcesShareUrl();
@@ -28,10 +18,11 @@ export function CiteShareTool() {
   const [url, setUrl] = useState("");
 
   const resolved = useMemo(
-    () => normaliseUrl(url, defaultUrl),
+    () => publicHttpUrl(url, defaultUrl) || defaultUrl,
     [url, defaultUrl]
   );
   const resolvedTitle = title.trim() || RESOURCES_PAGE.name;
+  const invalid = Boolean(url.trim()) && !publicHttpUrl(url);
 
   const markdown = `[${resolvedTitle}](${resolved})`;
   const html = `<a href="${escapeHtml(resolved)}">${escapeHtml(resolvedTitle)}</a>`;
@@ -60,7 +51,14 @@ export function CiteShareTool() {
             placeholder={RESOURCES_PAGE.title}
           />
         </Field>
-        <Field label="URL" hint={`Defaults to ${absoluteUrl(RESOURCES_PAGE.path)}`}>
+        <Field
+          label="URL"
+          hint={
+            invalid
+              ? "Only http(s) URLs can be shared. Using the Resources hub URL instead."
+              : `Defaults to ${absoluteUrl(RESOURCES_PAGE.path)}`
+          }
+        >
           <input
             style={inputStyle}
             value={url}

@@ -8,6 +8,7 @@ Repeatable steps after deploying public-site changes to production (`https://soo
 2. Submit the sitemap: `https://sooklabs.com/sitemap.xml`
 3. Use **URL Inspection** and request indexing for:
    - `https://sooklabs.com/`
+   - `https://sooklabs.com/resources`
    - `https://sooklabs.com/audit`
    - `https://sooklabs.com/privacy`
    - `https://sooklabs.com/terms`
@@ -28,7 +29,8 @@ This completes the backlink loop: site footer links out to social profiles (`rel
 
 ## Post-deploy checks
 
-- Footer shows Instagram, Facebook, and TikTok on `/` and `/audit` (desktop and mobile).
+- Footer shows Instagram, Facebook, and TikTok on `/`, `/resources`, and `/audit` (desktop and mobile).
 - `/privacy` and `/terms` render and are linked from the footer Legal column.
+- Footer Resources column links **Resources hub** to `/resources` (not header Tools).
 - View page source on `/`: Organization JSON-LD includes `sameAs` with the three social URLs.
-- `/sitemap.xml` lists `/`, `/audit`, `/privacy`, `/terms` only (no HQ routes).
+- `/sitemap.xml` lists `/`, `/resources`, `/audit`, `/privacy`, `/terms` only (no HQ routes).

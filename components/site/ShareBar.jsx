@@ -1,6 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
+import { publicHttpUrl } from "@/lib/resources";
+
+function subscribeShare() {
+  return () => {};
+}
+
+function getShareSnapshot() {
+  return typeof navigator !== "undefined" && typeof navigator.share === "function";
+}
+
+function getShareServerSnapshot() {
+  return false;
+}
 
 function buildIntents({ url, title, text }) {
   const u = encodeURIComponent(url);
@@ -36,8 +49,8 @@ function buildIntents({ url, title, text }) {
 }
 
 /**
- * Universal share: Web Share API when available, then intent links + copy.
- * No counters or tracking pixels.
+ * Universal share: Web Share API when available, then intent fallbacks + copy.
+ * No counters or tracking pixels. Share API is detected after mount to avoid hydration mismatch.
  */
 export function ShareBar({
   url,
@@ -47,12 +60,17 @@ export function ShareBar({
   compact = false,
 }) {
   const [copied, setCopied] = useState(false);
-  const intents = buildIntents({ url, title, text: text || title });
+  const canNative = useSyncExternalStore(subscribeShare, getShareSnapshot, getShareServerSnapshot);
+  const safeUrl = publicHttpUrl(url);
+
+  if (!safeUrl) return null;
+
+  const intents = buildIntents({ url: safeUrl, title, text: text || title });
 
   async function onNativeShare() {
     if (typeof navigator === "undefined" || !navigator.share) return;
     try {
-      await navigator.share({ title, text: text || title, url });
+      await navigator.share({ title, text: text || title, url: safeUrl });
     } catch {
       /* user cancelled */
     }
@@ -60,15 +78,13 @@ export function ShareBar({
 
   async function onCopyLink() {
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(safeUrl);
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1600);
     } catch {
       /* ignore */
     }
   }
-
-  const canNative = typeof navigator !== "undefined" && typeof navigator.share === "function";
 
   const btn = {
     display: "inline-flex",
@@ -90,6 +106,7 @@ export function ShareBar({
 
   return (
     <div
+      className="sl-sharebar"
       role="group"
       aria-label={label}
       style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}
@@ -113,17 +130,19 @@ export function ShareBar({
           Share…
         </button>
       )}
-      {intents.map((item) => (
-        <a
-          key={item.id}
-          href={item.href}
-          target={item.id === "email" ? undefined : "_blank"}
-          rel={item.id === "email" ? undefined : "noopener noreferrer"}
-          style={btn}
-        >
-          {item.label}
-        </a>
-      ))}
+      <span className="sl-sharebar-intents" style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+        {intents.map((item) => (
+          <a
+            key={item.id}
+            href={item.href}
+            target={item.id === "email" ? undefined : "_blank"}
+            rel={item.id === "email" ? undefined : "noopener noreferrer"}
+            style={btn}
+          >
+            {item.label}
+          </a>
+        ))}
+      </span>
       <button
         type="button"
         onClick={onCopyLink}

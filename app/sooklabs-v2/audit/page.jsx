@@ -727,11 +727,13 @@ export default function AuditPage() {
       className={`sl-v2-root ${spaceGrotesk.variable} ${dmSans.variable} ${ibmPlexMono.variable}`}
     >
       <Header />
-      <Hero />
-      <ShiftSection />
-      <AuditContents />
-      <WhyNow />
-      <AuditForm />
+      <main id="main-content">
+        <Hero />
+        <ShiftSection />
+        <AuditContents />
+        <WhyNow />
+        <AuditForm />
+      </main>
       <SiteFooter />
     </div>
   );

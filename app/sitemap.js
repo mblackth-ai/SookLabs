@@ -1,4 +1,4 @@
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://sooklabs.com";
+import { SITE_URL } from "@/lib/site";
 
 export default function sitemap() {
   return [

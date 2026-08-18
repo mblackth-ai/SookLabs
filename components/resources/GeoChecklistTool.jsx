@@ -5,6 +5,7 @@ import Link from "next/link";
 import { CopyEmbed } from "@/components/site/CopyEmbed";
 import { ShareBar } from "@/components/site/ShareBar";
 import { resourcesShareUrl } from "@/lib/resources";
+import { absoluteUrl } from "@/lib/site";
 import { ToolCard, checkboxRowStyle } from "./ToolCard";
 
 const ITEMS = [
@@ -44,7 +45,7 @@ function toMarkdown(done) {
   for (const item of ITEMS) {
     lines.push(`- [${done[item.id] ? "x" : " "}] ${item.label}`);
   }
-  lines.push("", `Audit CTA: https://sooklabs.com/audit`);
+  lines.push("", `Audit CTA: ${absoluteUrl("/audit")}`);
   return lines.join("\n");
 }
 

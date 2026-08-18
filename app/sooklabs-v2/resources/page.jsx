@@ -12,7 +12,7 @@ import { LlmsTxtTool } from "@/components/resources/LlmsTxtTool";
 import { GeoChecklistTool } from "@/components/resources/GeoChecklistTool";
 import { FaqEmbedTool } from "@/components/resources/FaqEmbedTool";
 import { CiteShareTool } from "@/components/resources/CiteShareTool";
-import { CURATED_SHELF, RESOURCE_TOOLS, resourcesShareUrl } from "@/lib/resources";
+import { CURATED_SHELF, RESOURCE_TOOLS, escapeHtml, resourcesShareUrl } from "@/lib/resources";
 
 const GLYPH = "/assets/sooklabs/sooklabs-glyph.png";
 
@@ -163,7 +163,7 @@ function Hero() {
         <div style={{ display: "flex", justifyContent: "center", marginBottom: 22 }}>
           <Overline>Resources</Overline>
         </div>
-        <h1
+        <p
           style={{
             fontFamily: "var(--font-display)",
             fontWeight: 700,
@@ -177,6 +177,21 @@ function Hero() {
           }}
         >
           SookLabs
+        </p>
+        <h1
+          style={{
+            fontFamily: "var(--font-display)",
+            fontWeight: 600,
+            fontSize: "clamp(20px, 2.8vw, 28px)",
+            lineHeight: 1.25,
+            letterSpacing: "-0.03em",
+            color: "var(--text-primary)",
+            maxWidth: 720,
+            margin: "14px auto 0",
+            textWrap: "balance",
+          }}
+        >
+          Free tools for llms.txt, GEO, and citations
         </h1>
         <p
           style={{
@@ -318,7 +333,7 @@ function Shelf() {
         <div style={{ display: "grid", gap: 14 }}>
           {CURATED_SHELF.map((item) => {
             const markdown = `[${item.title}](${item.url})`;
-            const html = `<a href="${item.url}">${item.title}</a>`;
+            const html = `<a href="${escapeHtml(item.url)}">${escapeHtml(item.title)}</a>`;
             return (
               <div
                 key={item.id}
@@ -380,7 +395,7 @@ export default function ResourcesPage() {
 
   return (
     <div
-      className={`sl-v2-root ${spaceGrotesk.variable} ${dmSans.variable} ${ibmPlexMono.variable}`}
+      className={`sl-v2-root sl-resources-page ${spaceGrotesk.variable} ${dmSans.variable} ${ibmPlexMono.variable}`}
       style={{
         minHeight: "100vh",
         background: "var(--bg-page)",
@@ -389,15 +404,17 @@ export default function ResourcesPage() {
       }}
     >
       <Header />
-      <Hero />
-      <JumpNav />
-      <Container style={{ display: "grid", gap: 22, paddingBottom: 24 }}>
-        <LlmsTxtTool />
-        <GeoChecklistTool />
-        <FaqEmbedTool />
-        <CiteShareTool />
-      </Container>
-      <Shelf />
+      <main id="main-content">
+        <Hero />
+        <JumpNav />
+        <Container style={{ display: "grid", gap: 22, paddingBottom: 24 }}>
+          <LlmsTxtTool />
+          <GeoChecklistTool />
+          <FaqEmbedTool />
+          <CiteShareTool />
+        </Container>
+        <Shelf />
+      </main>
       <SiteFooter />
     </div>
   );

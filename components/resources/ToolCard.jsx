@@ -1,5 +1,7 @@
 "use client";
 
+import { Children, cloneElement, isValidElement } from "react";
+
 /** Shared visual shell for interactive tools on /resources. */
 export function ToolCard({ id, title, badge, summary, children, footer }) {
   return (
@@ -75,8 +77,15 @@ export function ToolCard({ id, title, badge, summary, children, footer }) {
 }
 
 export function Field({ label, children, hint }) {
+  const labeled = Children.map(children, (child) =>
+    isValidElement(child)
+      ? cloneElement(child, {
+          className: [child.props.className, "sl-field-input"].filter(Boolean).join(" "),
+        })
+      : child
+  );
   return (
-    <label style={{ display: "grid", gap: 7 }}>
+    <label className="sl-field" style={{ display: "grid", gap: 7 }}>
       <span
         style={{
           fontFamily: "var(--font-mono)",
@@ -88,7 +97,7 @@ export function Field({ label, children, hint }) {
       >
         {label}
       </span>
-      {children}
+      {labeled}
       {hint ? (
         <span style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-faint)" }}>
           {hint}
@@ -108,7 +117,6 @@ export const inputStyle = {
   color: "var(--text-primary)",
   fontFamily: "var(--font-body)",
   fontSize: 14,
-  outline: "none",
 };
 
 export const checkboxRowStyle = {

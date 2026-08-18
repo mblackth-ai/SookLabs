@@ -394,6 +394,16 @@
         "reddit",
         "legal"
       ]
+    },
+    {
+      "id": "d-6",
+      "date": "2026-08-07",
+      "title": "sooklabs.com /resources is the public resources hub",
+      "body": "Footer-linked on-page tools (llms.txt, GEO checklist, FAQ embed, cite/share) plus curated docs. Not a Schema.org generator. sookly.co sw-4 (blog / resources hub) remains a separate Sookly website task. Reddit ss-12 stays a founder submit gate.",
+      "tags": [
+        "sooklabs",
+        "resources"
+      ]
     }
   ],
   "agentJobs": []

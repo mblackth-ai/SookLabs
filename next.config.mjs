@@ -77,6 +77,11 @@ const nextConfig = {
         destination: "/audit",
         permanent: false,
       },
+      {
+        source: "/sooklabs-v2/resources",
+        destination: "/resources",
+        permanent: false,
+      },
     ];
   },
 };
