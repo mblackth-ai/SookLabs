@@ -95,10 +95,24 @@
   mask-image: radial-gradient(ellipse 95% 70% at 50% 0%, #000 35%, transparent 88%);
 }
 
-.sl-tools-nav.is-open .sl-tools-panel {
+.sl-tools-nav.is-open .sl-tools-panel,
+.sl-tools-panel.is-open {
   opacity: 1;
   visibility: visible;
+}
+
+.sl-tools-nav.is-open .sl-tools-panel:not(.sl-tools-panel--coverflow),
+.sl-tools-panel.is-open:not(.sl-tools-panel--coverflow) {
   transform: translateY(0);
+}
+
+/* Escape sticky/backdrop-filter headers that clip fixed/absolute children */
+.sl-tools-panel--portal {
+  position: fixed;
+  top: 82px;
+  right: 24px;
+  left: auto;
+  z-index: 80;
 }
 
 .sl-tools-list {
@@ -317,7 +331,8 @@ a.sl-tools-item--live:focus-visible {
     animation: none;
   }
 
-  .sl-tools-nav.is-open .sl-tools-panel:not(.sl-tools-panel--coverflow) {
+  .sl-tools-nav.is-open .sl-tools-panel:not(.sl-tools-panel--coverflow),
+  .sl-tools-panel.is-open:not(.sl-tools-panel--coverflow) {
     transform: none;
   }
 
@@ -350,21 +365,22 @@ a.sl-tools-item--live:focus-visible {
   overflow: hidden;
 }
 
-/* Laptop / desktop: centre the stage in the full viewport */
+/* Laptop / desktop: full-width stage, centred under the header */
 @media (min-width: 721px) {
   .sl-tools-panel--coverflow {
     position: fixed;
-    top: 50%;
+    top: 82px;
     left: 50%;
     right: auto;
     width: min(920px, calc(100vw - 64px));
     max-width: calc(100vw - 48px);
-    transform: translate(-50%, calc(-50% + 12px));
+    transform: translate(-50%, 8px);
     z-index: 80;
   }
 
-  .sl-tools-nav.is-open .sl-tools-panel--coverflow {
-    transform: translate(-50%, -50%);
+  .sl-tools-nav.is-open .sl-tools-panel--coverflow,
+  .sl-tools-panel--coverflow.is-open {
+    transform: translate(-50%, 0);
   }
 }
 
@@ -575,22 +591,24 @@ a.sl-tools-item--live:focus-visible {
 
 @media (prefers-reduced-motion: reduce) and (min-width: 721px) {
   .sl-tools-panel--coverflow,
-  .sl-tools-nav.is-open .sl-tools-panel--coverflow {
-    transform: translate(-50%, -50%);
+  .sl-tools-nav.is-open .sl-tools-panel--coverflow,
+  .sl-tools-panel--coverflow.is-open {
+    transform: translate(-50%, 0);
   }
 }
 
 @media (max-width: 720px) {
   .sl-tools-panel--coverflow {
-    position: absolute;
-    top: calc(100% + 14px);
+    position: fixed;
+    top: 82px;
     left: auto;
-    right: -16px;
+    right: 16px;
     width: min(560px, calc(100vw - 32px));
     transform: translateY(8px);
   }
 
-  .sl-tools-nav.is-open .sl-tools-panel--coverflow {
+  .sl-tools-nav.is-open .sl-tools-panel--coverflow,
+  .sl-tools-panel--coverflow.is-open {
     transform: translateY(0);
   }
 
@@ -609,13 +627,15 @@ a.sl-tools-item--live:focus-visible {
 
 @media (max-width: 520px) {
   .sl-tools-panel--coverflow {
-    right: 50%;
-    transform: translate(50%, 8px);
+    right: auto;
+    left: 50%;
+    transform: translate(-50%, 8px);
     width: min(100vw - 24px, 420px);
   }
 
-  .sl-tools-nav.is-open .sl-tools-panel--coverflow {
-    transform: translate(50%, 0);
+  .sl-tools-nav.is-open .sl-tools-panel--coverflow,
+  .sl-tools-panel--coverflow.is-open {
+    transform: translate(-50%, 0);
   }
 
   .sl-tools-cover-card {

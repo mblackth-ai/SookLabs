@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import "./tools-nav.css";
 import { ToolsCoverflow } from "./ToolsCoverflow";
@@ -126,7 +127,9 @@ function ToolsList({ onNavigate }) {
 /** @param {{ className?: string, variant?: "grid" | "coverflow" }} props */
 export function ToolsNavDropdown({ className = "", variant = "coverflow" }) {
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const rootRef = useRef(null);
+  const panelRef = useRef(null);
   const closeTimer = useRef(null);
   const panelId = useId();
   const isCoverflow = variant === "coverflow";
@@ -145,9 +148,15 @@ export function ToolsNavDropdown({ className = "", variant = "coverflow" }) {
   }, []);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
     if (!open) return undefined;
     const onPointerDown = (e) => {
-      if (!rootRef.current?.contains(e.target)) close();
+      const t = e.target;
+      if (rootRef.current?.contains(t) || panelRef.current?.contains(t)) return;
+      close();
     };
     const onKeyDown = (e) => {
       if (e.key === "Escape") close();
@@ -165,6 +174,27 @@ export function ToolsNavDropdown({ className = "", variant = "coverflow" }) {
       if (closeTimer.current) clearTimeout(closeTimer.current);
     },
     [],
+  );
+
+  const panel = (
+    <div
+      ref={panelRef}
+      id={panelId}
+      className={`sl-tools-panel sl-tools-panel--portal${isCoverflow ? " sl-tools-panel--coverflow" : ""}${
+        open ? " is-open" : ""
+      }`}
+      role="region"
+      aria-label="SookLabs tools"
+      onMouseEnter={openMenu}
+      onMouseLeave={scheduleClose}
+    >
+      <div className="sl-tools-panel-grid-bg" aria-hidden />
+      {isCoverflow ? (
+        <ToolsCoverflow tools={TOOLS} onNavigate={close} />
+      ) : (
+        <ToolsList onNavigate={close} />
+      )}
+    </div>
   );
 
   return (
@@ -185,21 +215,7 @@ export function ToolsNavDropdown({ className = "", variant = "coverflow" }) {
         Tools
         <Chevron />
       </button>
-      <div
-        id={panelId}
-        className={`sl-tools-panel${isCoverflow ? " sl-tools-panel--coverflow" : ""}`}
-        role="region"
-        aria-label="SookLabs tools"
-        onMouseEnter={openMenu}
-        onMouseLeave={scheduleClose}
-      >
-        <div className="sl-tools-panel-grid-bg" aria-hidden />
-        {isCoverflow ? (
-          <ToolsCoverflow tools={TOOLS} onNavigate={close} />
-        ) : (
-          <ToolsList onNavigate={close} />
-        )}
-      </div>
+      {mounted ? createPortal(panel, document.body) : null}
     </div>
   );
 }
