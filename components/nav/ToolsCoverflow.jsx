@@ -373,13 +373,13 @@ export function ToolsCoverflow({ tools, onNavigate, className = "" }) {
       if (t < 1) {
         const k = (t - 0.12) / 0.88;
         scale = 1.05 - k * (1.05 - 0.94);
-        opacity = 1 - k * 0.28;
+        opacity = 1 - k * 0.08;
         rotateY = (delta > 0 ? -1 : 1) * (MAX_TILT * k);
         z = 2;
       } else {
         const k = Math.min(1, (t - 1) / 1);
         scale = 0.94 - k * (0.94 - 0.88);
-        opacity = 0.72 - k * 0.22;
+        opacity = 0.92 - k * 0.08;
         rotateY = (delta > 0 ? -1 : 1) * MAX_TILT;
         z = 1;
       }
@@ -388,7 +388,7 @@ export function ToolsCoverflow({ tools, onNavigate, className = "" }) {
     if (reduced) {
       scale = t < 0.5 ? 1.03 : 0.92;
       rotateY = 0;
-      opacity = t < 0.5 ? 1 : 0.58;
+      opacity = t < 0.5 ? 1 : 0.88;
     }
 
     const active = dist < 0.4;

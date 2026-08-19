@@ -48,13 +48,11 @@
   padding: 6px;
   border-radius: 14px;
   border: 1px solid var(--border-default);
-  background: rgba(10, 14, 22, 0.94);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  background: #121820;
   box-shadow:
-    0 24px 56px rgba(0, 0, 0, 0.48),
-    0 0 0 1px rgba(52, 207, 234, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    0 24px 56px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(52, 207, 234, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
   opacity: 0;
   visibility: hidden;
   transform: translateY(8px);
@@ -112,7 +110,7 @@
   top: 82px;
   right: 24px;
   left: auto;
-  z-index: 80;
+  z-index: 200;
 }
 
 .sl-tools-list {
@@ -375,7 +373,7 @@ a.sl-tools-item--live:focus-visible {
     width: min(920px, calc(100vw - 64px));
     max-width: calc(100vw - 48px);
     transform: translate(-50%, 8px);
-    z-index: 80;
+    z-index: 200;
   }
 
   .sl-tools-nav.is-open .sl-tools-panel--coverflow,
@@ -423,12 +421,12 @@ a.sl-tools-item--live:focus-visible {
 
 .sl-tools-coverflow-fade--left {
   left: 0;
-  background: linear-gradient(90deg, rgba(10, 14, 22, 0.94), transparent);
+  background: linear-gradient(90deg, #121820, transparent);
 }
 
 .sl-tools-coverflow-fade--right {
   right: 0;
-  background: linear-gradient(270deg, rgba(10, 14, 22, 0.94), transparent);
+  background: linear-gradient(270deg, #121820, transparent);
 }
 
 .sl-tools-cover-card {
@@ -441,15 +439,15 @@ a.sl-tools-item--live:focus-visible {
   gap: 8px;
   padding: 16px 16px 14px;
   border-radius: 12px;
-  border: 1px solid var(--border-subtle);
-  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(174, 187, 206, 0.22);
+  background: #1c2533;
   text-align: left;
   text-decoration: none;
   color: inherit;
   transform-origin: center center;
   transform-style: preserve-3d;
   will-change: transform, opacity;
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.32);
   transition: border-color 0.22s var(--ease-out), box-shadow 0.22s var(--ease-out);
   -webkit-tap-highlight-color: transparent;
 }
@@ -467,14 +465,14 @@ a.sl-tools-item--live:focus-visible {
 }
 
 .sl-tools-cover-card.is-active {
-  border-color: rgba(52, 207, 234, 0.48);
+  border-color: rgba(52, 207, 234, 0.55);
   background:
-    linear-gradient(135deg, rgba(52, 207, 234, 0.1), rgba(47, 124, 240, 0.05)),
-    rgba(255, 255, 255, 0.03);
+    linear-gradient(135deg, rgba(52, 207, 234, 0.16), rgba(47, 124, 240, 0.08)),
+    #243044;
   box-shadow:
-    inset 0 1px 0 rgba(52, 207, 234, 0.14),
-    0 0 36px rgba(47, 124, 240, 0.16),
-    0 14px 32px rgba(0, 0, 0, 0.35);
+    inset 0 1px 0 rgba(52, 207, 234, 0.18),
+    0 0 36px rgba(47, 124, 240, 0.18),
+    0 14px 32px rgba(0, 0, 0, 0.38);
   pointer-events: auto;
 }
 
@@ -497,7 +495,7 @@ a.sl-tools-item--live:focus-visible {
 
 .sl-tools-cover-card.is-neighbor .sl-tools-item-desc,
 .sl-tools-cover-card.is-neighbor .sl-tools-cover-action {
-  opacity: 0.35;
+  opacity: 0.72;
   max-height: 0;
   margin: 0;
   overflow: hidden;
