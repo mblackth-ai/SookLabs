@@ -7,7 +7,7 @@ import { getSeosAppUrl } from "@/lib/hq/paths";
 const PROJECT_LINKS = [
   {
     title: "Open SEOS app",
-    subtitle: "Operator desk: Context, Refactor, Authority",
+    subtitle: "Command Center, Context, Refactor, Authority — operator desk",
     href: null,
     external: true,
     badge: "External",

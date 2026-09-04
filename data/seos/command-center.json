@@ -1,0 +1,679 @@
+{
+  "updatedAt": "2026-09-04T00:36:35.901Z",
+  "projects": [
+    {
+      "id": "sooklabs",
+      "name": "SookLabs",
+      "tagline": "Brand — sooklabs.com + SookLabs Facebook",
+      "domains": [
+        "sooklabs.com",
+        "facebook.com/sooklabs"
+      ],
+      "operatorNotes": "2–3 deep insightful posts per week — not 2/day two-liners. Never post to facebook.com/sook.ly from this project.",
+      "connections": [
+        {
+          "id": "sl-fb-page",
+          "label": "SookLabs Facebook Page",
+          "channel": "Facebook Page",
+          "active": false,
+          "badge": "manual",
+          "healthVerified": false,
+          "method": "browser_manual",
+          "lastHealthCheck": "unknown",
+          "lastSuccessfulAction": "unknown",
+          "enabled": true,
+          "operatorNotes": "Page exists; no verified Graph OAuth in SEOS. Draft Export only."
+        },
+        {
+          "id": "sl-ig",
+          "label": "Instagram (@sooklabs)",
+          "channel": "Instagram",
+          "active": false,
+          "badge": "inactive",
+          "healthVerified": false,
+          "method": "unknown",
+          "lastHealthCheck": "unknown",
+          "lastSuccessfulAction": "unknown",
+          "enabled": false,
+          "operatorNotes": "Not wired — Future OAuth when approved."
+        },
+        {
+          "id": "sl-threads",
+          "label": "Threads",
+          "channel": "Threads",
+          "active": false,
+          "badge": "inactive",
+          "healthVerified": false,
+          "method": "unknown",
+          "lastHealthCheck": "unknown",
+          "lastSuccessfulAction": "unknown",
+          "enabled": false
+        },
+        {
+          "id": "sl-gsc",
+          "label": "Google Search Console",
+          "channel": "GSC",
+          "active": false,
+          "badge": "manual",
+          "healthVerified": false,
+          "method": "browser_manual",
+          "lastHealthCheck": "unknown",
+          "lastSuccessfulAction": "unknown",
+          "enabled": true,
+          "operatorNotes": "Operator checks sitemap/indexing manually; no API token in SEOS."
+        },
+        {
+          "id": "sl-ga4",
+          "label": "Google Analytics 4",
+          "channel": "GA4",
+          "active": false,
+          "badge": "manual",
+          "healthVerified": false,
+          "method": "static_config",
+          "lastHealthCheck": "unknown",
+          "lastSuccessfulAction": "unknown",
+          "enabled": true,
+          "operatorNotes": "Vercel Analytics on marketing site; GA4 not API-connected here."
+        },
+        {
+          "id": "sl-vercel",
+          "label": "Vercel (sooklabs.com deploy)",
+          "channel": "Vercel",
+          "active": true,
+          "badge": "manual",
+          "healthVerified": false,
+          "method": "static_config",
+          "lastHealthCheck": "2026-09-03T18:00:00.000Z",
+          "lastSuccessfulAction": "2026-09-03T18:00:00.000Z",
+          "enabled": true,
+          "operatorNotes": "Site deploy is live; not an OAuth social connector."
+        },
+        {
+          "id": "sl-cursor",
+          "label": "Cursor cloud agent (SookLabs repo)",
+          "channel": "Cursor / Codex",
+          "active": true,
+          "badge": "manual",
+          "healthVerified": false,
+          "method": "cursor_cloud_agent",
+          "lastHealthCheck": "2026-09-04T00:10:00.000Z",
+          "lastSuccessfulAction": "2026-09-04T00:10:00.000Z",
+          "enabled": true,
+          "operatorNotes": "Code changes via Cursor agents — not auto-posting."
+        },
+        {
+          "id": "sl-resend",
+          "label": "Resend (contact form)",
+          "channel": "Email",
+          "active": true,
+          "badge": "manual",
+          "healthVerified": false,
+          "method": "static_config",
+          "lastHealthCheck": "unknown",
+          "lastSuccessfulAction": "unknown",
+          "enabled": true
+        }
+      ],
+      "workflows": [
+        {
+          "id": "sl-brand",
+          "role": "Brand",
+          "summary": "Long-form brand posts for SookLabs Facebook — insight-led, not volume spam.",
+          "schedule": "2–3 deep posts per week (Mon/Wed/Fri target)",
+          "destinations": [
+            "facebook.com/sooklabs (SookLabs Page only)"
+          ],
+          "dataSources": [
+            "SEOS Knowledge Base",
+            "sooklabs.com blog/audit",
+            "ops.json priorities"
+          ],
+          "status": "idle",
+          "recentPosts": [
+            {
+              "id": "sl-p1",
+              "title": "Expansion OS positioning — why Manual badges matter",
+              "status": "draft",
+              "link": null,
+              "at": "2026-09-02T14:00:00.000Z"
+            },
+            {
+              "id": "sl-p2",
+              "title": "Tools shelf / llms.txt launch note",
+              "status": "draft",
+              "link": null,
+              "at": "2026-08-28T11:00:00.000Z"
+            }
+          ],
+          "editable": {
+            "cadence": "2-3/week",
+            "toneLocks": "Deep, insightful — no two-liner spam; never sook.ly Page",
+            "channelEnabled": true,
+            "mode": "draft",
+            "notes": "Default MITL — operator approves before any publish attempt."
+          }
+        },
+        {
+          "id": "sl-website",
+          "role": "Website",
+          "summary": "Marketing site updates, SEO artifacts, resources hub.",
+          "schedule": "As needed — tied to HQ / Cursor sprints",
+          "destinations": [
+            "https://sooklabs.com"
+          ],
+          "dataSources": [
+            "SEOS exports",
+            "GSC manual checks",
+            "Vercel deploy logs"
+          ],
+          "status": "running",
+          "recentPosts": [
+            {
+              "id": "sl-w1",
+              "title": "/resources hub + llms.txt flagship",
+              "status": "live",
+              "link": "https://sooklabs.com/resources",
+              "at": "2026-09-03T18:00:00.000Z"
+            }
+          ],
+          "editable": {
+            "cadence": "sprint-based",
+            "channelEnabled": true,
+            "mode": "draft",
+            "notes": ""
+          }
+        },
+        {
+          "id": "sl-outreach",
+          "role": "Outreach",
+          "summary": "USA Message 1 / patient opener sequences — often blocked pending send-yes.",
+          "schedule": "On approval only",
+          "destinations": [
+            "Email / DM drafts — no auto-send"
+          ],
+          "dataSources": [
+            "Approved reply library",
+            "KB outreach templates"
+          ],
+          "status": "blocked",
+          "recentPosts": [
+            {
+              "id": "sl-o1",
+              "title": "USA Message 1 — intro needs founder send-yes",
+              "status": "draft",
+              "link": null,
+              "at": "2026-08-20T09:00:00.000Z"
+            }
+          ],
+          "editable": {
+            "cadence": "on-approval",
+            "toneLocks": "Honest intro; no auto-send without MITL",
+            "channelEnabled": false,
+            "mode": "draft",
+            "notes": "Blocked until operator explicitly approves send."
+          }
+        }
+      ]
+    },
+    {
+      "id": "sookly",
+      "name": "Sookly",
+      "tagline": "app.sookly.co — Omnichat clinic product (Founding 10, MITL)",
+      "domains": [
+        "sookly.co",
+        "app.sookly.co"
+      ],
+      "operatorNotes": "Omnichannel unified inbox, MITL default. Founding public cap 10 until Checkout. Prices ฿4,900 / ฿14,700 / ฿6,900. No Google Call. 2–3 deep posts/week with SookLabs cadence lock.",
+      "connections": [
+        {
+          "id": "sk-site",
+          "label": "sookly.co marketing site",
+          "channel": "Website",
+          "active": true,
+          "badge": "manual",
+          "healthVerified": false,
+          "method": "static_config",
+          "lastHealthCheck": "unknown",
+          "lastSuccessfulAction": "unknown",
+          "enabled": true
+        },
+        {
+          "id": "sk-app",
+          "label": "app.sookly.co workspace",
+          "channel": "Sookly App",
+          "active": true,
+          "badge": "manual",
+          "healthVerified": false,
+          "method": "static_config",
+          "lastHealthCheck": "unknown",
+          "lastSuccessfulAction": "unknown",
+          "enabled": true,
+          "operatorNotes": "Auth shell in progress — not OAuth-connected to SEOS."
+        },
+        {
+          "id": "sk-omnichat",
+          "label": "Omnichat unified inbox",
+          "channel": "Omnichat",
+          "active": false,
+          "badge": "draft_export",
+          "healthVerified": false,
+          "method": "browser_manual",
+          "lastHealthCheck": "unknown",
+          "lastSuccessfulAction": "unknown",
+          "enabled": true,
+          "operatorNotes": "MITL receptionist — channels manual until wired."
+        },
+        {
+          "id": "sk-fb",
+          "label": "Sookly Facebook (not sook.ly)",
+          "channel": "Facebook Page",
+          "active": false,
+          "badge": "inactive",
+          "healthVerified": false,
+          "method": "unknown",
+          "lastHealthCheck": "unknown",
+          "lastSuccessfulAction": "unknown",
+          "enabled": false,
+          "operatorNotes": "Do not confuse with facebook.com/sook.ly."
+        },
+        {
+          "id": "sk-kb",
+          "label": "SEOS Knowledge Base exports",
+          "channel": "KB",
+          "active": true,
+          "badge": "draft_export",
+          "healthVerified": false,
+          "method": "static_config",
+          "lastHealthCheck": "unknown",
+          "lastSuccessfulAction": "unknown",
+          "enabled": true
+        },
+        {
+          "id": "sk-sheet",
+          "label": "Founding 10 tracker sheet",
+          "channel": "Google Sheet",
+          "active": true,
+          "badge": "manual",
+          "healthVerified": false,
+          "method": "browser_manual",
+          "lastHealthCheck": "unknown",
+          "lastSuccessfulAction": "unknown",
+          "enabled": true
+        }
+      ],
+      "workflows": [
+        {
+          "id": "sk-brand",
+          "role": "Brand",
+          "summary": "Clinic product brand posts — same depth cadence as SookLabs.",
+          "schedule": "2–3 deep posts per week",
+          "destinations": [
+            "Sookly-owned channels when enabled"
+          ],
+          "dataSources": [
+            "KB",
+            "Founding offer copy",
+            "pricing locks"
+          ],
+          "status": "idle",
+          "recentPosts": [
+            {
+              "id": "sk-p1",
+              "title": "Founding 10 early-access framing",
+              "status": "draft",
+              "link": null,
+              "at": "2026-09-01T10:00:00.000Z"
+            }
+          ],
+          "editable": {
+            "cadence": "2-3/week",
+            "toneLocks": "Clinic trust + MITL; no Google Call promises",
+            "channelEnabled": true,
+            "mode": "draft",
+            "notes": ""
+          }
+        },
+        {
+          "id": "sk-receptionist",
+          "role": "Receptionist (MITL)",
+          "summary": "Unified inbox replies — human-in-the-loop before send.",
+          "schedule": "Business hours + escalation rules",
+          "destinations": [
+            "LINE",
+            "WhatsApp",
+            "Messenger",
+            "Website chat"
+          ],
+          "dataSources": [
+            "KB approved FAQs",
+            "ops.json",
+            "receptionist-readiness HQ mirror"
+          ],
+          "status": "running",
+          "recentPosts": [],
+          "editable": {
+            "cadence": "real-time MITL",
+            "channelEnabled": true,
+            "mode": "draft",
+            "notes": "No auto-send without operator approval."
+          }
+        },
+        {
+          "id": "sk-discovery",
+          "role": "Discovery",
+          "summary": "Onboarding checklist for app.sookly.com — Founding cap enforcement.",
+          "schedule": "Per signup",
+          "destinations": [
+            "app.sookly.co onboarding"
+          ],
+          "dataSources": [
+            "Founding sheet",
+            "Checkout gate"
+          ],
+          "status": "running",
+          "recentPosts": [
+            {
+              "id": "sk-d1",
+              "title": "Onboarding checklist draft",
+              "status": "draft",
+              "link": null,
+              "at": "2026-09-03T08:00:00.000Z"
+            }
+          ],
+          "editable": {
+            "cadence": "per-signup",
+            "channelEnabled": true,
+            "mode": "draft",
+            "notes": "Cap 10 until Checkout live."
+          }
+        }
+      ]
+    },
+    {
+      "id": "rdusa",
+      "name": "RDUSA",
+      "tagline": "retaildisplayusa.com — brand social on Mark's FB login",
+      "domains": [
+        "retaildisplayusa.com"
+      ],
+      "operatorNotes": "Brand social runs on Mark's personal Facebook login. Sookly widget optional — NOT live SLA unless Mark contracts it.",
+      "connections": [
+        {
+          "id": "rd-site",
+          "label": "retaildisplayusa.com",
+          "channel": "Website",
+          "active": true,
+          "badge": "manual",
+          "healthVerified": false,
+          "method": "static_config",
+          "lastHealthCheck": "unknown",
+          "lastSuccessfulAction": "unknown",
+          "enabled": true
+        },
+        {
+          "id": "rd-fb",
+          "label": "RDUSA Facebook (Mark login)",
+          "channel": "Facebook",
+          "active": false,
+          "badge": "manual",
+          "healthVerified": false,
+          "method": "browser_manual",
+          "lastHealthCheck": "unknown",
+          "lastSuccessfulAction": "unknown",
+          "enabled": true,
+          "operatorNotes": "Manual posting from Mark's login — no SEOS OAuth."
+        },
+        {
+          "id": "rd-widget",
+          "label": "Sookly widget embed",
+          "channel": "Sookly Widget",
+          "active": false,
+          "badge": "inactive",
+          "healthVerified": false,
+          "method": "unknown",
+          "lastHealthCheck": "unknown",
+          "lastSuccessfulAction": "unknown",
+          "enabled": false,
+          "operatorNotes": "Not contracted — do not show live SLA."
+        },
+        {
+          "id": "rd-gsc",
+          "label": "Google Search Console",
+          "channel": "GSC",
+          "active": false,
+          "badge": "manual",
+          "healthVerified": false,
+          "method": "browser_manual",
+          "lastHealthCheck": "unknown",
+          "lastSuccessfulAction": "unknown",
+          "enabled": true
+        }
+      ],
+      "workflows": [
+        {
+          "id": "rd-brand",
+          "role": "RDUSA",
+          "summary": "Retail display brand posts and catalog highlights.",
+          "schedule": "1–2 posts per week when operator schedules",
+          "destinations": [
+            "Mark FB login — RDUSA brand"
+          ],
+          "dataSources": [
+            "Product catalog notes",
+            "manual photo library"
+          ],
+          "status": "idle",
+          "recentPosts": [
+            {
+              "id": "rd-p1",
+              "title": "Seasonal display bundle highlight",
+              "status": "draft",
+              "link": null,
+              "at": "2026-08-15T16:00:00.000Z"
+            }
+          ],
+          "editable": {
+            "cadence": "1-2/week",
+            "channelEnabled": true,
+            "mode": "draft",
+            "notes": ""
+          }
+        },
+        {
+          "id": "rd-seo",
+          "role": "SEO drafts",
+          "summary": "On-page SEO and blog buffer for retaildisplayusa.com.",
+          "schedule": "Monthly buffer",
+          "destinations": [
+            "retaildisplayusa.com blog (manual publish)"
+          ],
+          "dataSources": [
+            "SERP notes",
+            "GSC manual",
+            "SEOS KB if mapped"
+          ],
+          "status": "idle",
+          "recentPosts": [],
+          "editable": {
+            "cadence": "monthly",
+            "channelEnabled": true,
+            "mode": "draft",
+            "notes": ""
+          }
+        }
+      ]
+    },
+    {
+      "id": "jaka",
+      "name": "JAKATransportation",
+      "tagline": "jakatransportation.com — JAKA movers & Transportation",
+      "domains": [
+        "jakatransportation.com"
+      ],
+      "operatorNotes": "Facebook Page exists. IG/Threads often signed out. Blog draft/noindex until Origin in Vercel. Never post Jaka content from SookLabs accounts.",
+      "connections": [
+        {
+          "id": "jk-site",
+          "label": "jakatransportation.com",
+          "channel": "Website",
+          "active": true,
+          "badge": "manual",
+          "healthVerified": false,
+          "method": "static_config",
+          "lastHealthCheck": "unknown",
+          "lastSuccessfulAction": "unknown",
+          "enabled": true,
+          "operatorNotes": "Origin/Vercel migration pending for blog go-live."
+        },
+        {
+          "id": "jk-fb",
+          "label": "JAKA Facebook Page",
+          "channel": "Facebook Page",
+          "active": false,
+          "badge": "manual",
+          "healthVerified": false,
+          "method": "browser_manual",
+          "lastHealthCheck": "unknown",
+          "lastSuccessfulAction": "unknown",
+          "enabled": true,
+          "operatorNotes": "Page exists; posting unlocked manually — target 2/day when operator enables."
+        },
+        {
+          "id": "jk-ig",
+          "label": "JAKA Instagram",
+          "channel": "Instagram",
+          "active": false,
+          "badge": "inactive",
+          "healthVerified": false,
+          "method": "unknown",
+          "lastHealthCheck": "unknown",
+          "lastSuccessfulAction": "unknown",
+          "enabled": false,
+          "operatorNotes": "Often signed out — not connected."
+        },
+        {
+          "id": "jk-threads",
+          "label": "JAKA Threads",
+          "channel": "Threads",
+          "active": false,
+          "badge": "inactive",
+          "healthVerified": false,
+          "method": "unknown",
+          "lastHealthCheck": "unknown",
+          "lastSuccessfulAction": "unknown",
+          "enabled": false,
+          "operatorNotes": "Often signed out."
+        },
+        {
+          "id": "jk-vercel",
+          "label": "Vercel / Origin blog host",
+          "channel": "Vercel",
+          "active": false,
+          "badge": "inactive",
+          "healthVerified": false,
+          "method": "static_config",
+          "lastHealthCheck": "unknown",
+          "lastSuccessfulAction": "unknown",
+          "enabled": false,
+          "operatorNotes": "Blog stays draft/noindex until Origin configured."
+        },
+        {
+          "id": "jk-gsc",
+          "label": "Google Search Console",
+          "channel": "GSC",
+          "active": false,
+          "badge": "manual",
+          "healthVerified": false,
+          "method": "browser_manual",
+          "lastHealthCheck": "unknown",
+          "lastSuccessfulAction": "unknown",
+          "enabled": true
+        }
+      ],
+      "workflows": [
+        {
+          "id": "jk-social",
+          "role": "Jaka Social",
+          "summary": "Facebook-first social — higher frequency when unlocked.",
+          "schedule": "2 posts/day on Facebook when operator unlocks (currently idle)",
+          "destinations": [
+            "JAKA Facebook Page only"
+          ],
+          "dataSources": [
+            "Local photo set",
+            "service area copy",
+            "KB if mapped"
+          ],
+          "status": "idle",
+          "recentPosts": [
+            {
+              "id": "jk-p1",
+              "title": "Weekend move availability teaser",
+              "status": "draft",
+              "link": null,
+              "at": "2026-09-03T12:00:00.000Z"
+            }
+          ],
+          "editable": {
+            "cadence": "2/day when unlocked",
+            "toneLocks": "Local mover voice; never cross-post from SookLabs",
+            "channelEnabled": false,
+            "mode": "draft",
+            "notes": "Unlock only after operator confirms FB session."
+          }
+        },
+        {
+          "id": "jk-seo",
+          "role": "Jaka SEO",
+          "summary": "Local SEO drafts, GSC fixes, service-area pages.",
+          "schedule": "Weekly draft buffer",
+          "destinations": [
+            "jakatransportation.com (noindex until Origin)"
+          ],
+          "dataSources": [
+            "GSC manual",
+            "SERP snapshots",
+            "approved replies"
+          ],
+          "status": "running",
+          "recentPosts": [
+            {
+              "id": "jk-s1",
+              "title": "Service-area landing — draft/noindex",
+              "status": "draft",
+              "link": null,
+              "at": "2026-09-02T09:00:00.000Z"
+            }
+          ],
+          "editable": {
+            "cadence": "weekly",
+            "channelEnabled": true,
+            "mode": "draft",
+            "notes": "Keep noindex until Vercel Origin live."
+          }
+        },
+        {
+          "id": "jk-site",
+          "role": "Jaka Site",
+          "summary": "Site fixes, blog buffer, Origin migration tasks.",
+          "schedule": "Sprint-based",
+          "destinations": [
+            "jakatransportation.com"
+          ],
+          "dataSources": [
+            "Cursor agent tasks",
+            "ops.json"
+          ],
+          "status": "running",
+          "recentPosts": [],
+          "editable": {
+            "cadence": "sprint-based",
+            "channelEnabled": true,
+            "mode": "draft",
+            "notes": ""
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
-import { HQ_COOKIE, resolveSessionSecret, verifySessionToken } from "@/lib/hq/auth";
+import { HQ_COOKIE, resolveSessionSecret as resolveHqSecret, verifySessionToken } from "@/lib/hq/auth";
+import { SEOS_COOKIE, resolveSessionSecret as resolveSeosSecret } from "@/lib/seos/auth";
 
 function isHqHost(host) {
   return host === "hq.sooklabs.com" || host === "hq.localhost";
+}
+
+function isSeosHost(host) {
+  return host === "seos.sooklabs.com" || host === "seos.localhost";
 }
 
 function withSecurityHeaders(response) {
@@ -17,30 +22,7 @@ function withSecurityHeaders(response) {
   return response;
 }
 
-// Maps the hq.sooklabs.com subdomain onto the /hq route subtree and guards
-// every HQ route behind the Phase 1 password session. The public SookLabs
-// site (any non-hq host on non-/hq paths) passes straight through untouched.
-export async function middleware(request) {
-  const host = (request.headers.get("host") || "").split(":")[0];
-  const isHqSubdomain = isHqHost(host);
-
-  let pathname = request.nextUrl.pathname;
-  const url = request.nextUrl.clone();
-  let rewroteHost = false;
-
-  // On the HQ subdomain, lift root-level paths into the /hq subtree.
-  if (isHqSubdomain && !pathname.startsWith("/hq")) {
-    url.pathname = pathname === "/" ? "/hq" : "/hq" + pathname;
-    pathname = url.pathname;
-    rewroteHost = true;
-  }
-
-  // Only HQ routes are governed by this middleware.
-  if (!pathname.startsWith("/hq")) {
-    return withSecurityHeaders(NextResponse.next());
-  }
-
-  // Unauthenticated entry points (cron / agent callback / pending poll use secrets in the route itself).
+async function guardHq(request, pathname, url, rewroteHost) {
   const isOpenPath =
     pathname === "/hq/login" ||
     pathname === "/hq/api/login" ||
@@ -54,13 +36,12 @@ export async function middleware(request) {
   }
 
   const token = request.cookies.get(HQ_COOKIE)?.value;
-  const secret = resolveSessionSecret();
+  const secret = resolveHqSecret();
   const authed = await verifySessionToken(token, secret);
 
   if (!authed) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/hq/login";
-    // Rewrite (not redirect) so the originally requested URL is preserved.
     return withSecurityHeaders(NextResponse.rewrite(loginUrl));
   }
 
@@ -68,10 +49,62 @@ export async function middleware(request) {
   return withSecurityHeaders(res);
 }
 
+async function guardSeos(request, pathname, url, rewroteHost) {
+  const isOpenPath =
+    pathname === "/seos/login" ||
+    pathname === "/seos/api/login" ||
+    pathname === "/seos/api/logout";
+  if (isOpenPath) {
+    const res = rewroteHost ? NextResponse.rewrite(url) : NextResponse.next();
+    return withSecurityHeaders(res);
+  }
+
+  const token = request.cookies.get(SEOS_COOKIE)?.value;
+  const secret = resolveSeosSecret();
+  const authed = await verifySessionToken(token, secret);
+
+  if (!authed) {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = "/seos/login";
+    return withSecurityHeaders(NextResponse.rewrite(loginUrl));
+  }
+
+  const res = rewroteHost ? NextResponse.rewrite(url) : NextResponse.next();
+  return withSecurityHeaders(res);
+}
+
+export async function middleware(request) {
+  const host = (request.headers.get("host") || "").split(":")[0];
+  const isHqSubdomain = isHqHost(host);
+  const isSeosSubdomain = isSeosHost(host);
+
+  let pathname = request.nextUrl.pathname;
+  const url = request.nextUrl.clone();
+  let rewroteHost = false;
+
+  if (isHqSubdomain && !pathname.startsWith("/hq")) {
+    url.pathname = pathname === "/" ? "/hq" : `/hq${pathname}`;
+    pathname = url.pathname;
+    rewroteHost = true;
+  } else if (isSeosSubdomain && !pathname.startsWith("/seos")) {
+    url.pathname = pathname === "/" ? "/seos" : `/seos${pathname}`;
+    pathname = url.pathname;
+    rewroteHost = true;
+  }
+
+  if (pathname.startsWith("/hq")) {
+    return guardHq(request, pathname, url, rewroteHost);
+  }
+
+  if (pathname.startsWith("/seos")) {
+    return guardSeos(request, pathname, url, rewroteHost);
+  }
+
+  return withSecurityHeaders(NextResponse.next());
+}
+
 export const config = {
   matcher: [
-    // Run on everything except Next internals and static asset files.
-    // Host-based logic above keeps the public site a pass-through.
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|txt|xml|css|js|map|woff|woff2)$).*)",
   ],
 };
