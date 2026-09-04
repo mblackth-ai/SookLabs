@@ -1,19 +1,35 @@
-# SookLabs public site — Search Console and social backlinks
+# SookLabs public site — Search Console, GA4, and crawler files
 
 Repeatable steps after deploying public-site changes to production (`https://sooklabs.com`).
 
+## Machine files (always public)
+
+| URL | Role |
+|-----|------|
+| `https://sooklabs.com/robots.txt` | Allow public site; disallow `/hq` and `/sooklabs-v2`; points at sitemap |
+| `https://sooklabs.com/sitemap.xml` | Home, blog, posts, resources, audit, legal, `llms.txt`, `llms-full.txt`, RSS |
+| `https://sooklabs.com/llms.txt` | Short AI/crawler summary + post list |
+| `https://sooklabs.com/llms-full.txt` | Full LLM index (pages + post descriptions) |
+| `https://sooklabs.com/blog/rss.xml` | Blog feed |
+
+Ping after deploy (no login required):
+
+- Google: `https://www.google.com/ping?sitemap=https://sooklabs.com/sitemap.xml`
+- Bing: `https://www.bing.com/ping?sitemap=https://sooklabs.com/sitemap.xml`
+
+## GA4
+
+Set `NEXT_PUBLIC_GA_MEASUREMENT_ID` (form `G-XXXXXXXX`) in Vercel → Environment Variables for Production. The site loads gtag only when that value is present. Vercel Analytics stays on regardless.
+
+Link the GA4 property to the Search Console property (GA4 Admin → Product links → Search Console).
+
 ## Google Search Console
 
-1. Open [Google Search Console](https://search.google.com/search-console) and confirm the `https://sooklabs.com` property is verified (DNS TXT via Vercel or HTML tag).
-2. Submit the sitemap: `https://sooklabs.com/sitemap.xml`
-3. Use **URL Inspection** and request indexing for:
-   - `https://sooklabs.com/`
-   - `https://sooklabs.com/resources`
-   - `https://sooklabs.com/audit`
-   - `https://sooklabs.com/privacy`
-   - `https://sooklabs.com/terms`
-4. Confirm `https://sooklabs.com/llms.txt` is fetchable (optional but useful for AI crawlers).
-5. Do **not** submit `hq.sooklabs.com` or `/hq` paths for indexing — HQ remains `noindex` and is disallowed in `robots.txt`.
+1. Confirm the `https://sooklabs.com` property is verified (DNS TXT via Vercel, or HTML tag via `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`).
+2. Submit sitemap: `https://sooklabs.com/sitemap.xml`
+3. URL Inspection → request indexing for `/`, `/blog`, each `/blog/<slug>`, `/resources`, `/audit`, `/llms.txt`, `/llms-full.txt`.
+4. Confirm `robots.txt` and RSS fetch in GSC.
+5. Do **not** submit `hq.sooklabs.com` or `/hq`.
 
 ## Social profile backlinks (manual)
 
@@ -25,12 +41,8 @@ Set the website / link in bio on each verified profile to `https://sooklabs.com`
 | Facebook | https://www.facebook.com/sooklabs | Page → About → Website |
 | TikTok | https://www.tiktok.com/@sooklabs | Edit profile → bio link |
 
-This completes the backlink loop: site footer links out to social profiles (`rel="me"`), and social bios link back to the canonical site.
-
 ## Post-deploy checks
 
-- Footer shows Instagram, Facebook, and TikTok on `/`, `/resources`, and `/audit` (desktop and mobile).
-- `/privacy` and `/terms` render and are linked from the footer Legal column.
-- Footer Resources column links **Resources hub** to `/resources` (not header Tools).
-- View page source on `/`: Organization JSON-LD includes `sameAs` with the three social URLs.
-- `/sitemap.xml` lists `/`, `/resources`, `/audit`, `/privacy`, `/terms` only (no HQ routes).
+- `/sitemap.xml` lists `/`, `/blog`, posts, `/resources`, `/audit`, `/privacy`, `/terms`, `/llms.txt`, `/llms-full.txt`, `/blog/rss.xml` (no HQ).
+- `/llms.txt` and `/llms-full.txt` list the same public posts.
+- Footer social `rel="me"` still present.

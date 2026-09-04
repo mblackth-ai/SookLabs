@@ -1,0 +1,116 @@
+{
+  "version": 1,
+  "cadence": "1 hour production / 1 minute heartbeat",
+  "playbook": "lib/blog-playbook.md",
+  "statusNote": "Workflow Ready in-repo. Production index is Manual until the site is deployed. Never mark Connected.",
+  "items": [
+    {
+      "id": "q-01",
+      "slug": "knowledge-base-vs-blog-for-ai-answers",
+      "title": "Knowledge Base vs Blog: Which Should Be Canonical for AI Answers?",
+      "category": "knowledge",
+      "angle": "Decision between SEOS Knowledge Base as business truth and public blog as organic proof. Do not fork FAQs.",
+      "products": ["seos", "sookly"],
+      "status": "published"
+    },
+    {
+      "id": "q-02",
+      "slug": "llms-txt-vs-schema-org-vs-both",
+      "title": "llms.txt vs Schema.org vs Both: What Website-Dependent Companies Need First",
+      "category": "visibility",
+      "angle": "Practical order of machine-readable surfaces. Point to /resources tools. Not a schema generator.",
+      "products": ["seos", "resources"],
+      "status": "queued"
+    },
+    {
+      "id": "q-03",
+      "slug": "omnichannel-vs-omnichat",
+      "title": "Omnichannel vs Omnichat: Which Inbound System Stops Missed Leads?",
+      "category": "inbound",
+      "angle": "Buyers confuse marketing omnichannel with operational omnichat. Sookly is the commercial path.",
+      "products": ["sookly"],
+      "status": "queued"
+    },
+    {
+      "id": "q-04",
+      "slug": "chatbot-faq-store-vs-canonical-knowledge-base",
+      "title": "Chatbot FAQ Store vs Canonical Knowledge Base: Why Duplicate Answers Fail",
+      "category": "knowledge",
+      "angle": "Sookly consumes SEOS KB. A second FAQ CMS creates drift. Honest architecture post.",
+      "products": ["sookly", "seos"],
+      "status": "queued"
+    },
+    {
+      "id": "q-05",
+      "slug": "local-seo-vs-geo-for-service-businesses",
+      "title": "Local SEO vs GEO for Service Businesses: Which Visibility Job Comes First?",
+      "category": "visibility",
+      "angle": "Maps/GBP vs AI-answer presence. Link free GEO audit. No fake Connected GBP sync.",
+      "products": ["seos", "audit"],
+      "status": "queued"
+    },
+    {
+      "id": "q-06",
+      "slug": "website-audit-vs-seo-operating-system",
+      "title": "Website Audit vs SEO Operating System: When a One-Off Scan Stops Working",
+      "category": "visibility",
+      "angle": "Audit as a starting read vs SEOS as outgoing control. Honest In progress status for SEOS.",
+      "products": ["seos", "audit"],
+      "status": "queued"
+    },
+    {
+      "id": "q-07",
+      "slug": "founder-content-vs-agency-content-for-saas",
+      "title": "Founder Content vs Agency Content for SaaS: Which Compounding Asset Wins?",
+      "category": "industry",
+      "angle": "This blog is proof of organic SEO capability. Comparison of ownership, voice, and evidence.",
+      "products": ["seos"],
+      "status": "queued"
+    },
+    {
+      "id": "q-08",
+      "slug": "ai-overviews-vs-blue-links-2026",
+      "title": "AI Overviews vs Blue Links in 2026: How Website-Dependent Companies Should Plan",
+      "category": "industry",
+      "angle": "Reframe current search-shift news into operator decisions. Cite public docs, do not copy newsrooms.",
+      "products": ["seos", "audit"],
+      "status": "queued"
+    },
+    {
+      "id": "q-09",
+      "slug": "workflow-automation-vs-hiring-another-coordinator",
+      "title": "Workflow Automation vs Hiring Another Coordinator: Which Reduces Interruptions?",
+      "category": "automation",
+      "angle": "SookLabs operating rule: reduce repetition, interruptions, cognitive load, waiting. Practical filter.",
+      "products": ["sookly", "seos"],
+      "status": "queued"
+    },
+    {
+      "id": "q-10",
+      "slug": "discord-community-vs-helpdesk",
+      "title": "Discord Community vs Helpdesk: When a Server Is Not Support",
+      "category": "inbound",
+      "angle": "SookLabs Community is a builder space, not a ticket queue. Sookly is inbound control.",
+      "products": ["sookly", "community"],
+      "status": "queued"
+    },
+    {
+      "id": "q-11",
+      "slug": "comparison-posts-that-rank-buyer-guide-structure",
+      "title": "Comparison Posts That Rank: The Buyer-Guide Structure Behind Organic SEO",
+      "category": "visibility",
+      "angle": "Meta proof: how we structure posts (direct answer, when-A/when-B, FAQ). This is the service evidence.",
+      "products": ["seos"],
+      "status": "queued"
+    },
+    {
+      "id": "q-12",
+      "slug": "after-hours-missed-leads-playbook",
+      "title": "After-Hours Missed Leads: A Playbook for Website-Dependent Companies",
+      "category": "inbound",
+      "angle": "Practical routing, hours, handoff. Sookly as commercial path. RoastMyOpSec only if exposure is relevant.",
+      "products": ["sookly"],
+      "status": "queued"
+    }
+  ]
+}

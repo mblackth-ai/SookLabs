@@ -901,6 +901,7 @@ function Header() {
     { label: "Ecosystem", href: "#ecosystem" },
     { label: "Philosophy", href: "#philosophy" },
     { label: "Pillars", href: "#pillars" },
+    { label: "Blog", href: "/blog" },
   ];
   return (
     <header

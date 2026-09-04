@@ -29,11 +29,11 @@ const HSTS = "max-age=63072000; includeSubDomains; preload";
 
 const CONTENT_SECURITY_POLICY = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://www.googletagmanager.com",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
-  "connect-src 'self' https://vitals.vercel-insights.com https://va.vercel-scripts.com",
+  "connect-src 'self' https://vitals.vercel-insights.com https://va.vercel-scripts.com https://www.google-analytics.com https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com",
   "frame-src 'self' https://discord.com https://*.discord.com",
   "frame-ancestors 'none'",
   "base-uri 'self'",
@@ -57,6 +57,14 @@ const SECURITY_HEADERS = [
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   poweredByHeader: false,
+  outputFileTracingIncludes: {
+    "/blog": ["./data/blog/**/*"],
+    "/blog/[slug]": ["./data/blog/**/*"],
+    "/blog/rss.xml": ["./data/blog/**/*"],
+    "/sitemap.xml": ["./data/blog/**/*"],
+    "/llms.txt": ["./data/blog/**/*"],
+    "/llms-full.txt": ["./data/blog/**/*"],
+  },
   async headers() {
     return [
       {
@@ -80,6 +88,16 @@ const nextConfig = {
       {
         source: "/sooklabs-v2/resources",
         destination: "/resources",
+        permanent: false,
+      },
+      {
+        source: "/news",
+        destination: "/blog",
+        permanent: false,
+      },
+      {
+        source: "/news/:slug",
+        destination: "/blog/:slug",
         permanent: false,
       },
     ];

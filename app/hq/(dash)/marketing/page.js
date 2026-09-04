@@ -22,6 +22,12 @@ const LINKS = [
     subtitle: "How Sookly consumes SEOS KB — read-only planning",
     badge: "Draft",
   },
+  {
+    href: "https://sooklabs.com/blog",
+    title: "Public blog",
+    subtitle: "sooklabs.com/blog — organic comparison guides. Workflow Ready in-repo; production is Manual until deploy.",
+    badge: "Workflow Ready",
+  },
 ];
 
 export default function MarketingHubPage() {
@@ -45,7 +51,14 @@ export default function MarketingHubPage() {
         </Card>
         <div className="hq-grid-2" style={{ gap: "var(--space-3)" }}>
           {LINKS.map((link) => (
-            <Link key={link.href} href={link.href} className="hq-tile-link">
+            <Link
+              key={link.href}
+              href={link.href}
+              className="hq-tile-link"
+              {...(link.href.startsWith("http")
+                ? { target: "_blank", rel: "noopener noreferrer" }
+                : {})}
+            >
               <Card padding="md" className="hq-card--tile">
                 <div className="hq-card-header hq-mb-2">
                   <div className="hq-card-title">{link.title}</div>

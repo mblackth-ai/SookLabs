@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-02T00:00:00.000Z",
+  "updatedAt": "2026-08-30T12:00:00.000Z",
   "todayPriorities": [
     {
       "id": "tp-1",
@@ -403,6 +403,17 @@
       "tags": [
         "sooklabs",
         "resources"
+      ]
+    },
+    {
+      "id": "d-7",
+      "date": "2026-08-30",
+      "title": "sooklabs.com /blog is the public organic content engine",
+      "body": "Comparison-first, RDUSA-length guides on AI/SaaS/automation. Not a second Knowledge Base or FAQ store. Pipeline is Workflow Ready in-repo; production indexing is Manual until deploy. Never fake Connected. sookly.co sw-4 remains a separate Sookly website task.",
+      "tags": [
+        "sooklabs",
+        "blog",
+        "seo"
       ]
     }
   ],

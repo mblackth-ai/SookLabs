@@ -124,19 +124,34 @@ function Header() {
             SookLabs
           </span>
         </Link>
-        <Link
-          href="/audit"
-          className="sl-navlink"
-          style={{
-            fontFamily: "var(--font-mono)",
-            fontSize: 12,
-            letterSpacing: "0.14em",
-            textTransform: "uppercase",
-            color: "var(--accent-glow)",
-          }}
-        >
-          Free GEO audit
-        </Link>
+        <nav aria-label="Section" style={{ display: "flex", alignItems: "center", gap: 18 }}>
+          <Link
+            href="/blog"
+            className="sl-navlink"
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: 12,
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              color: "var(--text-muted)",
+            }}
+          >
+            Blog
+          </Link>
+          <Link
+            href="/audit"
+            className="sl-navlink"
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: 12,
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              color: "var(--accent-glow)",
+            }}
+          >
+            Free GEO audit
+          </Link>
+        </nav>
       </Container>
     </header>
   );

@@ -1,5 +1,6 @@
 import { Bricolage_Grotesque, DM_Sans } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import { GoogleAnalytics } from "@/components/site/GoogleAnalytics";
 import "./globals.css";
 
 const display = Bricolage_Grotesque({
@@ -34,6 +35,9 @@ export const metadata = {
       "Focused AI, SEO, and workflow systems for website-dependent companies.",
     images: ["/assets/sooklabs/sooklabs-glyph.png"],
   },
+  verification: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+    ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
+    : undefined,
 };
 
 export default function RootLayout({ children }) {
@@ -45,6 +49,7 @@ export default function RootLayout({ children }) {
         </a>
         {children}
         <Analytics />
+        <GoogleAnalytics />
       </body>
     </html>
   );

@@ -57,6 +57,7 @@ export function SiteFooter() {
     Contact: `mailto:${CONTACT_EMAIL}`,
     "Free GEO audit": "/audit",
     "Resources hub": "/resources",
+    "Blog": "/blog",
     "Privacy Policy": "/privacy",
     "Terms of Use": "/terms",
     ...(DISCORD_INVITE_URL ? { "Discord Community": DISCORD_INVITE_URL } : {}),
@@ -74,7 +75,7 @@ export function SiteFooter() {
     { h: "Company", links: ["Operating rule", "Philosophy", "Pillars", "Contact"] },
     {
       h: "Resources",
-      links: ["Resources hub", "Free GEO audit", "Changelog (soon)"],
+      links: ["Blog", "Resources hub", "Free GEO audit"],
     },
     { h: "Legal", links: ["Privacy Policy", "Terms of Use"] },
   ];
