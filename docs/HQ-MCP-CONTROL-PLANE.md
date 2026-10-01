@@ -28,6 +28,8 @@ Potential expansion is tracked as opportunity, not assumed revenue:
 2. CRM + deterministic customer Journey from enquiry through quote/payment/fulfilment/follow-up.
 3. Central operations sync across customer, order/quote and operational evidence.
 
+The authoritative RDUSA pilot finish line is [`docs/RDUSA_PILOT_ACCEPTANCE_CONTRACT.md`](./RDUSA_PILOT_ACCEPTANCE_CONTRACT.md). Journey work is pilot ready only when that contract's Golden Rule is met. The control-plane field `rdusaPilotContract` is the current scorecard snapshot. It is not a second definition, and it does not say the pilot is ready.
+
 Any commercial expansion should be supported by demonstrated value and explicit agreement.
 
 ## MCP surface

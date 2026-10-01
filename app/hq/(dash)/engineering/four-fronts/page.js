@@ -11,6 +11,7 @@ import {
   getPlanSummary,
   planStatusVariant,
 } from "@/lib/hq/four-fronts";
+import { getRdusaPilotContractSnapshot, pilotStatusVariant } from "@/lib/hq/rdusa-pilot-contract";
 
 function tone(progress) {
   if (progress >= 75) return "success";
@@ -22,6 +23,8 @@ function tone(progress) {
 export default function FourFrontsPage() {
   const average = getFourFrontsOverall();
   const counts = getPlanSummary();
+  const pilot = getRdusaPilotContractSnapshot();
+  const major = pilot.majorCounts;
 
   return (
     <div>
@@ -32,6 +35,36 @@ export default function FourFrontsPage() {
       />
 
       <div className="hq-page-content">
+        <Card id="rdusa-pilot" padding="md" style={{ marginBottom: 16 }}>
+          <div className="hq-flex-between hq-mb-2">
+            <div>
+              <div className="hq-card-title">RDUSA pilot acceptance</div>
+              <div className="hq-text-sm-secondary">
+                Finish line: {pilot.path}. Four-front percentages are a different board. {average}% overall is not pilot ready.
+              </div>
+            </div>
+            <Badge variant={pilot.pilotReady ? "success" : "error"} size="sm">
+              {pilot.pilotReady ? "Pilot ready" : "Not pilot ready"}
+            </Badge>
+          </div>
+          <div className="hq-text-sm-secondary" style={{ marginBottom: 10 }}>
+            Major criteria: {major.PASS} pass · {major.FAIL} fail · {major.BLOCKED} blocked · {major["NOT STARTED"]} not started.
+            All rows: {pilot.counts.PASS} pass · {pilot.counts.FAIL} fail · {pilot.counts.BLOCKED} blocked · {pilot.counts["NOT STARTED"]} not started.
+          </div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
+            <Badge variant={pilotStatusVariant("PASS")} size="sm">{major.PASS} PASS</Badge>
+            <Badge variant={pilotStatusVariant("FAIL")} size="sm">{major.FAIL} FAIL</Badge>
+            <Badge variant={pilotStatusVariant("BLOCKED")} size="sm">{major.BLOCKED} BLOCKED</Badge>
+            <Badge variant={pilotStatusVariant("NOT STARTED")} size="sm">{major["NOT STARTED"]} NOT STARTED</Badge>
+          </div>
+          <div className="hq-section-label">Next unmet criterion</div>
+          <div className="hq-text-sm-secondary" style={{ marginBottom: 10 }}>{pilot.criticalPath}</div>
+          <div className="hq-text-xs-muted">
+            Slices remaining: {pilot.remainingSlices.min}–{pilot.remainingSlices.max}.{" "}
+            <a href={pilot.url} target="_blank" rel="noreferrer">Open the contract</a>
+          </div>
+        </Card>
+
         <div className="hq-grid-2" style={{ gap: "var(--space-3)", marginBottom: 16 }}>
           {FOUR_FRONTS.map((front) => {
             const insight = getFrontInsight(front);
