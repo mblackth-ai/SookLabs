@@ -62,6 +62,8 @@ export default function FourFrontsPage() {
           <div className="hq-text-xs-muted">
             Slices remaining: {pilot.remainingSlices.min}–{pilot.remainingSlices.max}.{" "}
             <a href={pilot.url} target="_blank" rel="noreferrer">Open the contract</a>
+            {" · "}
+            <a href="/hq/retainers">Client retainers are a separate board</a>
           </div>
         </Card>
 

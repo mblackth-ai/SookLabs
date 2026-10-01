@@ -30,6 +30,22 @@ Potential expansion is tracked as opportunity, not assumed revenue:
 
 The authoritative RDUSA pilot finish line is [`docs/RDUSA_PILOT_ACCEPTANCE_CONTRACT.md`](./RDUSA_PILOT_ACCEPTANCE_CONTRACT.md). Journey work is pilot ready only when that contract's Golden Rule is met. The control-plane field `rdusaPilotContract` is the current scorecard snapshot. It is not a second definition, and it does not say the pilot is ready.
 
+## Retainer delivery scores
+
+Marketing and operations retainers are a separate score from the Journey pilot and from the four engineering fronts. Jaka is not a fifth front.
+
+HQ and MCP relays cite only these control-plane fields when judging whether a promised day, week, month, or 90-day window passed or failed:
+
+- `rdusaRetainerContract` — [`docs/RDUSA_RETAINER_DELIVERY_CONTRACT.md`](./RDUSA_RETAINER_DELIVERY_CONTRACT.md)
+- `jakaRetainerContract` — [`docs/JAKA_RETAINER_DELIVERY_CONTRACT.md`](./JAKA_RETAINER_DELIVERY_CONTRACT.md)
+- `retainerDelivery` — thin index of both clients, their period rollups, and `retainerHealthy`
+
+The retainer Golden Rule is: we keep the retainer when promised day/week/month delivery criteria PASS with evidence, and HQ/MCP is the only score source relays may cite.
+
+`asOf` on those snapshots is the score date. `generatedAt` on the control plane is the server clock. Mark may move the 1 Oct–29 Dec 2026 window. The Jaka fee is unconfirmed.
+
+The same snapshots render at `/hq/retainers` and as a summary on `/hq`. Reading them does not publish, merge, migrate, or deploy. No write tool may mark a retainer criterion PASS without evidence, and none may bypass Mark's token, merge, login, or spend gates.
+
 Any commercial expansion should be supported by demonstrated value and explicit agreement.
 
 ## MCP surface
@@ -41,6 +57,7 @@ Planned read tools:
 - `project_status`
 - `pending_approvals`
 - `rdusa_value_expansion`
+- `retainer_delivery`
 - `next_actions`
 
 Planned controlled-write tools:

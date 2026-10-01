@@ -11,6 +11,12 @@ const LINKS = [
     badge: "Live",
   },
   {
+    href: "/hq/retainers",
+    title: "Client retainers",
+    subtitle: "RDUSA and Jaka day, week, month, and 90-day delivery scores",
+    badge: "Score",
+  },
+  {
     href: "/hq/sookly/action-plan",
     title: "Sookly action plan",
     subtitle: "Build checklist for sookly.co and app.sookly.com",
