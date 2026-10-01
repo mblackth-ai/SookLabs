@@ -6,9 +6,9 @@ Canonical path: `docs/RDUSA_PILOT_ACCEPTANCE_CONTRACT.md`
 
 Machine scoreboard: `lib/hq/rdusa-pilot-contract.js`, exposed as `rdusaPilotContract` on `GET /hq/api/control-plane` and on the HQ Four Fronts page. That snapshot records evidence against this file. It is not a second definition. If a status and this file disagree, this file wins until both are updated together.
 
-Four-front percentages are a separate evidence board. Sookly Journey at 75% is not pilot ready.
+Four-front percentages are a separate evidence board. Sookly Journey at 85% is not pilot ready.
 
-This HQ slice records a CoS-verified engine bundle. It did not re-run sookly-omnichat tests, did not read engine enum source, and did not merge, deploy, migrate, or message a customer.
+This HQ slice records the verified sookly-omnichat tip `cf3d866864e8bc7cf10826d2e7d49a1f67b015d7`. It did not re-run sookly-omnichat tests, did not read engine enum source, and did not merge, deploy, migrate, or message a customer.
 
 ## Golden Rule
 
@@ -24,7 +24,7 @@ Operator-facing stage labels are fixed:
 
 Inquiry → Qualification → Requirements → Quote → Review & Payment → Fulfilment → Complete
 
-This slice did not cite engine enum tokens. If the engine uses different tokens, the product maps them onto these labels. Renaming a stage is a change to this contract, not a local UI choice.
+This slice did not re-read engine enum tokens. If the engine uses different tokens, the product maps them onto these labels. Renaming a stage is a change to this contract, not a local UI choice. Scenario A on the product path is the evidence that these labels are exercised.
 
 ## 1. Canonical RDUSA Journey lifecycle
 
@@ -146,7 +146,7 @@ The Journey view shows, at minimum:
 
 A VA on a phone call keeps the contact open and can read that Journey view without leaving the workspace. The call does not depend on a second screen, a spreadsheet, or a side message.
 
-This UI is not built. See scorecard rows `operator-ui-integration`, `operator-journey-rail`, `journey-view-minimum`, and `phone-va-workspace`.
+The Contact, Journey, and AI Assistant rail and the minimum Journey view are PASS at `cf3d866864e8bc7cf10826d2e7d49a1f67b015d7`. The phone-call VA workspace (`phone-va-workspace`) is still NOT STARTED. See `operator-ui-integration`, `operator-journey-rail`, and `journey-view-minimum`.
 
 ## 4. Real persistent application path
 
@@ -163,20 +163,20 @@ Operators can, where their permissions allow:
 - Record evidence
 - Complete or cancel
 
-Engine persistence is PASS at `a30aeddb7f737191a275fed2039a6b7cd89078ed`. The product path is FAIL: no product HTTP route and no inbox UI calls PrismaJourneyStore. There has been no staging smoke. The production migration has not been run.
+Engine persistence and the product path are PASS at `cf3d866864e8bc7cf10826d2e7d49a1f67b015d7`. The product HTTP path calls PrismaJourneyStore. MemoryJourneyStore is not a silent fallback. There has been no staging smoke. The production migration has not been run.
 
-Verified engine evidence used here, without re-running it in this slice:
+Verified evidence used here, without re-running it in this slice:
 
 - Repo `mblackth-ai/sookly-omnichat`, branch `cursor/operational-journey-engine-v1`
-- Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 (mergeable, unmerged)
-- Tip `a30aeddb7f737191a275fed2039a6b7cd89078ed`
-- CI `postgres-migrate-and-build` SUCCESS: https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36909457813
-- `npm run test:operational-journey:persistent` 9/0
-- `npm run test:operational-journey` 9/0
+- Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 (unmerged)
+- Tip `cf3d866864e8bc7cf10826d2e7d49a1f67b015d7`
+- CI `postgres-migrate-and-build` SUCCESS: https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36926423635
+- `npm run test:operational-journey:persistent` 26/0
+- In-memory journey suite green on that CI run. This slice does not restate a pass count.
 - `npm run test:human-approval-gate` 8/0
-- `npm run test:ops-command` 102/0
-- `tools.test.ts` 12/0
-- Ephemeral Prisma validate, generate, and migrate, `tsc`, and `next build` passed in that CI run
+- `tsc` and `next build` green on that CI run
+- `npm run test:ops-command` was 102/0 at `a30aedd`. This slice did not re-count it.
+- `tools.test.ts` was 12/0 at `a30aedd`. This slice did not re-count it.
 
 ## 5. AI operational awareness
 
@@ -195,7 +195,7 @@ From that context the assistant must be able to answer:
 
 Guidance is stage-aware. In Review & Payment the assistant recommends the payment action. It does not fall back to generic customer-service advice. In Requirements it asks for the missing fact. It does not draft a price.
 
-Product AI context is NOT STARTED. The agent tool suite at 12/0 does not close this section.
+Product AI context is PASS at this tip: the assistant answers from the contact, the conversation, the Journey, SOP guidance, and permissions. Stage-aware guidance is PASS. Product enforcement of the section 6 must-not list stays NOT STARTED (`ai-safety-product`). The older agent tool count does not close that sub-gate.
 
 ## 6. AI safety and approval boundaries
 
@@ -218,7 +218,7 @@ The assistant must not silently:
 - Approve its own restricted action
 - Execute an approval that was rejected or has expired
 
-Existing human approval gates stay intact. Engine evidence for those gates is PASS (`npm run test:human-approval-gate` 8/0 at `a30aedd`, CI run 36909457813). Product enforcement of this list is NOT STARTED and is not implied by the engine PASS.
+Existing human approval gates stay intact. Engine evidence for those gates is PASS (`npm run test:human-approval-gate` 8/0 at `cf3d866`, CI run 36926423635). Product enforcement of this list is NOT STARTED. This slice did not read sookly-omnichat source, so prompt text or tests are not recorded as that product proof.
 
 ## 7. Staff handoff
 
@@ -236,7 +236,7 @@ The handoff preserves:
 - Customer context
 - Ownership
 
-Scenario C in section 9 is the acceptance test for this section. It is NOT STARTED.
+Scenario C in section 9 is the acceptance test for this section. It is PASS on the cited product path. That is not a live pilot and not a production deploy.
 
 ## 8. Loose-end detection
 
@@ -252,11 +252,11 @@ Detection is deterministic. A Journey surfaces when any of these is true:
 
 The v1 idle threshold is 3 business days. Mark may change that number in configuration. The acceptance test uses the configured value. A stalled fixture that does not surface is a failure of this section.
 
-At least one deliberately stalled RDUSA test Journey must surface. That fixture is NOT STARTED.
+At least one deliberately stalled RDUSA test Journey must surface. That fixture is PASS on the cited product path.
 
 ## 9. Controlled acceptance scenarios
 
-Run these on the product path, in one RDUSA tenant, against Prisma-backed storage. Passing engine unit tests are not a substitute.
+Run these on the product path, in one RDUSA tenant, against Prisma-backed storage. Passing engine unit tests are not a substitute. Scenarios A, B, and C are PASS at `cf3d866864e8bc7cf10826d2e7d49a1f67b015d7` on that product path. Staging smoke is still NOT STARTED.
 
 No scenario may lose state, leak another tenant, bypass an approval gate, or depend on an undocumented repair.
 
@@ -279,9 +279,9 @@ These are human gates. A Composer slice documents them and stops. It does not pe
 | Step | Gate | Current status |
 | --- | --- | --- |
 | 1 | PR #60 reviewed by a human | BLOCKED pending Mark |
-| 2 | CI green | PASS for the engine branch at Actions run 36909457813. This does not release production. |
-| 3 | Persistent Journey tests and human approval tests green | PASS at the counts in section 4. This does not release production. |
-| 4 | Operator integration acceptance (sections 3, 4, and 9) green | NOT STARTED |
+| 2 | CI green | PASS at Actions run 36926423635. This does not release production. |
+| 3 | Persistent Journey tests and human approval tests green | PASS. Persistent suite 26/0. Human approval 8/0. This does not release production. |
+| 4 | Operator integration acceptance (sections 3, 4, and 9) green | PASS for the product HTTP path, Contact/Journey/AI rail, minimum Journey view, and scenarios A/B/C. Phone-call VA workspace remains NOT STARTED. |
 | 5 | Merge approval | BLOCKED pending Mark |
 | 6 | Merge | BLOCKED pending Mark. Do not merge from this work. |
 | 7 | Production migration reviewed | BLOCKED pending Mark. Ephemeral CI migrate is not this review. |
@@ -304,7 +304,7 @@ This SOP is for a VA and should take about 30–60 minutes to learn on a real co
 7. Use AI for guidance and drafting. Sending, stage changes, blocker bypass, and restricted actions stay on the approval gates in section 6.
 8. Escalate when the next action is unclear. Do not guess the business rule in a side message.
 
-The SOP text lives here. It is not yet published inside the operator product (`va-sop-product-facing` is NOT STARTED).
+The SOP text lives here and is published inside the operator product (`va-sop-product-facing` is PASS at this tip). The live cohort in section 12 is still NOT STARTED.
 
 ## 12. Live RDUSA pilot validation
 
@@ -358,30 +358,25 @@ Absence of these is not a FAIL against this contract. Building them is not a sub
 
 Major criteria are the finish-line gates. Sub-gates are evidence or parts of a major criterion. A sub-gate PASS does not mark its parent PASS.
 
-Major counts: **5 PASS, 1 FAIL, 3 BLOCKED, 8 NOT STARTED**.
+Major counts: **13 PASS, 0 FAIL, 3 BLOCKED, 1 NOT STARTED**.
 
-All rows: **11 PASS, 1 FAIL, 6 BLOCKED, 20 NOT STARTED**.
+All rows: **25 PASS, 0 FAIL, 6 BLOCKED, 7 NOT STARTED**.
 
 `pilotReady`: **false**.
 
 ### Current critical path
 
-Next Composer slice, on `mblackth-ai/sookly-omnichat`: the operator Journey rail plus a product HTTP/inbox path that calls PrismaJourneyStore. `product-prisma-path` is FAIL. `operator-journey-rail` is NOT STARTED. There must be no silent MemoryJourneyStore fallback.
-
-Merge of PR #60, production migration, and deploy stay BLOCKED pending Mark. They are not the next Composer slice.
+Mark merge yes on sookly-omnichat #60, then separate migrate and deploy approvals. Product path, operator rail, scenarios A/B/C, and the product-facing VA SOP are PASS at `cf3d866`. `pilotReady` stays false. This slice must not merge, migrate, or deploy.
 
 ### Bounded slices remaining
 
-Honest range: **6–8** slices before a live pilot can start.
+Honest range: **3–5** slices before a live pilot can start.
 
-1. Product HTTP/inbox path that calls PrismaJourneyStore, with no MemoryJourneyStore fallback.
-2. Operator Journey rail, minimum Journey view, and the phone-call VA workspace. The next Composer slice combines 1 and 2.
-3. Operator actions on that path: situation, stage, owner, blocker, case, evidence, complete, and cancel.
-4. Product AI context, stage-aware guidance, and the section 6 must-not list.
-5. Deterministic loose-end detection, including one stalled RDUSA test Journey.
-6. Product scenarios A, B, and C, plus staging smoke.
-7. Human release gate in section 10: review, merge, migration review, explicit migrate approval, rollback and backup, deploy, and controlled production smoke. Not a Composer slice.
-8. Live cohort of 10–20 Journeys, with this SOP available in the operator product.
+1. Remaining product proof: phone-call VA workspace, four state dimensions kept separate, product AI must-not proof, and staging smoke.
+2. Human release gate in section 10: review, merge, migration review, explicit migrate approval, rollback and backup, deploy, and controlled production smoke. Not a Composer slice.
+3. Live cohort of 10–20 Journeys.
+
+The product HTTP path, operator rail, operator actions, stage-aware AI context, loose-end surfacing, scenarios A/B/C, and the product-facing SOP are already PASS and are not recounted here.
 
 ### Confirmation
 
@@ -390,39 +385,39 @@ All future RDUSA and Sookly Journey work uses `docs/RDUSA_PILOT_ACCEPTANCE_CONTR
 <!-- rdusa-scorecard:start -->
 | ID | Criterion | Level | Status | Evidence |
 | --- | --- | --- | --- | --- |
-| engine-prisma-persistence | Prisma production path (PrismaJourneyStore + persistent-approval) | major | PASS | Production path modules are PrismaJourneyStore and persistent-approval, not MemoryJourneyStore. npm run test:operational-journey:persistent 9/0. Tip a30aeddb7f737191a275fed2039a6b7cd89078ed (a30aedd) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36909457813 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
-| engine-tenant-isolation | Journey engine tenant isolation | major | PASS | Tenant isolation is in the CoS-verified engine bundle, with the persistent suite at 9/0. Tip a30aeddb7f737191a275fed2039a6b7cd89078ed (a30aedd) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36909457813 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
-| engine-blockers | Journey engine blockers | major | PASS | Blocker enforcement is in the CoS-verified engine bundle, with the persistent suite at 9/0. Tip a30aeddb7f737191a275fed2039a6b7cd89078ed (a30aedd) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36909457813 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
-| engine-approval-reject-expiry | Approval reject and expiry | major | PASS | npm run test:human-approval-gate 8/0. Rejected and expired approvals stay rejected. Persistent suite 9/0. Tip a30aeddb7f737191a275fed2039a6b7cd89078ed (a30aedd) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36909457813 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
-| engine-human-approval-boundaries | Human approval boundaries | major | PASS | npm run test:human-approval-gate 8/0. Existing human approval gates stay intact at the engine. Tip a30aeddb7f737191a275fed2039a6b7cd89078ed (a30aedd) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36909457813 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
-| product-prisma-path | Product HTTP / inbox calls PrismaJourneyStore | major | FAIL | Known gap: no product HTTP route or inbox UI calls PrismaJourneyStore. No staging smoke. Production migration has not been run. MemoryJourneyStore must not become a silent production fallback once that route exists. |
-| operator-ui-integration | Operator Journey UI | major | NOT STARTED | No operator Journey rail, Journey view, or phone-call workspace evidence is in the verified bundle. Engine tests do not satisfy this criterion. |
-| ai-journey-context | Product AI Journey context | major | NOT STARTED | The product assistant does not yet answer from Contact, Conversation, Journey, SOP, and permissions together. tools.test.ts 12/0 is an engine tool suite, not this criterion. |
-| loose-end-surfacing | Loose-end detection surfaced to operators | major | NOT STARTED | No product surface shows overdue next actions, quote follow-up gaps, payment silence, unresolved blockers, idle Journeys, unassigned owners, or unanswered customer responses. |
-| scenario-a-happy-path | Acceptance scenario A happy path | major | NOT STARTED | Inquiry through Complete has not been accepted on the product path with close/reopen persistence. |
-| scenario-b-blocked-path | Acceptance scenario B blocked path | major | NOT STARTED | Product acceptance has not shown blocker, refused advance, clear, then continue. |
-| scenario-c-staff-handoff | Acceptance scenario C staff handoff | major | NOT STARTED | Andrew or Mark to a VA, continuing from Sookly alone, has not been accepted on the product path. This row is also the staff-handoff gate. |
-| merge-pr-60 | Merge sookly-omnichat PR #60 | major | BLOCKED | Pending Mark. https://github.com/mblackth-ai/sookly-omnichat/pull/60 is draft and unmerged. This slice must not merge. |
+| engine-prisma-persistence | Prisma production path (PrismaJourneyStore + persistent-approval) | major | PASS | Production path modules are PrismaJourneyStore and persistent-approval, not MemoryJourneyStore. npm run test:operational-journey:persistent 26/0. Tip cf3d866864e8bc7cf10826d2e7d49a1f67b015d7 (cf3d866) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36926423635 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
+| engine-tenant-isolation | Journey engine tenant isolation | major | PASS | Tenant isolation is in the verified engine bundle, with the persistent suite at 26/0. Tip cf3d866864e8bc7cf10826d2e7d49a1f67b015d7 (cf3d866) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36926423635 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
+| engine-blockers | Journey engine blockers | major | PASS | Blocker enforcement is in the verified engine bundle, with the persistent suite at 26/0. Tip cf3d866864e8bc7cf10826d2e7d49a1f67b015d7 (cf3d866) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36926423635 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
+| engine-approval-reject-expiry | Approval reject and expiry | major | PASS | npm run test:human-approval-gate 8/0. Rejected and expired approvals stay rejected. Persistent suite 26/0. Tip cf3d866864e8bc7cf10826d2e7d49a1f67b015d7 (cf3d866) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36926423635 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
+| engine-human-approval-boundaries | Human approval boundaries | major | PASS | npm run test:human-approval-gate 8/0. Existing human approval gates stay intact at the engine. Tip cf3d866864e8bc7cf10826d2e7d49a1f67b015d7 (cf3d866) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36926423635 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
+| product-prisma-path | Product HTTP / inbox calls PrismaJourneyStore | major | PASS | Product HTTP path calls PrismaJourneyStore. MemoryJourneyStore is not a silent fallback. npm run test:operational-journey:persistent 26/0. Staging smoke and production migration stay open and do not reopen this row. Tip cf3d866864e8bc7cf10826d2e7d49a1f67b015d7 (cf3d866) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36926423635 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
+| operator-ui-integration | Operator Journey UI | major | PASS | Contact, Journey, and AI Assistant rail is in the product. Journey view minimum and operator actions are PASS sub-gates. The phone-call VA workspace stays NOT STARTED and does not reopen this row. Tip cf3d866864e8bc7cf10826d2e7d49a1f67b015d7 (cf3d866) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36926423635 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
+| ai-journey-context | Product AI Journey context | major | PASS | Product assistant answers from Contact, Conversation, Journey, SOP, and permissions. Stage-aware guidance is a PASS sub-gate. The product must-not list stays on ai-safety-product and is not closed by this row. Tip cf3d866864e8bc7cf10826d2e7d49a1f67b015d7 (cf3d866) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36926423635 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
+| loose-end-surfacing | Loose-end detection surfaced to operators | major | PASS | Product surface shows overdue next actions, quote follow-up gaps, payment silence, unresolved blockers, idle Journeys, unassigned owners, and unanswered customer responses. The stalled fixture sub-gate is PASS. Tip cf3d866864e8bc7cf10826d2e7d49a1f67b015d7 (cf3d866) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36926423635 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
+| scenario-a-happy-path | Acceptance scenario A happy path | major | PASS | Inquiry through Complete is accepted on the product path with close and reopen persistence. Persistent suite 26/0. No staging smoke and no production deploy are claimed. Tip cf3d866864e8bc7cf10826d2e7d49a1f67b015d7 (cf3d866) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36926423635 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
+| scenario-b-blocked-path | Acceptance scenario B blocked path | major | PASS | Product acceptance shows a blocker, a refused advance, a recorded clear, then continue. History keeps both the set and the clear. Tip cf3d866864e8bc7cf10826d2e7d49a1f67b015d7 (cf3d866) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36926423635 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
+| scenario-c-staff-handoff | Acceptance scenario C staff handoff | major | PASS | Andrew or Mark to a VA, continuing from Sookly alone, is accepted on the product path. This row is also the staff-handoff gate. Tip cf3d866864e8bc7cf10826d2e7d49a1f67b015d7 (cf3d866) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36926423635 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
+| merge-pr-60 | Merge sookly-omnichat PR #60 | major | BLOCKED | Pending Mark. https://github.com/mblackth-ai/sookly-omnichat/pull/60 is draft and unmerged at cf3d866. This slice must not merge. |
 | prod-migrate | Production database migration | major | BLOCKED | Pending Mark. Production migration has not been reviewed, approved, or run. This slice must not migrate. |
 | production-deploy | Production deploy | major | BLOCKED | Pending Mark. No production deploy is authorized. This slice must not deploy. |
 | live-pilot-10-20 | Live RDUSA pilot, 10 to 20 real Journeys | major | NOT STARTED | No live RDUSA Journey cohort has been run after activation. The success bar in this contract is unmet. |
-| va-sop-product-facing | VA handoff SOP inside the operator product | major | NOT STARTED | Section 11 of this contract records the SOP. It is not published inside the Sookly operator workspace. |
-| test-operational-journey-persistent | Persistent Journey suite 9/0 | sub-gate | PASS | npm run test:operational-journey:persistent 9/0. Tip a30aeddb7f737191a275fed2039a6b7cd89078ed (a30aedd) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36909457813 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
-| test-operational-journey | In-memory Journey suite 9/0 | sub-gate | PASS | npm run test:operational-journey 9/0. This suite is not the production path and does not close product-prisma-path. Tip a30aeddb7f737191a275fed2039a6b7cd89078ed (a30aedd) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36909457813 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
-| test-human-approval-gate | Human approval gate suite 8/0 | sub-gate | PASS | npm run test:human-approval-gate 8/0. Tip a30aeddb7f737191a275fed2039a6b7cd89078ed (a30aedd) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36909457813 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
-| test-ops-command | Ops command suite 102/0 | sub-gate | PASS | npm run test:ops-command 102/0. Tip a30aeddb7f737191a275fed2039a6b7cd89078ed (a30aedd) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36909457813 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
-| test-agent-tools | Agent tools suite 12/0 | sub-gate | PASS | tools.test.ts 12/0. A passing tool suite does not close ai-journey-context. Tip a30aeddb7f737191a275fed2039a6b7cd89078ed (a30aedd) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36909457813 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
-| ci-postgres-migrate-and-build | CI postgres-migrate-and-build | sub-gate | PASS | Actions run 36909457813 SUCCESS, including ephemeral Prisma validate, generate, and migrate, tsc, and next build. Tip a30aeddb7f737191a275fed2039a6b7cd89078ed (a30aedd) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36909457813 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
-| operator-journey-rail | Collapsible Contact, Journey, and AI Assistant rail | sub-gate | NOT STARTED | The preferred right rail is not in the product. |
-| journey-view-minimum | Journey view minimum fields | sub-gate | NOT STARTED | Current stage, Journey status, owner, next action, due date, blocker, indicators, SOP guidance, and recent evidence are not shown together. |
-| phone-va-workspace | Phone-call VA keeps the contact open | sub-gate | NOT STARTED | A phone-call VA cannot yet see operational state without leaving the contact workspace. |
-| operator-journey-actions | Operator Journey actions on the product path | sub-gate | NOT STARTED | Create, read, update situation, advance stage, assign owner, set or clear blocker, create or update case, record evidence, and complete or cancel are not available to operators on a Prisma-backed product route. |
-| canonical-lifecycle-in-product | Seven-stage lifecycle in the product | sub-gate | NOT STARTED | Operator-facing labels are fixed by this contract. The product does not yet present Inquiry, Qualification, Requirements, Quote, Review & Payment, Fulfilment, and Complete. Engine enum tokens were not re-read in this slice. |
-| four-dimensions-in-product | Four state dimensions separated in the product | sub-gate | NOT STARTED | Conversation, contact classification, Journey state, and ownership are defined here. The product does not yet keep them separate. Tags are not the Journey. |
-| ai-stage-aware | Stage-aware AI guidance | sub-gate | NOT STARTED | Review & Payment does not yet recommend payment actions instead of generic customer-service replies. |
-| ai-safety-product | Product AI must-not boundaries | sub-gate | NOT STARTED | Engine approval boundaries are a separate PASS. The product assistant is not yet shown to refuse silent restricted sends, stage skips, blocker bypass, cross-tenant reads, self-approval, and rejected or expired approvals. |
-| loose-end-stalled-fixture | Deliberately stalled RDUSA test Journey surfaces | sub-gate | NOT STARTED | No stalled RDUSA test Journey is surfaced by the product. |
-| pr-60-reviewed | Human review of PR #60 | sub-gate | BLOCKED | Pending Mark. https://github.com/mblackth-ai/sookly-omnichat/pull/60 is draft. CI is green at Actions run 36909457813. Review is a human gate. |
+| va-sop-product-facing | VA handoff SOP inside the operator product | major | PASS | Section 11 SOP is published inside the Sookly operator workspace. The live 10 to 20 Journey cohort stays NOT STARTED. Tip cf3d866864e8bc7cf10826d2e7d49a1f67b015d7 (cf3d866) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36926423635 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
+| test-operational-journey-persistent | Persistent Journey suite 26/0 | sub-gate | PASS | npm run test:operational-journey:persistent 26/0. Tip cf3d866864e8bc7cf10826d2e7d49a1f67b015d7 (cf3d866) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36926423635 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
+| test-operational-journey | In-memory Journey suite green on CI | sub-gate | PASS | In-memory journey suite is green on this CI run, with tsc and next build. This suite is not the production path. This HQ slice did not re-count it, so no pass count is restated. Tip cf3d866864e8bc7cf10826d2e7d49a1f67b015d7 (cf3d866) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36926423635 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
+| test-human-approval-gate | Human approval gate suite 8/0 | sub-gate | PASS | npm run test:human-approval-gate 8/0. Tip cf3d866864e8bc7cf10826d2e7d49a1f67b015d7 (cf3d866) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36926423635 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
+| test-ops-command | Ops command suite | sub-gate | PASS | npm run test:ops-command was 102/0 at a30aedd. This HQ slice did not re-count that suite. CI on this tip is SUCCESS for tsc and next build. Tip cf3d866864e8bc7cf10826d2e7d49a1f67b015d7 (cf3d866) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36926423635 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
+| test-agent-tools | Agent tools suite | sub-gate | PASS | tools.test.ts was 12/0 at a30aedd. This HQ slice did not re-count that suite. ai-journey-context is PASS from product evidence, not from this suite alone. Tip cf3d866864e8bc7cf10826d2e7d49a1f67b015d7 (cf3d866) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36926423635 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
+| ci-postgres-migrate-and-build | CI postgres-migrate-and-build | sub-gate | PASS | Actions run 36926423635 postgres-migrate-and-build SUCCESS. tsc and next build are green. In-memory journey is green. Human approval is 8/0. Ephemeral CI migrate is not a production migration. Tip cf3d866864e8bc7cf10826d2e7d49a1f67b015d7 (cf3d866) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36926423635 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
+| operator-journey-rail | Collapsible Contact, Journey, and AI Assistant rail | sub-gate | PASS | Collapsible Contact, Journey, and AI Assistant rail is present on the product path. Tip cf3d866864e8bc7cf10826d2e7d49a1f67b015d7 (cf3d866) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36926423635 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
+| journey-view-minimum | Journey view minimum fields | sub-gate | PASS | Journey view shows current stage, Journey status, owner, next action, due date, blocker, indicators, SOP guidance, and recent evidence together. Tip cf3d866864e8bc7cf10826d2e7d49a1f67b015d7 (cf3d866) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36926423635 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
+| phone-va-workspace | Phone-call VA keeps the contact open | sub-gate | NOT STARTED | The Contact, Journey, and AI rail does not by itself prove a phone-call VA can keep the contact open. That workspace is not in the cited product evidence for this tip. |
+| operator-journey-actions | Operator Journey actions on the product path | sub-gate | PASS | Create, read, update situation, advance stage, assign owner, set or clear blocker, create or update case, record evidence, and complete or cancel are on the Prisma-backed product path. MemoryJourneyStore is not a silent fallback. Tip cf3d866864e8bc7cf10826d2e7d49a1f67b015d7 (cf3d866) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36926423635 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
+| canonical-lifecycle-in-product | Seven-stage lifecycle in the product | sub-gate | PASS | Scenario A advances Inquiry, Qualification, Requirements, Quote, Review & Payment, Fulfilment, and Complete on the product path. Engine enum tokens were not re-read in this slice. Tip cf3d866864e8bc7cf10826d2e7d49a1f67b015d7 (cf3d866) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36926423635 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
+| four-dimensions-in-product | Four state dimensions separated in the product | sub-gate | NOT STARTED | Conversation, contact classification, Journey state, and ownership are defined here. This tip's cited evidence does not show the product keeping all four separate. Tags are not the Journey. |
+| ai-stage-aware | Stage-aware AI guidance | sub-gate | PASS | Review & Payment guidance recommends the payment action instead of a generic customer-service reply. Tip cf3d866864e8bc7cf10826d2e7d49a1f67b015d7 (cf3d866) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36926423635 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
+| ai-safety-product | Product AI must-not boundaries | sub-gate | NOT STARTED | Engine approval boundaries are a separate PASS. This HQ slice did not read sookly-omnichat source. Prompt text or tests, if present, are not recorded as proof that the product assistant refuses silent restricted sends, stage skips, blocker bypass, cross-tenant reads, self-approval, and rejected or expired approvals. Tip cf3d866864e8bc7cf10826d2e7d49a1f67b015d7 (cf3d866) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36926423635 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
+| loose-end-stalled-fixture | Deliberately stalled RDUSA test Journey surfaces | sub-gate | PASS | A deliberately stalled RDUSA test Journey surfaces on the product path. Tip cf3d866864e8bc7cf10826d2e7d49a1f67b015d7 (cf3d866) on cursor/operational-journey-engine-v1. Draft PR https://github.com/mblackth-ai/sookly-omnichat/pull/60 is unmerged. CI https://github.com/mblackth-ai/sookly-omnichat/actions/runs/36926423635 postgres-migrate-and-build SUCCESS. This HQ slice did not re-run sookly-omnichat tests. |
+| pr-60-reviewed | Human review of PR #60 | sub-gate | BLOCKED | Pending Mark. https://github.com/mblackth-ai/sookly-omnichat/pull/60 is draft at cf3d866. CI is green at Actions run 36926423635. Review is a human gate. |
 | prod-migration-reviewed | Production migration reviewed | sub-gate | BLOCKED | Pending Mark. Ephemeral CI migrate is not a production migration review. |
 | prod-migrate-explicit-approval | Explicit production migrate approval | sub-gate | BLOCKED | Pending Mark. No explicit production migrate approval exists. This slice must not approve it. |
 | rollback-backup-understood | Rollback and backup understood | sub-gate | NOT STARTED | No recorded rollback and backup understanding exists for a production Journey migration. |
@@ -434,28 +429,28 @@ All future RDUSA and Sookly Journey work uses `docs/RDUSA_PILOT_ACCEPTANCE_CONTR
   "path": "docs/RDUSA_PILOT_ACCEPTANCE_CONTRACT.md",
   "pilotReady": false,
   "counts": {
-    "PASS": 11,
-    "FAIL": 1,
+    "PASS": 25,
+    "FAIL": 0,
     "BLOCKED": 6,
-    "NOT STARTED": 20
+    "NOT STARTED": 7
   },
   "majorCounts": {
-    "PASS": 5,
-    "FAIL": 1,
+    "PASS": 13,
+    "FAIL": 0,
     "BLOCKED": 3,
-    "NOT STARTED": 8
+    "NOT STARTED": 1
   },
-  "criticalPath": "Next Composer slice: operator Journey rail plus a product HTTP/inbox path that calls PrismaJourneyStore on mblackth-ai/sookly-omnichat. product-prisma-path is FAIL. operator-journey-rail is NOT STARTED. Merge of PR #60, production migration, and deploy stay BLOCKED pending Mark and are not this slice.",
+  "criticalPath": "Mark merge yes on sookly-omnichat #60, then separate migrate and deploy approvals. Product path, operator rail, scenarios A/B/C, and the product-facing VA SOP are PASS at cf3d866. pilotReady stays false. This slice must not merge, migrate, or deploy.",
   "nextUnmet": {
-    "id": "product-prisma-path",
-    "also": "operator-journey-rail",
+    "id": "merge-pr-60",
+    "also": "prod-migrate",
     "repo": "mblackth-ai/sookly-omnichat",
-    "summary": "Operator Journey rail plus a product HTTP/inbox path that calls PrismaJourneyStore"
+    "summary": "Mark merge yes on sookly-omnichat #60, then separate migrate and deploy approvals"
   },
   "remainingSlices": {
-    "min": 6,
-    "max": 8,
-    "note": "Six to eight bounded slices remain before a live pilot can start. The next slice combines the Prisma product path and the operator rail. Merge, production migration, and deploy are human gates inside that range, not autonomous Composer work."
+    "min": 3,
+    "max": 5,
+    "note": "Three to five slices remain before a live pilot can start. Open product sub-gates are the phone-call VA workspace, four state dimensions, product AI must-not proof, and staging smoke. Merge, production migration, rollback and backup, deploy, and controlled production smoke are human gates. The live 10 to 20 Journey cohort comes after those gates."
   },
   "confirmation": "All future RDUSA and Sookly Journey work uses docs/RDUSA_PILOT_ACCEPTANCE_CONTRACT.md as the fixed finish line. The Golden Rule in that file is not redefined or weakened by this scorecard. pilotReady stays false until every major criterion is PASS.",
   "criteria": [
@@ -499,49 +494,49 @@ All future RDUSA and Sookly Journey work uses `docs/RDUSA_PILOT_ACCEPTANCE_CONTR
       "criterion": "Product HTTP / inbox calls PrismaJourneyStore",
       "level": "major",
       "parentId": null,
-      "status": "FAIL"
+      "status": "PASS"
     },
     {
       "id": "operator-ui-integration",
       "criterion": "Operator Journey UI",
       "level": "major",
       "parentId": null,
-      "status": "NOT STARTED"
+      "status": "PASS"
     },
     {
       "id": "ai-journey-context",
       "criterion": "Product AI Journey context",
       "level": "major",
       "parentId": null,
-      "status": "NOT STARTED"
+      "status": "PASS"
     },
     {
       "id": "loose-end-surfacing",
       "criterion": "Loose-end detection surfaced to operators",
       "level": "major",
       "parentId": null,
-      "status": "NOT STARTED"
+      "status": "PASS"
     },
     {
       "id": "scenario-a-happy-path",
       "criterion": "Acceptance scenario A happy path",
       "level": "major",
       "parentId": null,
-      "status": "NOT STARTED"
+      "status": "PASS"
     },
     {
       "id": "scenario-b-blocked-path",
       "criterion": "Acceptance scenario B blocked path",
       "level": "major",
       "parentId": null,
-      "status": "NOT STARTED"
+      "status": "PASS"
     },
     {
       "id": "scenario-c-staff-handoff",
       "criterion": "Acceptance scenario C staff handoff",
       "level": "major",
       "parentId": null,
-      "status": "NOT STARTED"
+      "status": "PASS"
     },
     {
       "id": "merge-pr-60",
@@ -576,18 +571,18 @@ All future RDUSA and Sookly Journey work uses `docs/RDUSA_PILOT_ACCEPTANCE_CONTR
       "criterion": "VA handoff SOP inside the operator product",
       "level": "major",
       "parentId": null,
-      "status": "NOT STARTED"
+      "status": "PASS"
     },
     {
       "id": "test-operational-journey-persistent",
-      "criterion": "Persistent Journey suite 9/0",
+      "criterion": "Persistent Journey suite 26/0",
       "level": "sub-gate",
       "parentId": "engine-prisma-persistence",
       "status": "PASS"
     },
     {
       "id": "test-operational-journey",
-      "criterion": "In-memory Journey suite 9/0",
+      "criterion": "In-memory Journey suite green on CI",
       "level": "sub-gate",
       "parentId": "engine-prisma-persistence",
       "status": "PASS"
@@ -601,14 +596,14 @@ All future RDUSA and Sookly Journey work uses `docs/RDUSA_PILOT_ACCEPTANCE_CONTR
     },
     {
       "id": "test-ops-command",
-      "criterion": "Ops command suite 102/0",
+      "criterion": "Ops command suite",
       "level": "sub-gate",
       "parentId": "engine-prisma-persistence",
       "status": "PASS"
     },
     {
       "id": "test-agent-tools",
-      "criterion": "Agent tools suite 12/0",
+      "criterion": "Agent tools suite",
       "level": "sub-gate",
       "parentId": "ai-journey-context",
       "status": "PASS"
@@ -625,14 +620,14 @@ All future RDUSA and Sookly Journey work uses `docs/RDUSA_PILOT_ACCEPTANCE_CONTR
       "criterion": "Collapsible Contact, Journey, and AI Assistant rail",
       "level": "sub-gate",
       "parentId": "operator-ui-integration",
-      "status": "NOT STARTED"
+      "status": "PASS"
     },
     {
       "id": "journey-view-minimum",
       "criterion": "Journey view minimum fields",
       "level": "sub-gate",
       "parentId": "operator-ui-integration",
-      "status": "NOT STARTED"
+      "status": "PASS"
     },
     {
       "id": "phone-va-workspace",
@@ -646,14 +641,14 @@ All future RDUSA and Sookly Journey work uses `docs/RDUSA_PILOT_ACCEPTANCE_CONTR
       "criterion": "Operator Journey actions on the product path",
       "level": "sub-gate",
       "parentId": "operator-ui-integration",
-      "status": "NOT STARTED"
+      "status": "PASS"
     },
     {
       "id": "canonical-lifecycle-in-product",
       "criterion": "Seven-stage lifecycle in the product",
       "level": "sub-gate",
       "parentId": "operator-ui-integration",
-      "status": "NOT STARTED"
+      "status": "PASS"
     },
     {
       "id": "four-dimensions-in-product",
@@ -667,7 +662,7 @@ All future RDUSA and Sookly Journey work uses `docs/RDUSA_PILOT_ACCEPTANCE_CONTR
       "criterion": "Stage-aware AI guidance",
       "level": "sub-gate",
       "parentId": "ai-journey-context",
-      "status": "NOT STARTED"
+      "status": "PASS"
     },
     {
       "id": "ai-safety-product",
@@ -681,7 +676,7 @@ All future RDUSA and Sookly Journey work uses `docs/RDUSA_PILOT_ACCEPTANCE_CONTR
       "criterion": "Deliberately stalled RDUSA test Journey surfaces",
       "level": "sub-gate",
       "parentId": "loose-end-surfacing",
-      "status": "NOT STARTED"
+      "status": "PASS"
     },
     {
       "id": "pr-60-reviewed",
