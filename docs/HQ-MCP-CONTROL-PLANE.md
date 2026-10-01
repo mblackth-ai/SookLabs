@@ -57,4 +57,4 @@ Remote HQ MCP uses Streamable HTTP. Local Cursor/CLI compatibility can use stdio
 
 UI and MCP must consume one normalized control-plane read model. The first implementation is `lib/hq/control-plane.js`, exposed to the signed-in HQ UI through `/hq/api/control-plane`.
 
-GitHub/repo state will progressively replace static progress estimates as event ingestion lands.
+Current percentages in `lib/hq/four-fronts.js` cite a verified `evidenceSha` per front. Open draft PRs are review gates and stay below 100 until Mark merges. GitHub event ingestion can replace this static record later.

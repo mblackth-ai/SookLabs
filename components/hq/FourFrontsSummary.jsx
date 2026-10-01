@@ -18,7 +18,7 @@ export function FourFrontsSummary() {
       <div className="hq-flex-between hq-mb-3">
         <div>
           <div className="hq-card-title">Four Fronts</div>
-          <div className="hq-text-sm-secondary">Concept → implementation → acceptance → human approval</div>
+          <div className="hq-text-sm-secondary">Verified evidence. Draft PRs are review gates awaiting Mark.</div>
         </div>
         <Badge variant="accent" size="sm">{overall}% overall</Badge>
       </div>

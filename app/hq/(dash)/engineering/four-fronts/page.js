@@ -18,7 +18,7 @@ export default function FourFrontsPage() {
     <div>
       <TopBar
         title="Four Fronts"
-        subtitle="Live delivery overview for the four active build tracks. Estimates are acceptance-based, not commit-count percentages."
+        subtitle="Verified evidence only. Each front is a draft-PR review gate. Overall is the rounded mean of the four fronts."
         actions={<Badge variant="accent" size="sm">{average}% overall</Badge>}
       />
 
@@ -62,6 +62,12 @@ export default function FourFrontsPage() {
                   <div className="hq-section-label">Branch</div>
                   <code style={{ fontSize: 12 }}>{front.repo} · {front.branch}</code>
                 </div>
+                {front.evidenceSha ? (
+                  <div>
+                    <div className="hq-section-label">Evidence SHA</div>
+                    <code style={{ fontSize: 12 }}>{front.evidenceSha}</code>
+                  </div>
+                ) : null}
               </div>
             </Card>
           ))}
