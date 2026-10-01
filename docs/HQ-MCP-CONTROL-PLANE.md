@@ -57,4 +57,4 @@ Remote HQ MCP uses Streamable HTTP. Local Cursor/CLI compatibility can use stdio
 
 UI and MCP must consume one normalized control-plane read model. The first implementation is `lib/hq/control-plane.js`, exposed to the signed-in HQ UI through `/hq/api/control-plane`.
 
-Current percentages in `lib/hq/four-fronts.js` cite a verified `evidenceSha` per front. Open draft PRs are review gates and stay below 100 until Mark merges. GitHub event ingestion can replace this static record later.
+Current percentages in `lib/hq/four-fronts.js` cite a verified `evidenceSha` per front. The control-plane snapshot adds a computed `insight` per front and a `schedule` review horizon for 2–31 Oct 2026. Open draft PRs are review gates and stay below 100 until Mark merges. GitHub event ingestion can replace this static record later.
