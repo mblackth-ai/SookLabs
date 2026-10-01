@@ -1,0 +1,60 @@
+# HQ Control Plane / MCP Gateway
+
+## Purpose
+
+HQ is the private operating control plane for SookLabs. It is not another specialist product and it must not duplicate Sookly or SEOS domain logic.
+
+HQ answers four questions:
+
+1. What is happening across the active businesses/products?
+2. What is blocked or waiting for approval?
+3. What is the next bounded action?
+4. What evidence proves progress or business value?
+
+## Active fronts
+
+- Sookly Journey / CRM
+- SEOS Social Control Plane
+- RDUSA Internal Retainer Control
+- HQ / MCP Gateway
+
+## RDUSA value-expansion path
+
+Current engagement truth remains the USD 1,500/month SEO, content, social and growth-support retainer.
+
+Potential expansion is tracked as opportunity, not assumed revenue:
+
+1. Sookly website receptionist pilot.
+2. CRM + deterministic customer Journey from enquiry through quote/payment/fulfilment/follow-up.
+3. Central operations sync across customer, order/quote and operational evidence.
+
+Any commercial expansion should be supported by demonstrated value and explicit agreement.
+
+## MCP surface
+
+The first MCP release is read-first. It exposes the same normalized truth used by the HQ UI.
+
+Planned read tools:
+- `hq_status`
+- `project_status`
+- `pending_approvals`
+- `rdusa_value_expansion`
+- `next_actions`
+
+Planned controlled-write tools:
+- `dispatch_bounded_agent_job`
+- `record_decision`
+- `update_project_status`
+- `approve_action`
+
+Write-capable tools require explicit policy and approval receipts. No MCP tool may directly bypass merge, deployment, production migration, credential, billing/spend or external-publishing approval gates.
+
+## Transport
+
+Remote HQ MCP uses Streamable HTTP. Local Cursor/CLI compatibility can use stdio. The implementation should use the current stable TypeScript MCP SDK and keep transport/auth concerns separate from domain tools.
+
+## Source of truth
+
+UI and MCP must consume one normalized control-plane read model. The first implementation is `lib/hq/control-plane.js`, exposed to the signed-in HQ UI through `/hq/api/control-plane`.
+
+GitHub/repo state will progressively replace static progress estimates as event ingestion lands.
