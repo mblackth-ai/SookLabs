@@ -5,6 +5,12 @@ import { Badge } from "@/components/hq/Badge";
 
 const LINKS = [
   {
+    href: "/hq/engineering/four-fronts",
+    title: "Four Fronts",
+    subtitle: "Sookly, SEOS, RDUSA Internal and HQ/MCP delivery progress",
+    badge: "Live",
+  },
+  {
     href: "/hq/sookly/action-plan",
     title: "Sookly action plan",
     subtitle: "Build checklist for sookly.co and app.sookly.com",

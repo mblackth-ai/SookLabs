@@ -14,6 +14,7 @@ import { AgentJobLog } from "@/components/hq/AgentJobLog";
 import { ClickPlayDraftHint } from "@/components/hq/ClickPlayDraftHint";
 import { OverviewStorageWarn } from "@/components/hq/OverviewStorageWarn";
 import { OverviewMoreToday } from "@/components/hq/OverviewMoreToday";
+import { FourFrontsSummary } from "@/components/hq/FourFrontsSummary";
 import {
   readOpsData,
   getTopOpenItems,
@@ -93,6 +94,9 @@ export default async function OverviewPage() {
           </div>
           {storage === "file" && <OverviewStorageWarn />}
         </section>
+
+        {/* Four active delivery tracks */}
+        <FourFrontsSummary />
 
         {/* Act */}
         <section className="hq-band hq-band--act" aria-label="Act">
