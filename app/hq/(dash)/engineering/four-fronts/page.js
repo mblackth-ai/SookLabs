@@ -6,7 +6,7 @@ import { FOUR_FRONTS, getFourFrontsOverall } from "@/lib/hq/four-fronts";
 
 function tone(progress) {
   if (progress >= 75) return "success";
-  if (progress >= 50) return "info";
+  if (progress >= 50) return "accent";
   if (progress >= 25) return "warning";
   return "outline";
 }
