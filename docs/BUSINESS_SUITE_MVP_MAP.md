@@ -3,7 +3,8 @@
 **Lane:** architecture / sequencing / acceptance only — **no publishes, no external sends**  
 **Overseer:** Mark Black · Coordination seats: Claude (copy/spec), Codex (named posting slices), Cursor (implement / CoS coding seat), Grok specialists (brand/ops)  
 **Repos of record:** [mblackth-ai/SookLabs](https://github.com/mblackth-ai/SookLabs) → live [hq.sooklabs.com](https://hq.sooklabs.com)  
-**Companion swarm note:** `docs/RDUSA_JOURNEY_PRISM_SWARM_SEQUENCING.md` (§5 approval triggers)
+**Companion swarm note:** `docs/RDUSA_JOURNEY_PRISM_SWARM_SEQUENCING.md` (§5 approval triggers)  
+**Finish line:** `docs/FINISH_LINE_ACCEPTANCE_ALL_FRONTS.md`
 
 Caller aliases used on voice → canonical names: **Sucli/Sutely → Sookly** (`app.sookly.co`); **suclabs → sooklabs**; **QO → Quo**.
 
