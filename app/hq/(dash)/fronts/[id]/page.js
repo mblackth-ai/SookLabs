@@ -4,6 +4,7 @@ import { Badge } from "@/components/hq/Badge";
 import { Card } from "@/components/hq/Card";
 import { FrontFamilyTree } from "@/components/hq/FrontFamilyTree";
 import { RepoBranchLayer } from "@/components/hq/RepoBranchLayer";
+import { RepoTimeline } from "@/components/hq/RepoTimeline";
 import { buildGrokHandoff, getEightFront, getEightFronts, getFrontTimeline } from "@/lib/hq/eight-fronts";
 import { planStatusVariant } from "@/lib/hq/four-fronts";
 import { getHqFront, getHqFronts } from "@/lib/hq/hq-fronts";
@@ -127,6 +128,7 @@ function EightFront({ front }) {
           <FrontFamilyTree nodes={getFrontTimeline(front)} branches={front.branches} />
           <RepoBranchLayer branches={branches} />
         </Card>
+        {front.id === "hq" ? <RepoTimeline /> : null}
       </div>
     </div>
   );
