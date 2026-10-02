@@ -61,6 +61,9 @@ Planned read tools:
 - `rdusa_value_expansion`
 - `retainer_delivery`
 - `next_actions`
+- `client_calls`, `call_detail`, `search_calls`, `client_tasks` — Quo ingest
+
+Read-tool contract: [`openapi/hq-mcp-read-tools.yaml`](./openapi/hq-mcp-read-tools.yaml). Ingest data model: [`adr/2026-10-hq-event-ingest.md`](./adr/2026-10-hq-event-ingest.md). Sources: [`integrations/quo.md`](./integrations/quo.md); SEOS mirror gaps: [`integrations/seos-schedule-mirror-gap.md`](./integrations/seos-schedule-mirror-gap.md).
 
 Planned controlled-write tools:
 - `dispatch_bounded_agent_job`

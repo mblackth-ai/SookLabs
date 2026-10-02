@@ -1,0 +1,410 @@
+openapi: 3.1.0
+info:
+  title: SookLabs HQ — MCP read tools
+  version: 0.1.0-draft
+  license: { name: Proprietary, identifier: LicenseRef-Proprietary }
+  description: |
+    Contract for HQ's **read-only** MCP tools. Spec only — no code.
+
+    Transport is MCP (Streamable HTTP remote, stdio local) per
+    docs/HQ-MCP-CONTROL-PLANE.md. This file uses OpenAPI only to pin each
+    tool's input and output: one operation per tool, `operationId` = tool
+    name, request body = tool `inputSchema`, 200 body = tool result.
+    The `/mcp/tools/{name}` paths are notation, not HTTP routes to build.
+
+    Every tool reads the same normalized model as the HQ UI
+    (`getControlPlaneSnapshot()` in lib/hq/control-plane.js plus the
+    ingest read functions in docs/adr/2026-10-hq-event-ingest.md).
+    No tool writes, publishes, merges, migrates, deploys, or marks a
+    retainer criterion PASS.
+
+    Planned, not specified yet: `scheduled_posts` (blocked on
+    docs/integrations/seos-schedule-mirror-gap.md gaps 1–3).
+servers:
+  - url: https://hq.sooklabs.com
+security:
+  - hqMcpToken: []
+tags:
+  - name: control-plane
+    description: Existing planned tools over the #5 control-plane snapshot
+  - name: client-activity
+    description: New tools over ingested Quo calls and client tasks
+
+paths:
+  /mcp/tools/hq_status:
+    post:
+      operationId: hq_status
+      tags: [control-plane]
+      summary: Overall progress, fronts with insight, review horizon
+      requestBody: { $ref: "#/components/requestBodies/Empty" }
+      responses:
+        "200":
+          description: Snapshot subset
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [generatedAt, overallProgress, fronts]
+                properties:
+                  generatedAt: { type: string, format: date-time }
+                  overallProgress: { type: number }
+                  progressBasis: { type: string }
+                  fronts: { type: array, items: { $ref: "#/components/schemas/Front" } }
+                  schedule: { type: object, description: "getPlanHorizon() as returned by the snapshot" }
+                  clientActivity: { $ref: "#/components/schemas/ClientActivity" }
+
+  /mcp/tools/project_status:
+    post:
+      operationId: project_status
+      tags: [control-plane]
+      summary: One front's progress, gates, evidence, next step and blocker
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [frontId]
+              additionalProperties: false
+              properties:
+                frontId: { type: string, examples: [seos-social, rdusa-internal] }
+      responses:
+        "200":
+          description: Front
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Front" }
+        "404": { $ref: "#/components/responses/ToolError" }
+
+  /mcp/tools/pending_approvals:
+    post:
+      operationId: pending_approvals
+      tags: [control-plane]
+      summary: Agent jobs waiting on approval, and merged blockers
+      requestBody: { $ref: "#/components/requestBodies/Empty" }
+      responses:
+        "200":
+          description: Snapshot `approvals` and `blockers`
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [approvals, blockers]
+                properties:
+                  approvals: { type: array, items: { type: object } }
+                  blockers: { type: array, items: { type: object } }
+                  proposedTasks:
+                    type: integer
+                    description: Count of `proposed` client tasks awaiting Mark (new)
+
+  /mcp/tools/rdusa_value_expansion:
+    post:
+      operationId: rdusa_value_expansion
+      tags: [control-plane]
+      summary: RDUSA expansion opportunities (opportunity, not revenue)
+      requestBody: { $ref: "#/components/requestBodies/Empty" }
+      responses:
+        "200":
+          description: Snapshot `rdusaValueExpansion`
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [client, opportunities]
+                properties:
+                  client: { type: string }
+                  currentRetainerUsd: { type: number }
+                  opportunities: { type: array, items: { type: object } }
+
+  /mcp/tools/retainer_delivery:
+    post:
+      operationId: retainer_delivery
+      tags: [control-plane]
+      summary: Retainer scorecards — the only score source relays may cite
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                clientId:
+                  $ref: "#/components/schemas/ClientId"
+                  description: Omit for the `retainerDelivery` index; set for that client's full contract snapshot
+      responses:
+        "200":
+          description: "`retainerDelivery`, or `rdusaRetainerContract` / `jakaRetainerContract`"
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Returned verbatim from the snapshot; `asOf` is the score date, not the server clock.
+        "404": { $ref: "#/components/responses/ToolError" }
+
+  /mcp/tools/next_actions:
+    post:
+      operationId: next_actions
+      tags: [control-plane]
+      summary: Plan items (FRONT_PLAN) and each front's `next`
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                frontId: { type: string }
+                status: { type: string, examples: [ready, queued, blocked] }
+      responses:
+        "200":
+          description: Plan items
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/PlanItem" } }
+
+  /mcp/tools/client_calls:
+    post:
+      operationId: client_calls
+      tags: [client-activity]
+      summary: Recent Quo calls, without transcript text
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                clientId: { $ref: "#/components/schemas/ClientIdOrUnassigned" }
+                since: { type: string, format: date-time }
+                limit: { type: integer, minimum: 1, maximum: 50, default: 20 }
+      responses:
+        "200":
+          description: Calls, newest first
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [calls]
+                properties:
+                  calls: { type: array, items: { $ref: "#/components/schemas/CallSummary" } }
+
+  /mcp/tools/call_detail:
+    post:
+      operationId: call_detail
+      tags: [client-activity]
+      summary: One call with transcript, summary, next steps and linked tasks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [callId]
+              additionalProperties: false
+              properties:
+                callId: { type: string }
+      responses:
+        "200":
+          description: Call
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CallDetail" }
+        "404": { $ref: "#/components/responses/ToolError" }
+
+  /mcp/tools/search_calls:
+    post:
+      operationId: search_calls
+      tags: [client-activity]
+      summary: Text search over call summaries and transcripts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [query]
+              additionalProperties: false
+              properties:
+                query: { type: string, minLength: 2, maxLength: 200 }
+                clientId: { $ref: "#/components/schemas/ClientIdOrUnassigned" }
+                limit: { type: integer, minimum: 1, maximum: 20, default: 10 }
+      responses:
+        "200":
+          description: Matches with a short snippet
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [matches]
+                properties:
+                  matches:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: "#/components/schemas/CallSummary"
+                        - type: object
+                          required: [snippet]
+                          properties:
+                            snippet: { type: string, maxLength: 300 }
+
+  /mcp/tools/client_tasks:
+    post:
+      operationId: client_tasks
+      tags: [client-activity]
+      summary: Client tasks, including `proposed` ones awaiting Mark
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                clientId: { $ref: "#/components/schemas/ClientIdOrUnassigned" }
+                status: { $ref: "#/components/schemas/TaskStatus" }
+                limit: { type: integer, minimum: 1, maximum: 100, default: 50 }
+      responses:
+        "200":
+          description: Tasks
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [tasks]
+                properties:
+                  tasks: { type: array, items: { $ref: "#/components/schemas/Task" } }
+
+components:
+  securitySchemes:
+    hqMcpToken:
+      type: http
+      scheme: bearer
+      description: |
+        Proposed: a read-only MCP token (env `HQ_MCP_READ_TOKEN`), separate
+        from HQ_AGENT_CALLBACK_SECRET and SEOS_HQ_API_TOKEN. Final auth is
+        Mark's decision; this file does not grant write scopes.
+
+  requestBodies:
+    Empty:
+      content:
+        application/json:
+          schema: { type: object, additionalProperties: false }
+
+  responses:
+    ToolError:
+      description: "Tool error (MCP `isError: true`)"
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [error]
+            properties:
+              error: { type: string }
+
+  schemas:
+    ClientId:
+      type: string
+      description: "`clientId` from a retainer contract"
+      examples: [rdusa, jaka]
+    ClientIdOrUnassigned:
+      type: string
+      description: A ClientId, or `unassigned`
+      examples: [rdusa, jaka, unassigned]
+    TaskStatus:
+      type: string
+      enum: [proposed, todo, doing, blocked, done, rejected]
+
+    Front:
+      type: object
+      description: FOUR_FRONTS entry plus computed `insight`
+      required: [id, name, progress]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        progress: { type: number, minimum: 0, maximum: 100 }
+        phase: { type: string }
+        repo: { type: string }
+        branch: { type: string }
+        evidenceSha: { type: string }
+        pr: { type: object }
+        gates: { type: array, items: { type: object } }
+        evidence: { type: string }
+        next: { type: string }
+        blocker: { type: [string, "null"] }
+        insight: { type: object }
+
+    PlanItem:
+      type: object
+      description: FRONT_PLAN entry
+      required: [id, frontId, title, status]
+      properties:
+        id: { type: string }
+        frontId: { type: string }
+        title: { type: string }
+        window: { type: object }
+        owner: { type: string }
+        dependency: { type: string }
+        status: { type: string }
+
+    ClientActivity:
+      type: object
+      description: New snapshot field (counts only). See ADR 2026-10.
+      properties:
+        asOf: { type: string, format: date-time }
+        callsLast7d: { type: object, additionalProperties: { type: integer } }
+        proposedTasks: { type: object, additionalProperties: { type: integer } }
+        openTasks: { type: object, additionalProperties: { type: integer } }
+
+    DialogueLine:
+      type: object
+      required: [content, start, end]
+      properties:
+        userId: { type: [string, "null"], description: "Workspace user, when staff spoke" }
+        identifier: { type: [string, "null"], description: "External number, when caller spoke" }
+        content: { type: string }
+        start: { type: number }
+        end: { type: number }
+
+    CallSummary:
+      type: object
+      required: [callId, clientId, hasTranscript, hasSummary]
+      properties:
+        callId: { type: string }
+        clientId: { type: [string, "null"] }
+        direction: { type: [string, "null"] }
+        status: { type: [string, "null"] }
+        startedAt: { type: [string, "null"], format: date-time }
+        completedAt: { type: [string, "null"], format: date-time }
+        durationSec: { type: [integer, "null"] }
+        summary: { type: array, items: { type: string } }
+        hasTranscript: { type: boolean }
+        hasSummary: { type: boolean }
+        proposedTaskCount: { type: integer }
+        quoLink: { type: [string, "null"], format: uri }
+
+    CallDetail:
+      allOf:
+        - $ref: "#/components/schemas/CallSummary"
+        - type: object
+          properties:
+            dialogue: { type: array, items: { $ref: "#/components/schemas/DialogueLine" } }
+            nextSteps: { type: array, items: { type: string } }
+            tasks: { type: array, items: { $ref: "#/components/schemas/Task" } }
+
+    Task:
+      type: object
+      required: [id, clientId, title, status, source, createdAt]
+      properties:
+        id: { type: string }
+        clientId: { type: [string, "null"] }
+        title: { type: string }
+        status: { $ref: "#/components/schemas/TaskStatus" }
+        priority: { type: [string, "null"], enum: [P0, P1, P2, null] }
+        owner: { type: [string, "null"] }
+        due: { type: [string, "null"], format: date }
+        source: { type: string, enum: [quo-call, manual] }
+        sourceRef: { type: [string, "null"] }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
