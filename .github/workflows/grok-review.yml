@@ -1,0 +1,41 @@
+name: Grok relay review
+
+# Grok reviews every Claude/Cursor push and PR and posts its review on GitHub
+# (sticky PR comment, or a commit comment when there's no PR). See
+# docs/relay/README.md. Needs repo secret XAI_API_KEY; skips cleanly without it.
+
+on:
+  push:
+    branches: ["claude/**", "cursor/**"]
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+
+permissions:
+  contents: write # commit comments
+  pull-requests: write
+  issues: write # PR comments use the issues API
+
+concurrency:
+  group: grok-review-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    # Fork PRs get no secrets; don't run them.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Ask Grok
+        run: node scripts/grok-review.mjs
+        env:
+          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+          GROK_MODEL: ${{ vars.GROK_MODEL }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
