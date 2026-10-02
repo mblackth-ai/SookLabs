@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-30T12:00:00.000Z",
+  "updatedAt": "2026-10-02T13:52:00.000Z",
   "todayPriorities": [
     {
       "id": "tp-1",
@@ -148,7 +148,12 @@
           "priority": "P0",
           "owner": "James",
           "due": "2026-08-01",
-          "links": [{ "label": "SEOS Hub", "url": "/hq/seos" }]
+          "links": [
+            {
+              "label": "SEOS Hub",
+              "url": "/hq/seos"
+            }
+          ]
         },
         {
           "id": "ss-2",
@@ -230,8 +235,14 @@
           "owner": "Mark",
           "due": "2026-08-01",
           "links": [
-            { "label": "Privacy", "url": "https://sooklabs.com/privacy" },
-            { "label": "Terms", "url": "https://sooklabs.com/terms" },
+            {
+              "label": "Privacy",
+              "url": "https://sooklabs.com/privacy"
+            },
+            {
+              "label": "Terms",
+              "url": "https://sooklabs.com/terms"
+            },
             {
               "label": "Responsible Builder Policy",
               "url": "https://support.reddithelp.com/hc/en-us/articles/42728983564564-Responsible-Builder-Policy"
@@ -251,8 +262,14 @@
               "label": "Access pack",
               "url": "https://github.com/mblackth-ai/SEOS/blob/main/docs/REDDIT_ACCESS_REQUEST_PACK.md"
             },
-            { "label": "Data API Terms", "url": "https://www.redditinc.com/policies/data-api-terms" },
-            { "label": "Privacy", "url": "https://sooklabs.com/privacy" }
+            {
+              "label": "Data API Terms",
+              "url": "https://www.redditinc.com/policies/data-api-terms"
+            },
+            {
+              "label": "Privacy",
+              "url": "https://sooklabs.com/privacy"
+            }
           ],
           "platform": "reddit"
         },
@@ -297,6 +314,92 @@
           "priority": "P2",
           "owner": "James",
           "due": "2026-08-20",
+          "links": []
+        }
+      ]
+    },
+    "sookLabsSocial": {
+      "label": "SookLabs Frontier OS / Social",
+      "product": "sooklabs",
+      "boardHref": "/hq/sooklabs",
+      "items": [
+        {
+          "id": "sl-1",
+          "title": "Claude: refine the 3-post Frontier OS mini-series for LinkedIn + Facebook",
+          "status": "doing",
+          "priority": "P0",
+          "owner": "Claude",
+          "due": "2026-10-03",
+          "links": []
+        },
+        {
+          "id": "sl-2",
+          "title": "Analytics: recommend cadence/timing from real social performance before scheduling",
+          "status": "todo",
+          "priority": "P1",
+          "owner": "Analytics",
+          "due": "2026-10-03",
+          "links": []
+        },
+        {
+          "id": "sl-3",
+          "title": "Mark approval gate: approve final copy before any publish/schedule action",
+          "status": "todo",
+          "priority": "P0",
+          "owner": "Mark",
+          "due": "2026-10-03",
+          "links": []
+        },
+        {
+          "id": "sl-4",
+          "title": "HQ social coverage alert: warn when scheduled inventory is running low by brand/channel",
+          "status": "todo",
+          "priority": "P0",
+          "owner": "Cursor",
+          "due": "2026-10-05",
+          "links": []
+        }
+      ]
+    },
+    "roastMyOpSec": {
+      "label": "RoastMyOpSec Growth Loop",
+      "product": "roastmyopsec",
+      "boardHref": "/hq/roastmyopsec",
+      "items": [
+        {
+          "id": "rmo-1",
+          "title": "Build read-only vulnerability/news alert carousel from attributed security sources",
+          "status": "todo",
+          "priority": "P0",
+          "owner": "Cursor",
+          "due": "2026-10-06",
+          "links": []
+        },
+        {
+          "id": "rmo-2",
+          "title": "Claude: weekly original synthesis from selected OPSEC/security developments with source links",
+          "status": "todo",
+          "priority": "P0",
+          "owner": "Claude",
+          "due": "2026-10-07",
+          "links": []
+        },
+        {
+          "id": "rmo-3",
+          "title": "Automation: weekly queue + evidence receipt; no publish without configured approval gate",
+          "status": "todo",
+          "priority": "P1",
+          "owner": "Butler",
+          "due": "2026-10-08",
+          "links": []
+        },
+        {
+          "id": "rmo-4",
+          "title": "Editorial guardrail: summarize/synthesize sources; do not republish or lightly rewrite full articles",
+          "status": "todo",
+          "priority": "P0",
+          "owner": "Claude",
+          "due": "2026-10-07",
           "links": []
         }
       ]
