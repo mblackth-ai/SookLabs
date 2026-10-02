@@ -22,6 +22,11 @@
   new `hq_events` / `hq_calls` / `hq_tasks`; tasks start `proposed`.
 - `docs/openapi/hq-mcp-read-tools.yaml` — 10 read-only tool contracts.
 - `docs/integrations/seos-schedule-mirror-gap.md` — 7 gaps (SookLabs-only view).
+- `docs/adr/2026-10-hq-mcp-server.md` — how the HQ MCP is formed (tools / server /
+  transports), federates SEOS and Sookly by calling them, connects Claude,
+  Cursor and Grok (xAI Remote MCP), gates writes on Mark; phases M0–M3.
+- Skills: `.claude/skills/run-sooklabs/` (driver: start, login, api, ss,
+  callback, stop — verified) and `.claude/skills/hq-relay/`.
 - Relay: `.github/workflows/grok-review.yml`, `scripts/grok-review.mjs`,
   `docs/relay/` — Grok reviews each push automatically.
 
