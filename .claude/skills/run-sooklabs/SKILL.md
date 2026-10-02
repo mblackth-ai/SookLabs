@@ -53,6 +53,34 @@ Design and M0 acceptance are in `docs/adr/2026-10-hq-mcp-server.md`. When M0
 lands, add its verified commands here (MCP Inspector CLI against
 `http://localhost:3008/hq/api/mcp`).
 
+### Visual inspection sweep and interaction flows
+
+```bash
+node $D start && node $D login
+node .claude/skills/run-sooklabs/inspect.mjs    # every /hq route × desktop/tablet/mobile (~4 min)
+node .claude/skills/run-sooklabs/flows.mjs      # login, nav, mobile drawer, keyboard, banner, sign-out (+ timeline on branches)
+node $D stop
+```
+
+`inspect.mjs` screenshots each route (viewport + scrolled main panel) to
+`/tmp/run-sooklabs/inspect/` and flags page overflow, elements past the right
+edge, badge text spilling out of fixed-height pills, default-blue links,
+console/page errors and failed requests; details in `report.json`. It never
+clicks. Narrow it with `--routes /hq,/hq/retainers --viewports mobile`.
+`flows.mjs` drives real controls and prints PASS/FAIL per flow with what it
+saw; `--only mobileNav,signOut` to pick. Look at the PNGs — the flags find
+candidates, the screenshot decides. Last full report:
+`docs/relay/visual-inspection-2026-10-02.md`.
+
+**Another branch side by side:** use a worktree, a real `npm ci` in it, and a
+separate port + state dir:
+
+```bash
+git worktree add /home/user/hq-wt-x <branch> && (cd /home/user/hq-wt-x && npm ci)
+cd /home/user/hq-wt-x && export PORT=3009 RUN_SOOKLABS_STATE=/tmp/run-sooklabs-x
+node /path/to/sooklabs/.claude/skills/run-sooklabs/driver.mjs start   # likewise login / inspect / flows / stop
+```
+
 ## Build, lint
 
 ```bash
@@ -87,6 +115,22 @@ npm run lint                 # exits 1: 72 pre-existing errors (see Gotchas)
 - **Screenshots are viewport-height.** The dashboard scrolls inside its own
   panel, so `fullPage` only captures 1440×900. Screenshot the sub-page you
   need (e.g. `/hq/retainers`) rather than expecting one long image.
+- **Unauthenticated requests are rewritten, not redirected.** `/hq` without a
+  session serves the login form at the same URL with status 200 — and API
+  routes return that HTML too, not 401. Assert on the password field, not
+  the URL. New inbound routes must be in `isOpenPath`.
+- **Sidebar links are client-side navigation.** After clicking, wait for the
+  URL (`page.waitForURL`), not `networkidle`, or you'll read the old page.
+- **Don't symlink `node_modules` into a worktree.** Turbopack fails with
+  `Symlink [project]/node_modules is invalid, it points out of the filesystem
+  root` and the server never becomes ready; run `npm ci` in the worktree.
+- **Repo timeline shows "Partial data" in Claude cloud containers.** The
+  container sets a placeholder `GITHUB_TOKEN` (GitHub 401), and without it
+  Node's fetch isn't proxied (403), so the timeline falls back to the
+  shallow local clone (master only). Real branch/PR geometry needs a real
+  token or a normal network.
+- **Sign-out doesn't revoke the token** (stateless HMAC, 7 days), so the
+  driver's saved cookie keeps working after a `signOut` flow.
 - **`stop` kills the process group.** `next dev` runs as npx → next →
   workers; killing only the npx pid leaves :3008 bound.
 
@@ -97,4 +141,6 @@ npm run lint                 # exits 1: 72 pre-existing errors (see Gotchas)
 | `login failed: 503 … HQ access is not configured` | `sooklabs.env.local` has a `change-me…` value or a short `HQ_SESSION_SECRET`. Delete the file and `start` again (driver writes a valid one). |
 | `ss` prints `landed on the login page` | Cookie missing/expired: `node $D login`. |
 | `server not ready after 180s` | Read `/tmp/run-sooklabs/dev.log`; usually port 3008 busy — `node $D stop`, then `start`. |
+| `server not ready` in a worktree, log says `Symlink … node_modules is invalid` | `rm node_modules && npm ci` in the worktree. |
+| A flow reports the old URL after clicking a nav link | Wait with `page.waitForURL(...)`; navigation is client-side. |
 | `git status` shows `M data/hq/ops.json` | You wrote ops data without `stop`; `git checkout -- data/hq/ops.json`. |

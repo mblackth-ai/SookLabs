@@ -216,11 +216,13 @@ function stop() {
     }
     rmSync(S("pid"));
   }
-  if (existsSync(S("created-env"))) {
+  // Remove the env file only if this driver wrote it (marker on line 1), never a real one.
+  const ours = existsSync(ENV_FILE) && readFileSync(ENV_FILE, "utf8").startsWith("# Throwaway file written by .claude/skills/run-sooklabs/driver.mjs");
+  if (ours) {
     rmSync(ENV_FILE, { force: true });
-    rmSync(S("created-env"));
     console.log("removed throwaway sooklabs.env.local");
   }
+  rmSync(S("created-env"), { force: true });
   if (existsSync(S("ops.json.bak"))) {
     copyFileSync(S("ops.json.bak"), OPS_FILE);
     rmSync(S("ops.json.bak"));

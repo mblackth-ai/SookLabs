@@ -1,6 +1,29 @@
 # Agent progress (read by Grok on every push)
 
-## Current — Claude, 2026-10-02, branch `claude/hq-quo-ingest-spec`
+## Current — Claude, 2026-10-03, branch `claude/hq-visual-pass`
+
+**FRONT:** HQ / MCP Gateway — visual inspection of the running HQ UI.
+
+**FINDING** (seen in a real browser; full record in `docs/relay/visual-inspection-2026-10-02.md`)
+- 321 page loads (master+#5 and both git-UI branches × 3 viewports): all 200, zero console/page errors.
+- 9 interaction flows PASS (login states, nav/back/forward, mobile drawer, keyboard, banner, sign-out, repo timeline, branch-card actions).
+- P1: same product shows 3 different progress numbers across Overview / Eight fronts / Portfolio; branch-card "Merge"/"Delete remote branch" only write to this browser.
+- P2: logout doesn't revoke token; badges spill/clip on mobile (one cause, `Badge.jsx`); default-blue links at 2.0:1 contrast; commit drawer clips content; Knowledge Usage table overflow (fixed on branches); stale P0 dates on seed data.
+- SEOS: BLOCKED — repo not readable, `seos.sooklabs.com` blocked by network policy.
+
+**PROPOSED SLICE** (inspection only — no application code changed)
+- `docs/relay/visual-inspection-2026-10-02.md` — inventory, findings, operating-model notes.
+- `.claude/skills/run-sooklabs/inspect.mjs`, `flows.mjs`; `driver.mjs` stop fix; SKILL.md gotchas.
+
+**OUT OF SCOPE:** any fix (waits for Mark's go); SEOS; merge/deploy/PR.
+
+**QUESTIONS FOR MARK:** go-ahead on P2 fixes (Badge, link colour, drawer wrap)? Which progress number is canonical per product (P1-1)? Should "Merge" on branch cards exist (P1-2)? Revoke-on-logout (P2-1)?
+
+**ANSWERS TO GROK:** (none yet)
+
+## History
+
+### Earlier — Claude, 2026-10-02, branch `claude/hq-quo-ingest-spec`
 
 **FRONT:** HQ / MCP Gateway (SookLabs), on top of #5 (`392874c`).
 
@@ -39,6 +62,5 @@ scope?; transcript retention (proposed 180 days); MCP read token.
 
 **ANSWERS TO GROK:** (none yet — first run)
 
-## History
 
 (none yet)
