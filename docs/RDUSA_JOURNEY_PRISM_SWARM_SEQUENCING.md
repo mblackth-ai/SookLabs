@@ -108,3 +108,48 @@ Mark (send-yes / merge / migrate / deploy)
 5. **Live pilot** 10–20 real RDUSA Journeys; VA SOP already product-facing.
 6. **Only then** unlock LinkedIn triple-agent repo / Client HQ Approve→publish as the *same* swarm pattern feeding Journey + HQ Progress — still no auto-publish.
 
+---
+
+## 5) Approval trigger events on HQ RDUSA (first-class)
+
+HQ is the **human visual guide** and the **manual layer** for work that cannot be fully automated — typically because the channel is **subscription / UI-only** (no usable publish API), or because Mark must stay in the send-yes loop.
+
+### What an approval trigger looks like on the HQ surface
+
+Each trigger is a **card / row** on the RDUSA section (`/hq/retainers` now; later `/clients/rdusa` Social + Tasks) with:
+
+| Field | Meaning |
+|-------|---------|
+| **Trigger id** | Stable id, e.g. `rdusa.social.linkedin.draft.2026-10-02-slatwall` |
+| **Kind** | `social_publish` · `journey_execute` · `meta_token` · `photo_unblock` · `migrate_deploy` · `manual_suite` |
+| **Why manual** | Short reason: `no_api` · `subscription_ui_only` · `human_send_yes` · `mark_only_gate` |
+| **Needs** | Who must click: Mark · Andrew · Andolw · CoS-on-brief |
+| **Payload preview** | Draft text / Journey next action / blocker text (read-only) |
+| **Actions** | **Approve** · **Request changes** · **Hold** (no silent auto-run) |
+| **On Approve signal** | Named next step only (e.g. “RDUSA Brand Social schedules LI in Suite” or “Journey AI may execute-with-approval”) — never a free agent send |
+
+### Trigger catalogue (RDUSA v1)
+
+1. **Social draft ready** — LinkedIn / IG / FB / Threads draft finished Claude+score loop → HQ card. Approve = send-yes for human or Graph/Suite schedule.  
+2. **Subscription-only publish** — channel has no API (or token dead): HQ shows “paste/schedule in Meta Business Suite / LinkedIn UI” checklist; Approve logs that Mark completed the manual step.  
+3. **Journey execute-with-approval** — Product AI proposed a restricted customer-visible action → HQ (or Sookly rail) approval gate; same human-approval semantics as pilot contract.  
+4. **Photo / outrigger unblock** — ≥500px real photo needed; Approve after Mark/Andolw confirm not-AI and size.  
+5. **Token / login remint** — META_PAGE_TOKEN_RDUSA, LinkedIn admin, Threads; Approve after secret remint (value never in chat).  
+6. **Ship gates** — prod migrate / droplet deploy / PR merge; Mark-only Approve; swarm stays idle on that FRONT until clicked.
+
+### Connection to the swarm
+
+```
+swarm produces work → writes queue/ + learning/ + Journey evidence
+        ↓
+HQ emits approval trigger card (visible on RDUSA section)
+        ↓
+Mark/Andrew clicks Approve | Request changes | Hold
+        ↓
+signal routes to owning seat (RDUSA Brand Social / CoS / Cursor / Product AI)
+        ↓
+seat acts only within the approved payload — no publishes without this click
+```
+
+**Rule:** If there is no API, HQ *is* the automation — checklist + Approve signal + evidence log. Agents do not invent a back door.
+
