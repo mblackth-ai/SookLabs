@@ -46,6 +46,8 @@ The retainer Golden Rule is: we keep the retainer when promised day/week/month d
 
 The same snapshots render at `/hq/retainers` and as a summary on `/hq`. Reading them does not publish, merge, migrate, or deploy. No write tool may mark a retainer criterion PASS without evidence, and none may bypass Mark's token, merge, login, or spend gates.
 
+Journey Prism swarm sequencing (architecture only, not a scorecard): [`docs/RDUSA_JOURNEY_PRISM_SWARM_SEQUENCING.md`](./RDUSA_JOURNEY_PRISM_SWARM_SEQUENCING.md). That note records sookly-omnichat PR #60 as merged on 1 Oct 2026. Remaining Journey ship gates named there are production migrate, production deploy, `ai-safety-product`, `four-dimensions-in-product`, staging smoke, and live pilot 10–20. `docs/LLM_STATUS.md` is not on this branch. Once this PR is merged and HQ is deployed, the intended surfaces are `/hq` (COORDINATION / LLM lane) and `/hq/retainers` (RDUSA panel). `/clients/rdusa` Client HQ is SPEC-only and is not built.
+
 Any commercial expansion should be supported by demonstrated value and explicit agreement.
 
 ## MCP surface
