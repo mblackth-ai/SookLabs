@@ -209,6 +209,36 @@
 
 ---
 
+## Front 8 — Journey Prisma (Sookly × HQ)
+
+**Finish line:** On Sookly, Journey Prisma is a **customizable connectivity layer** operated through HQ. It syncs any external CRM ↔ Sookly’s in-built CRM **per user**, unifies identity across channels (e.g. email to Andrew then a phone call → same contact), and shows a **Journey indicator** for where that person is in the pipeline and what to do next. **Visual oversight first** via HQ; **automation later** only when the Sookly intelligence layer flags automation potential and Mark/approval gates allow it.
+
+**Depends on:** Front 5 (Sookly app Journey engine ship gates) for persistence/prod; Front 1 (HQ visual layer); Front 4 (relay fields). Does **not** replace the RDUSA pilot Golden Rule — pilot ready still requires `RDUSA_PILOT_ACCEPTANCE_CONTRACT`.
+
+### Must (pass/fail)
+
+| ID | Criterion | Pass evidence | Fail if |
+|----|-----------|---------------|---------|
+| JP-1 | **Customizable connectivity layer** on Sookly | Per-user (or per-tenant) connector config for external CRM ↔ in-built CRM; settings reachable from product and reflected on HQ | Hard-coded single CRM only, or no config surface |
+| JP-2 | **CRM sync external ↔ in-built** | Bidirectional or documented one-way sync of contacts with conflict rules; evidence in control-plane or Journey/CRM admin | Sync claimed without durable writes / audit |
+| JP-3 | **Phone ↔ email ↔ contact identity match** | Same person resolved across channels (example: emailed Andrew, then phones → caller identified as that email contact); match confidence + manual override | Separate records for phone vs email with no link path |
+| JP-4 | **Journey pipeline indicator per contact** | Per-contact UI: stage in pipeline, **what to do next**, evidence of last touch | Stage label only with no next action |
+| JP-5 | **HQ visual oversight layer** | HQ (Clients and/or Journey board) shows Journey Prisma status, sync health, open next-actions — oversee before automate | Only in-app; Mark cannot see from HQ |
+| JP-6 | **Future automation gate** | Automation is **off by default**; runs only when Sookly intelligence marks potential **and** an approval trigger (or Mark policy) allows; no silent customer messages | Auto-outreach without Approve / policy |
+
+### Should
+
+| ID | Criterion |
+|----|-----------|
+| JP-S1 | RDUSA first tenant for sync + identity examples (Andrew contact path) |
+| JP-S2 | Swarm sequencing doc cites Journey Prisma HQ oversight |
+| JP-S3 | Edge cases listed on front detail: duplicate merges, missing phone, CRM auth expiry, partial sync |
+
+**Landing:** sookly-omnichat Journey Prisma · HQ Clients/Journey views · `docs/RDUSA_JOURNEY_PRISM_SWARM_SEQUENCING.md` · pilot contract unchanged for “pilot ready.”
+
+
+---
+
 ## Master releasable checklist (Mark click-through)
 
 Tick only with evidence link (HQ URL, PR, contract SHA, or screenshot path).
@@ -248,6 +278,14 @@ Tick only with evidence link (HQ URL, PR, contract SHA, or screenshot path).
 ### Revenue
 - [ ] REV-1 … REV-6
 
+### Journey Prisma
+- [ ] JP-1 Customizable connectivity layer
+- [ ] JP-2 CRM sync external ↔ in-built
+- [ ] JP-3 Phone ↔ email ↔ contact identity
+- [ ] JP-4 Journey pipeline indicator + next action
+- [ ] JP-5 HQ visual oversight
+- [ ] JP-6 Future automation gate (off by default)
+
 **Releasable product start-to-finish** = all Must rows PASS for the fronts Mark includes in that release train. Partial trains (e.g. HQ-only) are allowed if Mark scopes them explicitly.
 
 ---
@@ -260,7 +298,7 @@ Tick only with evidence link (HQ URL, PR, contract SHA, or screenshot path).
 | `docs/RDUSA_PILOT_ACCEPTANCE_CONTRACT.md` | Journey pilot golden rule |
 | `docs/RDUSA_RETAINER_DELIVERY_CONTRACT.md` | RDUSA retainer |
 | `docs/JAKA_RETAINER_DELIVERY_CONTRACT.md` | Jaka retainer |
-| `docs/RDUSA_JOURNEY_PRISM_SWARM_SEQUENCING.md` | Swarm + approval triggers |
+| `docs/RDUSA_JOURNEY_PRISM_SWARM_SEQUENCING.md` | Swarm + approval triggers + Journey Prisma context |
 | `docs/HQ-MCP-CONTROL-PLANE.md` | MCP + control plane |
 | `/workspace/sookly/CLIENT_HQ_RDUSA_ANDREW_BRIEF_2026-10-02.md` | Clients HQ SPEC |
 | `/workspace/sooklabs-hq/docs/HQ_CANDY_AUDIT_AND_FRONTS_BRIEF_2026-10-02.md` | Candy + fronts UI brief |
@@ -272,3 +310,4 @@ Tick only with evidence link (HQ URL, PR, contract SHA, or screenshot path).
 | Date | Change |
 |------|--------|
 | 2026-10-02 | Initial finish-line acceptance from Mark voice call; seven fronts + global constraints |
+| 2026-10-02 | Added Front 8 Journey Prisma (Must: JP-1…JP-6) from Mark voice |
