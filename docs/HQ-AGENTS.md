@@ -109,3 +109,41 @@ Automation Registry (`/hq/automation`) only shows:
 - **Future API** — Anthropic direct mode (optional later)
 
 Never mark providers as Connected without a real integration.
+
+## Live Oversight seat (ChatGPT)
+
+HQ also recognizes a **Live Oversight / acceptance analyst** seat. This seat is invoked, not continuously resident: it reads current repo/control-plane evidence when asked and must not claim to be monitoring work between invocations.
+
+Hierarchy:
+
+```
+Mark
+  -> Grok Chief of Staff: orchestration, delegation, sequencing, queue hygiene
+       -> Live Oversight / ChatGPT: cross-repo analysis, acceptance review, contradiction/staleness detection, architecture challenge
+       -> Cursor / Composer: implementation and repo changes
+       -> Claude: critique, copy/rewrite, deep DoD review
+       -> Codex / posting seat: approved channel execution only
+       -> Product/domain agents: bounded product actions behind their own approval rules
+```
+
+The Live Oversight seat may:
+- compare repo truth with HQ snapshots and contracts
+- detect stale scorecards, orphaned branches, contradictory gates and missing evidence
+- propose hierarchy, architecture and acceptance changes
+- write bounded docs/code on its own branch when explicitly asked
+- prepare action envelopes for Cursor
+
+The Live Oversight seat never gains implicit authority to merge, deploy, migrate, change credentials, spend, publish, or send customer-visible messages. It must preserve Grok CoS as orchestrator unless Mark explicitly changes the hierarchy.
+
+Repo-history visualization and the Cursor reverse-control path are specified in [`docs/HQ_LIVE_REPO_TIMELINE.md`](./HQ_LIVE_REPO_TIMELINE.md).
+
+## HQ -> Cursor reverse execution
+
+MCP and ACP have different jobs:
+
+- **MCP:** Cursor reaches into HQ/tools and reads or invokes exposed capabilities.
+- **ACP:** HQ/local companion can act as a custom client for Cursor CLI and send a bounded task into `agent acp`.
+- **Cursor deeplinks:** human-reviewed handoff with a pre-filled prompt; never silent execution.
+- **Cursor Automations / Cloud Agents:** remote/background execution from approved events or webhooks.
+
+For protected or destructive actions, HQ must separate **Send to Cursor** from **Approve execution** and store an action receipt. Browser code must never receive raw Cursor/GitHub/MCP/deployment secrets.

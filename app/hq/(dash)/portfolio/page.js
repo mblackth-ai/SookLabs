@@ -8,6 +8,12 @@ import { readOpsData, getPortfolioSummary, getStreamCounts, getTopOpenItems } fr
 
 const BOARDS = [
   {
+    href: "/hq/sooklabs",
+    title: "SookLabs",
+    subtitle: "Frontier OS · agent relay · social coverage",
+    streamKeys: ["sookLabsSocial"],
+  },
+  {
     href: "/hq/sookly/action-plan",
     title: "Sookly MVP1",
     subtitle: "Website + app workstreams",

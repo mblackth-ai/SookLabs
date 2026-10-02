@@ -79,3 +79,18 @@ Remote HQ MCP uses Streamable HTTP. Local Cursor/CLI compatibility can use stdio
 UI and MCP must consume one normalized control-plane read model. The first implementation is `lib/hq/control-plane.js`, exposed to the signed-in HQ UI through `/hq/api/control-plane`.
 
 Current percentages in `lib/hq/four-fronts.js` cite a verified `evidenceSha` per front. The control-plane snapshot adds a computed `insight` per front and a `schedule` review horizon for 2–31 Oct 2026. Open draft PRs are review gates and stay below 100 until Mark merges. GitHub event ingestion can replace this static record later.
+
+## Live repo timeline / bidirectional agent bridge
+
+The visual Git-history control layer is specified in [`docs/HQ_LIVE_REPO_TIMELINE.md`](./HQ_LIVE_REPO_TIMELINE.md).
+
+Directionality is explicit:
+
+```
+Cursor -> HQ MCP -> control-plane truth, blockers, approvals, acceptance, next actions
+HQ -> Cursor deeplink | ACP local bridge | Cursor Automation -> bounded coding/examination task
+```
+
+Do not treat MCP as the reverse-control mechanism merely because Cursor supports MCP tools. The strongest local interactive route is ACP through a trusted companion that launches Cursor CLI in the selected repository context, relays permission requests, and returns receipts. Remote/background work should use Cursor Automations or Cloud Agents where appropriate.
+
+The repo timeline remains read-first. GitHub graph state, PRs, checks and evidence feed the visualization; HQ actions become proposals and signed receipts before any write-capable execution.

@@ -30,6 +30,16 @@ export default async function RoastMyOpSecPlanPage() {
             fork a security FAQ store.
           </p>
         </Card>
+        <Card padding="md" style={{ marginBottom: "var(--space-4)" }}>
+          <div className="hq-card-header hq-mb-2">
+            <div className="hq-card-title">Security intelligence content loop</div>
+            <Badge variant="outline" size="sm">Planned · no live feed yet</Badge>
+          </div>
+          <p className="hq-text-sm-secondary">
+            Next slice: attributed vulnerability/news cards → bounded weekly Claude synthesis → approval-gated content queue.
+            Source freshness and links must remain visible; HQ must never imply a connected live feed until evidence exists.
+          </p>
+        </Card>
         <ClickPlaySandbox sectionId="roastMyOpSec" />
         <ActionPlanBoard initialData={ops} streamKeys={["roastMyOpSec"]} columns={1} />
       </div>
