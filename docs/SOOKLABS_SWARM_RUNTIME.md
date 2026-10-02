@@ -142,3 +142,92 @@ The queue processor emits an HQ attention item and waits.
 ## Success condition
 
 The swarm runtime is successful when a work item can travel from CoS scope to implementation, QA, acceptance and Mark gate without any model needing to reconstruct the entire project history or ask another model whether it has finished.
+
+## Butler router
+
+The swarm should not require agents to call one another directly.
+
+The preferred pattern is a small **Butler Router** that sits between repository events and agent adapters.
+
+```
+GitHub relay commit
+  -> Butler Router
+       -> validate baton
+       -> verify dependencies
+       -> check Mark-only gates
+       -> choose next adapter
+       -> dispatch exactly one work item
+       -> record receipt
+```
+
+### Deterministic first
+
+Normal routing must be plain code, not an LLM decision.
+
+Examples:
+
+- `next_owner: cursor` -> Cursor adapter
+- `next_owner: codex` -> Codex adapter
+- `next_owner: chatgpt` -> Live Oversight adapter / queue
+- `next_owner: claude` -> Claude adapter / queue
+- `next_owner: grok-cos` -> Grok CoS adapter / queue
+- `next_owner: mark` -> HQ attention event; stop
+
+The Butler does not need to understand the project to perform these transitions.
+
+### Qwen as Butler brain, not source of truth
+
+An existing Qwen / Alibaba model key may be used for narrow helper jobs where deterministic code is insufficient, for example:
+
+- normalize a messy human instruction into a bounded work item;
+- summarize a large handoff into the small context envelope required by the next seat;
+- classify an unknown request into an existing queue/owner;
+- draft an HQ attention summary;
+- detect likely contradictions for human review.
+
+Qwen must not:
+
+- invent a DONE state;
+- override `current_owner` / `next_owner` without a ledger write;
+- approve Mark-only gates;
+- decide that a merge/deploy/migration/publish occurred without a receipt;
+- impersonate the specialist agent that is supposed to own the work.
+
+The repository ledger and deterministic validator remain authoritative.
+
+### Cost principle
+
+The handoff itself should require **zero LLM tokens** when the state is already structured.
+
+Qwen is called only when interpretation adds value. This makes it the butler that carries messages between rooms, not another worker constantly participating in every conversation.
+
+### Suggested runtime split
+
+```text
+Butler Core (JavaScript)
+  - webhook verification
+  - relay parser
+  - state-machine validator
+  - dependency resolver
+  - queue manager
+  - gate checker
+  - idempotency lock
+  - adapter dispatcher
+  - receipt writer
+
+Butler Brain (Qwen, optional)
+  - instruction normalization
+  - summarization
+  - ambiguous routing suggestion
+  - attention-message drafting
+
+Agent adapters
+  - Cursor
+  - Codex
+  - Claude
+  - Grok CoS
+  - ChatGPT Live Oversight
+  - Mark/HQ notification
+```
+
+This keeps orchestration reliable even if the Qwen API is unavailable.
