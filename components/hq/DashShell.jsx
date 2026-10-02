@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { PageChromeProvider, usePageChrome } from "./PageChrome";
 import { Sidebar } from "./Sidebar";
+import { UpcomingNotReleased } from "./UpcomingNotReleased";
 import { SaveStatusProvider } from "./SaveStatus";
 
 function MobileBar({ sidebarOpen, onOpenSidebar }) {
@@ -67,6 +68,7 @@ function DashShellInner({ children }) {
       <div className="hq-dash-main">
         <MobileBar sidebarOpen={sidebarOpen} onOpenSidebar={() => setSidebarOpen(true)} />
         {children}
+        <UpcomingNotReleased />
       </div>
     </div>
   );
