@@ -302,6 +302,7 @@ Tick only with evidence link (HQ URL, PR, contract SHA, or screenshot path).
 | `docs/HQ-MCP-CONTROL-PLANE.md` | MCP + control plane |
 | `/workspace/sookly/CLIENT_HQ_RDUSA_ANDREW_BRIEF_2026-10-02.md` | Clients HQ SPEC |
 | `/workspace/sooklabs-hq/docs/HQ_CANDY_AUDIT_AND_FRONTS_BRIEF_2026-10-02.md` | Candy + fronts UI brief |
+| `/workspace/sooklabs-hq/docs/HQ_EIGHT_FRONTS_BOARD_BRIEF_2026-10-02.md` | Eight-front board + family-tree + repo branch UI brief |
 
 ---
 
@@ -311,3 +312,4 @@ Tick only with evidence link (HQ URL, PR, contract SHA, or screenshot path).
 |------|--------|
 | 2026-10-02 | Initial finish-line acceptance from Mark voice call; seven fronts + global constraints |
 | 2026-10-02 | Added Front 8 Journey Prisma (Must: JP-1…JP-6) from Mark voice |
+| 2026-10-02 | Linked eight-front board UI brief (HQ/SEOS/Swarm/MCP/App/Wedge/Revenue/Journey Prisma) |

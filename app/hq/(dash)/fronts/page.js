@@ -1,37 +1,25 @@
 import Link from "next/link";
 import { TopBar } from "@/components/hq/TopBar";
-import { Badge } from "@/components/hq/Badge";
-import { getHqFronts } from "@/lib/hq/hq-fronts";
-
-function progressLabel(progress) {
-  if (progress == null) return "No score";
-  return `${progress}%`;
-}
+import { EightFrontsBoard } from "@/components/hq/EightFrontsBoard";
+import { EIGHT_FRONTS_BASIS, getEightFrontsOverall } from "@/lib/hq/eight-fronts";
 
 export default function FrontsIndexPage() {
-  const fronts = getHqFronts();
+  const overall = getEightFrontsOverall();
 
   return (
     <div>
       <TopBar
-        title="All fronts"
-        subtitle="Each percentage cites a scorecard ratio or a recorded four-front estimate."
-        crumbs={[{ label: "Overview", href: "/hq" }, { label: "All fronts" }]}
+        title="Eight fronts"
+        subtitle={EIGHT_FRONTS_BASIS}
+        crumbs={[{ label: "Overview", href: "/hq" }, { label: "Eight fronts" }]}
+        actions={<span className="hq-text-sm-secondary">{overall}% overall</span>}
       />
       <div className="hq-page-content">
-        <div style={{ display: "grid", gap: 8 }}>
-          {fronts.map((front) => (
-            <Link key={front.id} href={`/hq/fronts/${front.id}`} className="hq-tile-link">
-              <div style={{ padding: 12, border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-md)" }}>
-                <div className="hq-flex-between">
-                  <strong style={{ fontSize: "var(--text-sm)" }}>{front.name}</strong>
-                  <Badge variant="outline" size="sm">{progressLabel(front.progress)}</Badge>
-                </div>
-                <div className="hq-text-xs-muted hq-mt-2">{front.formula}</div>
-              </div>
-            </Link>
-          ))}
-        </div>
+        <EightFrontsBoard />
+        <p className="hq-text-sm-secondary">
+          Older evidence rows stay available from a front detail when they are a different score. The engineering board is{" "}
+          <Link href="/hq/engineering/four-fronts">four fronts</Link>.
+        </p>
       </div>
     </div>
   );

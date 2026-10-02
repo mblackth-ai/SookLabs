@@ -14,7 +14,7 @@ import { AgentJobLog } from "@/components/hq/AgentJobLog";
 import { ClickPlayDraftHint } from "@/components/hq/ClickPlayDraftHint";
 import { OverviewStorageWarn } from "@/components/hq/OverviewStorageWarn";
 import { OverviewMoreToday } from "@/components/hq/OverviewMoreToday";
-import { AllFrontsBoard } from "@/components/hq/AllFrontsBoard";
+import { EightFrontsBoard } from "@/components/hq/EightFrontsBoard";
 import { RetainerDeliverySummary } from "@/components/hq/RetainerDeliveryBoard";
 import { getRdusaRetainerContractSnapshot } from "@/lib/hq/rdusa-retainer-contract";
 import { getJakaRetainerContractSnapshot } from "@/lib/hq/jaka-retainer-contract";
@@ -98,7 +98,7 @@ export default async function OverviewPage() {
           {storage === "file" && <OverviewStorageWarn />}
         </section>
 
-        <AllFrontsBoard />
+        <EightFrontsBoard compact />
 
         <RetainerDeliverySummary
           rdusa={getRdusaRetainerContractSnapshot()}

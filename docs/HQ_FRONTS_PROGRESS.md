@@ -1,28 +1,22 @@
 # HQ fronts progress
 
 **Date:** 2 Oct 2026  
-**Source:** `lib/hq/hq-fronts.js`, also returned as `hqFronts` on `GET /hq/api/control-plane`.
-
-Scorecard percentages are `Math.round(100 * PASS / total)` on the named rows. Recorded four-front estimates are copied, not recomputed. `No score` means this repo has no criterion row. Nothing here is 100.
+**Founder board:** `lib/hq/eight-fronts.js`, also `eightFronts` on `GET /hq/api/control-plane`.  
+**Overall:** 33. Rounded mean of the eight percentages below. A Must-row ratio and a recorded estimate are not blended inside one front.
 
 | Front | % | Formula | Tracker |
 | --- | --- | --- | --- |
-| Sookly Journey / RDUSA pilot | 76 | 13 of 17 major criteria PASS | `docs/RDUSA_PILOT_ACCEPTANCE_CONTRACT.md` · `lib/hq/rdusa-pilot-contract.js` |
-| RDUSA retainer delivery | 0 | 0 of 7 period rows PASS | `docs/RDUSA_RETAINER_DELIVERY_CONTRACT.md` · `lib/hq/rdusa-retainer-contract.js` |
-| Jaka retainer delivery | 33 | 3 of 9 period rows PASS | `docs/JAKA_RETAINER_DELIVERY_CONTRACT.md` · `lib/hq/jaka-retainer-contract.js` |
-| SEOS social control plane | 80 | Recorded four-front estimate | `lib/hq/four-fronts.js` (`seos-social`) |
-| RDUSA internal ledger | 45 | Recorded four-front estimate | `lib/hq/four-fronts.js` (`rdusa-internal`) |
-| HQ MCP gateway | 35 | Recorded four-front estimate | `lib/hq/four-fronts.js` (`hq-mcp`) |
-| Quo ingest | 0 | No route or scorecard row | `docs/BUSINESS_SUITE_MVP_MAP.md` |
-| Clients RDUSA | 0 | No `/clients/rdusa` route | `docs/BUSINESS_SUITE_MVP_MAP.md` |
-| Clients Jaka | 0 | No `/clients/jaka` route | `docs/BUSINESS_SUITE_MVP_MAP.md` |
-| Meta / social Graph | 0 | 0 of 2 Graph rows PASS | `docs/RDUSA_RETAINER_DELIVERY_CONTRACT.md` (`rdusa-daily-ig-publish`, `rdusa-90d-ig-toward-100`) |
-| Resend / email on droplet | No score | No HQ scorecard row | `docs/RDUSA_JOURNEY_PRISM_SWARM_SEQUENCING.md` |
-| Business Suite MVP map | 0 | 0 of 21 acceptance checkboxes checked | `docs/BUSINESS_SUITE_MVP_MAP.md` |
-| OS Story / LLM lanes | No score | `docs/LLM_STATUS.md` and `docs/LLM_LANE_MAP.md` are not on this branch | `docs/HQ-AGENTS.md` |
+| HQ | 57 | 4 of 7 Must rows PASS (HQ-2, HQ-3, HQ-4, HQ-5) | `docs/FINISH_LINE_ACCEPTANCE_ALL_FRONTS.md` |
+| SEOS | 80 | Recorded four-front estimate. Not a count of SE-1…SE-8 | `lib/hq/four-fronts.js` (`seos-social`) |
+| Swarm | 0 | 0 of 6 Must rows PASS | `docs/RDUSA_JOURNEY_PRISM_SWARM_SEQUENCING.md` |
+| MCP | 0 | 0 of 6 Must rows PASS | `docs/HQ-MCP-CONTROL-PLANE.md` |
+| Sookly app | 76 | 13 of 17 pilot majors PASS. `pilotReady` is false | `docs/RDUSA_PILOT_ACCEPTANCE_CONTRACT.md` |
+| Sookly chat SaaS | 0 | 0 of 5 Must rows PASS | `docs/FINISH_LINE_ACCEPTANCE_ALL_FRONTS.md` |
+| Revenue | 50 | 3 of 6 Must rows PASS (REV-4, REV-5, REV-6) | `docs/RDUSA_RETAINER_DELIVERY_CONTRACT.md` |
+| Journey Prisma | 0 | 0 of 6 Must rows PASS | `docs/FINISH_LINE_ACCEPTANCE_ALL_FRONTS.md` |
 
-Detail for each front is `/hq/fronts/<id>`: what is stopping it, what is going on, where it lands, loose ends, and edge cases.
+Detail is `/hq/fronts/<id>`. Engineering tracks stay at `/hq/engineering/four-fronts`: Journey 85, SEOS 80, RDUSA ledger 45, HQ MCP 35, overall 61. Those numbers are not the eight-front badges except SEOS, which cites the recorded 80 directly.
 
-The engineering board at `/hq/engineering/four-fronts` still shows Sookly Journey 85. That 85 is not the 13/17 pilot ratio. The swarm note records sookly-omnichat PR #60 as merged. The pilot scorecard row `merge-pr-60` is still BLOCKED.
+Evidence rows that are not founder fronts remain in `lib/hq/hq-fronts.js` and still open at `/hq/fronts/<legacy-id>`.
 
 These pages are on draft PR #5. They are not on live hq.sooklabs.com until that PR merges and HQ is deployed.

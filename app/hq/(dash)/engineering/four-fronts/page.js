@@ -30,7 +30,7 @@ export default function FourFrontsPage() {
     <div>
       <TopBar
         title="Four Fronts"
-        subtitle="Verified evidence, computed insight, and a 2–31 Oct 2026 review horizon. Overall is the rounded mean of the four fronts."
+        subtitle="Engineering evidence only. Overall is the rounded mean of these four tracks. The founder board is the eight fronts."
         actions={<Badge variant="accent" size="sm">{average}% overall</Badge>}
       />
 
