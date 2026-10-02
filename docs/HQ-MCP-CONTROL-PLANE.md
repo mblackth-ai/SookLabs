@@ -28,6 +28,26 @@ Potential expansion is tracked as opportunity, not assumed revenue:
 2. CRM + deterministic customer Journey from enquiry through quote/payment/fulfilment/follow-up.
 3. Central operations sync across customer, order/quote and operational evidence.
 
+The authoritative RDUSA pilot finish line is [`docs/RDUSA_PILOT_ACCEPTANCE_CONTRACT.md`](./RDUSA_PILOT_ACCEPTANCE_CONTRACT.md). Journey work is pilot ready only when that contract's Golden Rule is met. The control-plane field `rdusaPilotContract` is the current scorecard snapshot. It is not a second definition, and it does not say the pilot is ready.
+
+## Retainer delivery scores
+
+Marketing and operations retainers are a separate score from the Journey pilot and from the four engineering fronts. Jaka is not a fifth front.
+
+HQ and MCP relays cite only these control-plane fields when judging whether a promised day, week, month, or 90-day window passed or failed:
+
+- `rdusaRetainerContract` — [`docs/RDUSA_RETAINER_DELIVERY_CONTRACT.md`](./RDUSA_RETAINER_DELIVERY_CONTRACT.md)
+- `jakaRetainerContract` — [`docs/JAKA_RETAINER_DELIVERY_CONTRACT.md`](./JAKA_RETAINER_DELIVERY_CONTRACT.md)
+- `retainerDelivery` — thin index of both clients, their period rollups, and `retainerHealthy`
+
+The retainer Golden Rule is: we keep the retainer when promised day/week/month delivery criteria PASS with evidence, and HQ/MCP is the only score source relays may cite.
+
+`asOf` on those snapshots is the score date. `generatedAt` on the control plane is the server clock. Mark may move the 1 Oct–29 Dec 2026 window. The Jaka fee is unconfirmed.
+
+The same snapshots render at `/hq/retainers` and as a summary on `/hq`. Reading them does not publish, merge, migrate, or deploy. No write tool may mark a retainer criterion PASS without evidence, and none may bypass Mark's token, merge, login, or spend gates.
+
+Journey Prism swarm sequencing (architecture only, not a scorecard): [`docs/RDUSA_JOURNEY_PRISM_SWARM_SEQUENCING.md`](./RDUSA_JOURNEY_PRISM_SWARM_SEQUENCING.md). That note records sookly-omnichat PR #60 as merged on 1 Oct 2026. Remaining Journey ship gates named there are production migrate, production deploy, `ai-safety-product`, `four-dimensions-in-product`, staging smoke, and live pilot 10–20. Section 5 specifies RDUSA approval trigger cards (trigger id, kind, why manual, who clicks, payload preview, Approve | Request changes | Hold): HQ is the manual layer when there is no API, and Approve is a named signal to the owning seat, never a silent publish. Those cards are not built in this slice. `docs/LLM_STATUS.md` is not on this branch. Once this PR is merged and HQ is deployed, the intended surfaces are `/hq` (COORDINATION / LLM lane) and `/hq/retainers` (RDUSA panel). `/clients/rdusa` Client HQ is SPEC-only and is not built. Business Suite MVP map (architecture only, as of 2 Oct 2026): [`docs/BUSINESS_SUITE_MVP_MAP.md`](./BUSINESS_SUITE_MVP_MAP.md). It does not build Clients UI or SEOS UI, and it is not on hq.sooklabs.com until PR #5 merges and HQ is deployed. All-front percentages: [`docs/HQ_FRONTS_PROGRESS.md`](./HQ_FRONTS_PROGRESS.md). Candy audit: [`docs/HQ_CANDY_VS_CONNECTED_AUDIT.md`](./HQ_CANDY_VS_CONNECTED_AUDIT.md). Finish-line acceptance (Must rows, not a scorecard): [`docs/FINISH_LINE_ACCEPTANCE_ALL_FRONTS.md`](./FINISH_LINE_ACCEPTANCE_ALL_FRONTS.md). Eight-front board: [`docs/HQ_EIGHT_FRONTS_BOARD.md`](./HQ_EIGHT_FRONTS_BOARD.md).
+
 Any commercial expansion should be supported by demonstrated value and explicit agreement.
 
 ## MCP surface
@@ -39,6 +59,7 @@ Planned read tools:
 - `project_status`
 - `pending_approvals`
 - `rdusa_value_expansion`
+- `retainer_delivery`
 - `next_actions`
 
 Planned controlled-write tools:
@@ -57,4 +78,4 @@ Remote HQ MCP uses Streamable HTTP. Local Cursor/CLI compatibility can use stdio
 
 UI and MCP must consume one normalized control-plane read model. The first implementation is `lib/hq/control-plane.js`, exposed to the signed-in HQ UI through `/hq/api/control-plane`.
 
-GitHub/repo state will progressively replace static progress estimates as event ingestion lands.
+Current percentages in `lib/hq/four-fronts.js` cite a verified `evidenceSha` per front. The control-plane snapshot adds a computed `insight` per front and a `schedule` review horizon for 2–31 Oct 2026. Open draft PRs are review gates and stay below 100 until Mark merges. GitHub event ingestion can replace this static record later.

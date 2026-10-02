@@ -96,6 +96,10 @@ Droplet n8n env (compose): `HQ_PUBLIC_BASE_URL`, `HQ_CRON_SECRET`, `HQ_AGENT_CAL
 2. Set `HQ_AGENT_WEBHOOK_SECRET` to match n8n (same as callback secret is fine).
 3. Redeploy HQ.
 
+## RDUSA Journey Prism swarm
+
+Architecture and sequencing only: [`docs/RDUSA_JOURNEY_PRISM_SWARM_SEQUENCING.md`](./RDUSA_JOURNEY_PRISM_SWARM_SEQUENCING.md). `docs/LLM_STATUS.md` is not on this branch. The control-plane index points at the same file. sookly-omnichat PR #60 is merged. Section 5 specifies RDUSA approval trigger cards; HQ is the manual layer when there is no API, and Approve signals the owning seat without a silent publish. This note does not publish, merge, migrate, or deploy, and it does not build those cards. `/clients/rdusa` is SPEC-only and is not built. The file is not on hq.sooklabs.com until PR #5 merges and HQ is deployed.
+
 ## Honest badges
 
 Automation Registry (`/hq/automation`) only shows:

@@ -5,12 +5,6 @@ import { Card } from "@/components/hq/Card";
 import { ClickPlaySandbox } from "@/components/hq/ClickPlaySandbox";
 import { readOpsData } from "@/lib/hq/ops";
 
-const PILLARS = [
-  { id: "psychology", title: "Psychology", blurb: "Thinking tools, habits, clarity under noise." },
-  { id: "investment", title: "Investment", blurb: "Long-term leverage, not hype trading." },
-  { id: "technology", title: "Technology", blurb: "Builders, systems, AI that reduces load." },
-];
-
 export default async function CommunityPlanPage() {
   const ops = await readOpsData();
 
@@ -36,16 +30,6 @@ export default async function CommunityPlanPage() {
           </p>
         </Card>
         <ClickPlaySandbox sectionId="community" />
-        <div className="hq-grid-3" style={{ marginBottom: "var(--space-4)" }}>
-          {PILLARS.map((p) => (
-            <Card key={p.id} padding="md">
-              <div className="hq-card-title" style={{ marginBottom: 6 }}>
-                {p.title}
-              </div>
-              <p style={{ fontSize: "var(--text-sm)", color: "var(--text-tertiary)", margin: 0 }}>{p.blurb}</p>
-            </Card>
-          ))}
-        </div>
         <ActionPlanBoard initialData={ops} streamKeys={["community"]} columns={1} />
       </div>
     </div>

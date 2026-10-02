@@ -14,7 +14,10 @@ import { AgentJobLog } from "@/components/hq/AgentJobLog";
 import { ClickPlayDraftHint } from "@/components/hq/ClickPlayDraftHint";
 import { OverviewStorageWarn } from "@/components/hq/OverviewStorageWarn";
 import { OverviewMoreToday } from "@/components/hq/OverviewMoreToday";
-import { FourFrontsSummary } from "@/components/hq/FourFrontsSummary";
+import { EightFrontsBoard } from "@/components/hq/EightFrontsBoard";
+import { RetainerDeliverySummary } from "@/components/hq/RetainerDeliveryBoard";
+import { getRdusaRetainerContractSnapshot } from "@/lib/hq/rdusa-retainer-contract";
+import { getJakaRetainerContractSnapshot } from "@/lib/hq/jaka-retainer-contract";
 import {
   readOpsData,
   getTopOpenItems,
@@ -95,8 +98,12 @@ export default async function OverviewPage() {
           {storage === "file" && <OverviewStorageWarn />}
         </section>
 
-        {/* Four active delivery tracks */}
-        <FourFrontsSummary />
+        <EightFrontsBoard compact />
+
+        <RetainerDeliverySummary
+          rdusa={getRdusaRetainerContractSnapshot()}
+          jaka={getJakaRetainerContractSnapshot()}
+        />
 
         {/* Act */}
         <section className="hq-band hq-band--act" aria-label="Act">
