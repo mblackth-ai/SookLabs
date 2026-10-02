@@ -10,6 +10,11 @@ const ITEMS = [
     href: "/hq/sookly/knowledge-usage",
   },
   {
+    title: "Receptionist readiness demo scores",
+    detail: "Static 67, 60, and 3/5 figures in lib/hq/knowledge-mock.js. Removed from the readiness page. The reply sketch stays local and unlabeled as a meter.",
+    href: "/hq/sookly/receptionist-readiness",
+  },
+  {
     title: "Community pillar blurbs",
     detail: "Psychology, Investment, and Technology cards were decorative. The community ops board stays on the page.",
     href: "/hq/community",
