@@ -9,12 +9,12 @@
 relay:
   relay_id: hq.repo.timeline.v1
   task_id: HQ-TL-001
-  current_stage: 3
-  current_owner: cursor
-  status: active
-  previous_owner: chatgpt
-  next_owner: codex
-  handoff_ready: false
+  current_stage: 2
+  current_owner: chatgpt
+  status: done
+  previous_owner: grok-cos
+  next_owner: cursor
+  handoff_ready: true
   evidence:
     - pr: 6
     - branch: chatgpt/hq-live-oversight-repo-timeline
@@ -62,7 +62,7 @@ Evidence:
 ## Stage 3 — Truthful implementation
 
 **Owner:** Cursor  
-**Status:** ACTIVE
+**Status:** WAITING FOR HANDOFF / EXECUTION
 
 Required output:
 - real repository graph adapter for one repo;
