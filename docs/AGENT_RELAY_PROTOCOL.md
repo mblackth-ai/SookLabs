@@ -176,3 +176,151 @@ The relay protocol is working when:
 - stale or contradictory handoffs become BLOCKED, not silently accepted;
 - HQ can render the relay bar directly from the same machine-readable state;
 - agent status and repo/action receipts remain auditable after the chat that created them is gone.
+
+## Relay matrix at the top of active task documents
+
+Each active swarm document should carry a small visual logbook near the top. The matrix is a human aid; the YAML relay block remains authoritative.
+
+Legend:
+
+- `-` = waiting / no baton
+- `|` = handoff emitted to another seat
+- `A` = active
+- `D` = done with evidence
+- `B` = blocked
+- `R` = review required
+- `M` = Mark approval required
+
+Example:
+
+```text
+           GROK   GPT   CURSOR   CODEX   QA   MARK
+1A Scope     D      |      -       -      -     -
+1B Arch      -      D      |       -      -     -
+2A Build     -      -      A       -      -     -
+2B QA        -      -      -       -      -     -
+3A Accept    -      -      -       -      -     -
+3B Ship      -      -      -       -      -     -
+```
+
+The purpose is not to encode logic into punctuation. It lets Mark and the agents see the baton path at a glance. The row id, owner, status, evidence and next owner are still parsed from the machine-readable relay entries.
+
+## Work item ledger
+
+Every delegated edit or action should have a stable coordinate such as `2A`, `2B`, `3C`.
+
+```yaml
+work_items:
+  - id: 2A
+    title: build truthful repo graph adapter
+    owner: cursor
+    status: active
+    depends_on: [1B]
+    next: 2B
+    evidence: []
+  - id: 2B
+    title: code and visual QA
+    owner: codex
+    status: waiting
+    depends_on: [2A]
+    next: 3A
+    evidence: []
+```
+
+An agent never searches the entire document to guess what changed. It first reads:
+
+1. its own rows;
+2. any dependencies referenced by those rows;
+3. the evidence attached to the incoming baton;
+4. the acceptance rows for its bounded output.
+
+## Wake-up runtime
+
+The repository is the durable communication bus, but some runtime must observe a handoff and invoke the next seat.
+
+Minimum pattern:
+
+```
+agent commits relay transition
+  -> repository event / polling loop sees `handoff_ready: true`
+  -> queue processor validates dependencies and gates
+  -> next-owner adapter is invoked
+  -> agent receives only the bounded work-item envelope
+  -> agent works and commits its result
+  -> relay transition repeats
+```
+
+The queue processor can initially be any one of:
+
+- GitHub Action reacting to a commit/path change;
+- n8n webhook or scheduled poll;
+- a small SookLabs relay daemon;
+- Cursor Automation / Cloud Agent trigger;
+- local runner polling the relay file during active development.
+
+This runtime is orchestration plumbing. It does not replace the repository as source of truth.
+
+## Queue semantics
+
+Each agent has a logical queue. Multiple completed upstream items may wait for the same seat.
+
+```yaml
+queue:
+  cursor:
+    - 2A
+    - 4C
+  codex:
+    - 2B
+  chatgpt:
+    - 3A
+  mark:
+    - 5A
+```
+
+Queue ordering defaults to:
+
+1. Mark-blocking release gates;
+2. tasks on the current critical path;
+3. dependency-unblocking tasks;
+4. normal FIFO within the same priority.
+
+The CoS may reorder work, but the change must be written into the ledger.
+
+## HQ notification rule
+
+When a task enters `blocked`, `review`, or `mark_required`, the queue processor emits an HQ attention item.
+
+```yaml
+attention:
+  id: attention.HQ-TL-001.5A
+  work_item: 5A
+  severity: approval
+  owner: mark
+  summary: "Timeline implementation passed review; merge decision required."
+  actions:
+    - approve
+    - request_changes
+    - hold
+```
+
+HQ should surface:
+
+- blocker count;
+- oldest blocked item;
+- which queue is stalled;
+- who owns the next move;
+- time waiting;
+- exact evidence needed to unblock;
+- Approve / Request changes / Hold where policy allows.
+
+Push notifications may be emitted to Mark's configured device or desktop channel, but the notification itself never counts as approval.
+
+## No-token coordination principle
+
+The operating thesis is:
+
+**models coordinate through durable repo state; the orchestrator invokes seats only when their queue changes.**
+
+This avoids model-to-model conversations, duplicated context, and token spend merely to ask "are you finished?". Tokens are used only when a seat actually has bounded work to perform.
+
+API/webhook/runner infrastructure may still be used to wake a seat. The no-token principle means no conversational LLM call is needed for the handoff itself.
