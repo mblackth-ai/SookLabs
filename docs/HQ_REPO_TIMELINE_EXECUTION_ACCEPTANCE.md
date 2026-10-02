@@ -9,20 +9,42 @@
 relay:
   relay_id: hq.repo.timeline.v1
   task_id: HQ-TL-001
-  current_stage: 2
-  current_owner: chatgpt
-  status: done
-  previous_owner: grok-cos
-  next_owner: cursor
-  handoff_ready: true
+  current_stage: 3
+  current_owner: cursor
+  status: review
+  previous_owner: chatgpt
+  next_owner: codex
+  handoff_ready: false
   evidence:
-    - pr: 6
-    - branch: chatgpt/hq-live-oversight-repo-timeline
+    - pr: 7
+    - branch: cursor/hq-tl-readonly-git-graph-df16
+    - commit: 1fa671693d56d7d78cb06eac0de38249ae00197e
   gates:
     - no_merge
     - no_deploy
     - no_branch_delete
     - no_credentials
+    - no_write_git_actions_in_ui
+  updated_at: 2026-10-02T21:37:00+07:00
+
+work_items:
+  - id: 2A
+    title: Truthful read-only Git graph adapter (one repo)
+    owner: cursor
+    status: done
+    depends_on: [1B]
+    next: 2B
+    evidence:
+      - pr: 7
+      - branch: cursor/hq-tl-readonly-git-graph-df16
+      - commit: 1fa671693d56d7d78cb06eac0de38249ae00197e
+  - id: 2B
+    title: code and visual QA
+    owner: codex
+    status: waiting
+    depends_on: [2A]
+    next: 3A
+    evidence: []
 ```
 
 ## Finish line
@@ -62,7 +84,7 @@ Evidence:
 ## Stage 3 — Truthful implementation
 
 **Owner:** Cursor  
-**Status:** WAITING FOR HANDOFF / EXECUTION
+**Status:** REVIEW — implementation committed. Codex QA has not started.
 
 Required output:
 - real repository graph adapter for one repo;
@@ -81,6 +103,23 @@ Acceptance:
 - node timestamps and SHAs are inspectable;
 - no branch geometry is interpreted as completion percentage;
 - existing HQ progress/acceptance surfaces remain intact.
+
+Evidence for 2A (checkable, not a Live Oversight PASS):
+
+| Row | Where to look |
+| --- | --- |
+| Graph comes from repository evidence | `node scripts/verify-repo-graph.mjs`. Mainline matches `git log --first-parent origin/master`. |
+| Divergence and merge points | Same script. Open branches use `git merge-base`. `feat/hq-mvp1-command-centre` joins at `5f7d690`. |
+| Merged and unmerged are distinguishable | Timeline branch list states `open` and `merged`. A squash-merged PR whose tip is not an ancestor of master is labeled as such. |
+| Current tip is visible | Current tip control. Master tip at this receipt is `b10b2ad`. |
+| SHA and timestamps are inspectable | Commit drawer. Times render in Asia/Bangkok. |
+| Horizontal navigation | Older, Newer, Current tip, and horizontal scroll. |
+| Loading, error, and partial states | Expand shows a reading state, Retry on failure, and a partial banner when `partialReasons` is non-empty. |
+| Branch geometry is not a percentage | The card says so. The 0–100 percentage timeline above it is unchanged. |
+| Existing HQ surfaces remain | Must rows, percentage timeline, and repo branch cards stay on `/hq/fronts/hq`. Other fronts, including `/hq/fronts/seos`, do not render this graph. |
+| No write Git actions | The timeline has no merge, rebase, or delete control. `GET` only on `/hq/api/repo-timeline`. |
+
+Receipt: draft PR #7, branch `cursor/hq-tl-readonly-git-graph-df16`, implementation commit `1fa671693d56d7d78cb06eac0de38249ae00197e`. Codex work-item 2B remains waiting.
 
 ## Stage 4 — Visual and code QA
 
