@@ -16,7 +16,8 @@ Visible for Mark on HQ alongside Journey Prism work. Not a live publish path. Ap
 **Date:** 2 Oct 2026 · **Lane:** architecture only (no publish / no merge / no deploy)  
 **Repo of record for Journey:** `mblackth-ai/sookly-omnichat` branch `cursor/operational-journey-engine-v1` tip `cf3d866` · PR [#60](https://github.com/mblackth-ai/sookly-omnichat/pull/60) **MERGED** 1 Oct 2026 → `eddc7dd` on main (tip was `cf3d866`)  
 **Pilot contract:** `docs/RDUSA_PILOT_ACCEPTANCE_CONTRACT.md` (HQ snapshot also mirrors scorecard)  
-**Status:** not pilot ready — engine product path mostly PASS; Mark gates block ship
+**Status:** not pilot ready — engine product path mostly PASS; Mark gates block ship  
+**Suite map:** [`docs/BUSINESS_SUITE_MVP_MAP.md`](./BUSINESS_SUITE_MVP_MAP.md) (as of 2 Oct 2026). Architecture only. Not live on hq.sooklabs.com until PR #5 merges and HQ is deployed.
 
 ---
 
