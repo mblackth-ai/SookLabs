@@ -12,13 +12,13 @@ export async function fetchAuthorizationServerMetadata(issuerUrl) {
   let lastError = null;
   for (const url of candidates) {
     try {
-      const response = await fetch(url);
+      const response = await fetch(url, { signal: AbortSignal.timeout(10_000) });
       if (!response.ok) {
         lastError = new Error(`HTTP ${response.status} from ${url}`);
         continue;
       }
       const metadata = await response.json();
-      if (metadata?.issuer && metadata?.jwks_uri) {
+      if (metadata?.issuer && metadata?.jwks_uri && metadata.issuer.replace(/\/$/, "") === issuer) {
         return metadata;
       }
       lastError = new Error(`Incomplete metadata from ${url}`);
@@ -43,6 +43,8 @@ export function createJwtAccessTokenVerifier({ issuer, jwksUri, expectedResource
       const { payload } = await jwtVerify(token, jwks, {
         issuer,
         audience: expectedResource.href,
+        requiredClaims: ["sub", "exp"],
+        algorithms: ["RS256", "ES256"],
       });
 
       const sub = payload.sub;
