@@ -211,3 +211,19 @@ GOAL → CURRENT STATE → ACCEPTANCE CRITERIA → OWNER → EXECUTE → TEST �
 Chief of Staff owns one live execution board across HQ, Sookly, SEOS and RDUSA and keeps each baton moving until its acceptance test passes. Use the existing HQ ops store and room batons; do not invent a parallel checklist store. Each active task records its current state, next action, named owner, bounded authority, deliverable, acceptance test and evidence. An assigned owner is not proof of an authenticated dispatch.
 
 The repository workstream `executionMode` seeds the four-front acceptance queue. It is a reviewable repository seed, not proof that production Postgres has been patched or that a live seat is executing. Apply through the authenticated ops/room interface with a fresh read and preserve existing live state. Persist the resulting baton and dispatch receipts. Continue reversible work while human-gated steps remain blocked. Verify production acceptance separately before handoff.
+
+### Acceptance-driven execution loop (mechanics only)
+
+The HQ loop (`lib/hq/loop-*.js`; runbook in `docs/HQ-LOOP.md`) moves these tasks through the global workflow without a browser session. It is bound by this section:
+
+1. **Acceptance.** The canonical files above define acceptance. The loop re-reads them with their SHA on every triage. A missing or unreadable file blocks the task; it never stands in for acceptance.
+2. **Board of record.** The ops `executionMode` items stay the board of record. Loop tables hold only execution mechanics: leases, retries, evidence rows and dispatch receipts.
+3. **Proof.** Seat replies are claims. CI is not production. A deployment record is not acceptance. Only a passing production smoke test sets `production_accepted`.
+4. **Escalation.** Rule 7's gates, plus customer communication and authority changes, are never crossed by the loop. Agents propose; Mark approves.
+
+Subordinate document manifest:
+
+| Document | Scope | Authority |
+| --- | --- | --- |
+| `docs/HQ-LOOP.md` | Loop tables, wakes, budgets, skills, runbook, rollback, env | Mechanics only; this section wins on conflict |
+| `docs/HQ-DEVELOPER.md` | Code layout, run commands, room routing | Supporting |
