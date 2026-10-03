@@ -4,6 +4,7 @@ import { json, presentedConnection, readJson } from "@/lib/hq/room-http";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 export async function POST(request) {
   const payload = await readJson(request);

@@ -17,6 +17,16 @@ import {
   seatPresence,
 } from "@/lib/hq/swarm-contract";
 
+const DISPATCH_LABEL = {
+  queued: "Queued",
+  dispatching: "Sending",
+  thinking: "Thinking",
+  responded: "Responded",
+  failed: "Failed",
+  offline: "Offline",
+  timed_out: "Timed out",
+};
+
 const STAMP = new Intl.DateTimeFormat("en-GB", {
   timeZone: "Asia/Bangkok",
   day: "numeric",
@@ -50,6 +60,8 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
   const kinds = kindsForTier(tier);
   const [messages, setMessages] = useState([]);
   const [roomSeats, setRoomSeats] = useState(ROOM_SEATS);
+  const [strip, setStrip] = useState([]);
+  const [dispatches, setDispatches] = useState([]);
   const [feed, setFeed] = useState(initialFeed);
   const [held, setHeld] = useState([]);
   const [roomStorage, setRoomStorage] = useState("");
@@ -77,8 +89,23 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
   const connectionName = connectionForSeat(seat)?.name || "seat";
   const configuredCount = connections.filter((item) => item.configured).length;
   const board = useMemo(() => roomBoardRows(messages), [messages]);
-  const record = messages.filter((message) => message.kind === "baton" || message.kind === "decision");
-  const chatter = messages.filter((message) => message.kind !== "baton" && message.kind !== "decision");
+  // Thread view: a dispatch reply sits under the message it answers.
+  const ids = useMemo(() => new Set(messages.map((message) => message.id)), [messages]);
+  const repliesBySource = useMemo(() => {
+    const map = new Map();
+    for (const message of messages) {
+      if (message.replyTo && ids.has(message.replyTo)) map.set(message.replyTo, [...(map.get(message.replyTo) || []), message]);
+    }
+    return map;
+  }, [messages, ids]);
+  const dispatchesBySource = useMemo(() => {
+    const map = new Map();
+    for (const row of dispatches) map.set(row.sourceMessageId, [...(map.get(row.sourceMessageId) || []), row]);
+    return map;
+  }, [dispatches]);
+  const topLevel = messages.filter((message) => !(message.replyTo && ids.has(message.replyTo)));
+  const record = topLevel.filter((message) => message.kind === "baton" || message.kind === "decision");
+  const chatter = topLevel.filter((message) => message.kind !== "baton" && message.kind !== "decision");
   const delayMinutes = Math.round(BROADCAST_DELAY_MS / 60000);
 
   const authHeaders = useCallback(() => {
@@ -96,6 +123,8 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
     if (!res.ok || !data.ok) throw new Error(data.error || "Could not load the room.");
     setMessages(Array.isArray(data.messages) ? data.messages : []);
     if (Array.isArray(data.seats)) setRoomSeats(data.seats);
+    if (Array.isArray(data.strip)) setStrip(data.strip);
+    if (Array.isArray(data.dispatches)) setDispatches(data.dispatches);
     if (data.storage) setRoomStorage(data.storage);
     setOpened(true);
     setError("");
@@ -233,6 +262,10 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
       if (data.message) {
         setMessages((current) => (current.some((item) => item.id === data.message.id) ? current : current.concat(data.message)));
       }
+      if (Array.isArray(data.dispatches) && data.dispatches.length) {
+        setDispatches((current) => current.concat(data.dispatches.filter((row) => !current.some((item) => item.id === row.id))));
+      }
+      if (data.routeNote) setError(data.routeNote);
     } catch (err) {
       setError(err.message || "The message could not be saved.");
     } finally {
@@ -291,9 +324,38 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
     feed,
   };
 
-  function renderMessage(message) {
+  function renderDispatches(message) {
+    const rows = dispatchesBySource.get(message.id);
+    if (!rows?.length) return null;
     return (
-      <article key={message.id} className={`hq-room-post hq-room-post--${message.display || message.kind}`}>
+      <ul className="hq-room-dispatches" aria-label="Sent to">
+        {rows.map((row) => {
+          const seat = ROOM_SEATS.find((item) => item.id === row.seatId);
+          return (
+            <li key={row.id} className={`hq-room-dispatch hq-room-dispatch--${row.status}`} title={row.error || row.reason}>
+              <span className="hq-room-dispatch-seat">{seat?.callsign || row.seatId}</span>
+              <span className="hq-room-dispatch-state">{DISPATCH_LABEL[row.status] || row.status}</span>
+            </li>
+          );
+        })}
+      </ul>
+    );
+  }
+
+  function renderMessage(message) {
+    const replies = repliesBySource.get(message.id) || [];
+    return (
+      <div key={message.id} className="hq-room-threadroot">
+        {renderPost(message)}
+        {renderDispatches(message)}
+        {replies.length ? <div className="hq-room-thread">{replies.map(renderMessage)}</div> : null}
+      </div>
+    );
+  }
+
+  function renderPost(message) {
+    return (
+      <article className={`hq-room-post hq-room-post--${message.display || message.kind}`}>
         <header>
           <span className="hq-room-seat">{message.seat}</span>
           <span className="hq-room-role">{message.role}</span>
@@ -397,6 +459,24 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
           </li>
         </ul>
       </section>
+
+      {tier !== "spectator" && strip.length ? (
+        <section className="hq-room-strip" aria-label="Connected seats">
+          {strip.map((row) => (
+            <span
+              key={row.seatId}
+              className={`hq-room-strip-seat${row.online ? " hq-room-strip-seat--online" : ""}`}
+              title={row.ready ? `${row.adapter} adapter` : `Not connected: ${row.missing}`}
+            >
+              <span className="hq-room-strip-dot" aria-hidden="true" />
+              {row.callsign}
+              <span className="hq-room-strip-state">
+                {!row.ready ? "Offline" : row.adapter === "pull" ? (row.online ? "Online" : "Idle") : "Ready"}
+              </span>
+            </span>
+          ))}
+        </section>
+      ) : null}
 
       {tier === "spectator" ? (
         <div className="hq-room-grid">

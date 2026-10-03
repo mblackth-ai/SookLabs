@@ -9,6 +9,11 @@
  *   node scripts/hq-room.mjs post baton "Ready to land" --to cursor --status todo --task "..." --next "..."
  *   node scripts/hq-room.mjs board [--md]
  *   node scripts/hq-room.mjs prs
+ *   node scripts/hq-room.mjs inbox                     # dispatches waiting for this seat
+ *   node scripts/hq-room.mjs claim <dispatchId>        # queued → thinking
+ *   node scripts/hq-room.mjs reply <dispatchId> "answer"
+ *   node scripts/hq-room.mjs fail <dispatchId> "reason"
+ *   node scripts/hq-room.mjs listen [--every 20]       # poll the inbox, print new dispatches as JSON lines
  *
  * HQ_ROOM_URL defaults to https://hq.sooklabs.com (use http://localhost:3008 locally).
  * The server stamps the author from the connection; there is no --as flag.
@@ -99,7 +104,49 @@ if (command === "read") {
   const { prs, freshness, reconciledAt, error } = await call("/hq/api/room/prs");
   console.log(`PR field: ${freshness}${reconciledAt ? ` (checked ${reconciledAt})` : ""}${error ? ` — ${error}` : ""}`);
   for (const pr of prs) console.log(`${pr.repo}#${pr.number}  ${pr.merged ? "merged" : pr.draft ? "draft" : pr.state}  CI ${pr.ciState}  ${pr.title}`);
+} else if (command === "inbox") {
+  const { dispatches } = await call("/hq/api/room/dispatches");
+  for (const d of dispatches) console.log(`${d.id}  ${d.status.padEnd(9)} from ${d.envelope?.from?.callsign || d.originSeatId}: ${d.envelope?.request || ""}`);
+  if (!dispatches.length) console.log("(inbox empty)");
+} else if (command === "claim" || command === "fail") {
+  const [id, ...why] = opts._;
+  if (!id) {
+    console.error(`Usage: ${command} <dispatchId>${command === "fail" ? ' "reason"' : ""}`);
+    process.exit(2);
+  }
+  const { dispatch } = await call(`/hq/api/room/dispatches/${encodeURIComponent(id)}/${command}`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ reason: why.join(" ") }),
+  });
+  console.log(`${dispatch.id} → ${dispatch.status}`);
+} else if (command === "reply") {
+  const [dispatchId, ...words] = opts._;
+  const body = words.join(" ").trim();
+  if (!dispatchId || !body) {
+    console.error('Usage: reply <dispatchId> "answer"');
+    process.exit(2);
+  }
+  const { message, deduped } = await call("/hq/api/room/messages", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ channel: "room", kind: "chat", body, dispatchId }),
+  });
+  console.log(`${deduped ? "already answered" : "replied"} ${message.id} (thread ${message.threadId})`);
+} else if (command === "listen") {
+  const every = Math.max(5, Number(opts.every) || 20) * 1000;
+  const seen = new Set();
+  console.error(`Listening for dispatches every ${every / 1000}s. Ctrl+C to stop.`);
+  for (;;) {
+    const { dispatches } = await call("/hq/api/room/dispatches");
+    for (const d of dispatches) {
+      if (seen.has(d.id) || d.status !== "queued") continue;
+      seen.add(d.id);
+      console.log(JSON.stringify(d.envelope));
+    }
+    await new Promise((resolve) => setTimeout(resolve, every));
+  }
 } else {
-  console.error("Commands: read | post | board | prs");
+  console.error("Commands: read | post | board | prs | inbox | claim | reply | fail | listen");
   process.exit(2);
 }
