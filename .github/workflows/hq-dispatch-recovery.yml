@@ -1,0 +1,47 @@
+name: HQ dispatch recovery
+on:
+  push:
+    branches: [codex/hq-dispatch-stale-worker-guard-2026-10-03]
+  pull_request:
+    paths:
+      - 'lib/hq/**'
+      - '.github/workflows/hq-dispatch-recovery.yml'
+      - 'package*.json'
+permissions:
+  contents: read
+concurrency:
+  group: hq-dispatch-recovery-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  recovery:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: hq_test
+          POSTGRES_PASSWORD: hq_test_local_only
+          POSTGRES_DB: hq_dispatch_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U hq_test -d hq_dispatch_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts
+      - name: Reply guards, routing and real Postgres recovery
+        env:
+          HQ_TEST_DATABASE_URL: postgres://hq_test:hq_test_local_only@localhost:5432/hq_dispatch_test
+        run: node --test lib/hq/dispatch-guard.test.js lib/hq/swarm-pg.test.js lib/hq/swarm-routing.test.js lib/hq/swarm-contract.test.js
+      - name: Lint changed execution code
+        run: npx eslint lib/hq/dispatch-guard.js lib/hq/dispatch-guard.test.js lib/hq/swarm-pg.js lib/hq/swarm-pg.test.js lib/hq/swarm.js lib/hq/swarm-router.js
+      - name: Build HQ application
+        run: npm run build
