@@ -21,7 +21,15 @@ if (existsSync(envPath)) {
 }
 
 const { ensureOpsSchema, readOpsDataFromPg } = await import("../lib/hq/ops-pg.js");
+const { ensureSwarmSchema } = await import("../lib/hq/swarm-pg.js");
 
 await ensureOpsSchema();
+await ensureSwarmSchema();
 const data = await readOpsDataFromPg();
-console.log(JSON.stringify({ ok: true, message: "hq_ops table ready", priorities: data.todayPriorities?.length }, null, 2));
+console.log(
+  JSON.stringify(
+    { ok: true, message: "hq_ops and hq room tables ready", priorities: data.todayPriorities?.length },
+    null,
+    2
+  )
+);
