@@ -4,6 +4,9 @@ on:
     paths:
       - 'services/sooklabs-mcp/**'
       - '.github/workflows/mcp-auth.yml'
+concurrency:
+  group: mcp-auth-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
