@@ -537,6 +537,17 @@
   background: var(--bg-base);
 }
 
+/* Bare inline links (no class) otherwise render browser-default blue on the dark theme (2:1 contrast). */
+.hq-dash-main a:not([class]) {
+  color: var(--text-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.hq-dash-main a:not([class]):hover {
+  color: var(--text-accent-light);
+}
+
 .hq-mobile-nav-toggle {
   display: none;
   align-items: center;

@@ -27,6 +27,7 @@ export function PortfolioStrip({ products }) {
               </Badge>
             </div>
             <div style={{ fontSize: "var(--text-2xl)", fontWeight: 600, color: "var(--text-accent)" }}>{p.pct}%</div>
+            <div className="hq-text-xs-muted">build-board tasks done</div>
             <div className="hq-text-xs-muted hq-mt-1">
               {p.open} open
               {p.blocked ? ` · ${p.blocked} blocked` : ""}

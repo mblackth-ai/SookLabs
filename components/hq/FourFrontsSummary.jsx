@@ -28,7 +28,7 @@ export function FourFrontsSummary() {
             {major.PASS} pass · {major.FAIL} fail · {major.BLOCKED} blocked · {major["NOT STARTED"]} not started
           </div>
         </div>
-        <Badge variant="accent" size="sm">{overall}% overall</Badge>
+        <Badge variant="accent" size="sm" title="Mean of the four fronts' recorded estimates. Not the pilot contract, not build-board tasks.">{overall}% · four-front estimate</Badge>
       </div>
 
       <div className="hq-grid-4" style={{ gap: "var(--space-2-5)" }}>

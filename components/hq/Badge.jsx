@@ -20,8 +20,8 @@ export function Badge({ children, variant = "neutral", size = "md", dot = false,
   };
 
   const sizes = {
-    sm: { fontSize: "var(--text-xs)", padding: "2px 6px", height: "18px" },
-    md: { fontSize: "var(--text-xs)", padding: "3px 8px", height: "20px" },
+    sm: { fontSize: "var(--text-xs)", padding: "2px 6px", minHeight: "18px" },
+    md: { fontSize: "var(--text-xs)", padding: "3px 8px", minHeight: "20px" },
   };
 
   const v = variants[variant];
@@ -40,6 +40,8 @@ export function Badge({ children, variant = "neutral", size = "md", dot = false,
     fontWeight: useCaps ? "var(--weight-semibold)" : "var(--weight-medium)",
     letterSpacing: useCaps ? "var(--tracking-caps)" : "var(--tracking-snug)",
     textTransform: useCaps ? "uppercase" : "none",
+    whiteSpace: "nowrap",
+    flexShrink: 0,
     ...s,
     ...styleProp,
   };
