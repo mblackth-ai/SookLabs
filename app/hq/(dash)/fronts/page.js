@@ -12,7 +12,7 @@ export default function FrontsIndexPage() {
         title="Eight fronts"
         subtitle={EIGHT_FRONTS_BASIS}
         crumbs={[{ label: "Overview", href: "/hq" }, { label: "Eight fronts" }]}
-        actions={<span className="hq-text-sm-secondary">{overall}% overall</span>}
+        actions={<span className="hq-text-sm-secondary">{overall}% · eight-front mean</span>}
       />
       <div className="hq-page-content">
         <EightFrontsBoard />

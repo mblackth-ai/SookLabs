@@ -3005,6 +3005,8 @@
 
 .hq-repo-drawer {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
   gap: 8px;
   align-content: start;
   padding: 12px;
@@ -3018,6 +3020,7 @@
   margin: 0;
   font-size: var(--text-sm);
   line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 
 .hq-repo-drawer-list {
@@ -3028,6 +3031,7 @@
 
 .hq-repo-drawer-list div {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 2px;
 }
 
@@ -3039,7 +3043,7 @@
 .hq-repo-drawer-list dd {
   margin: 0;
   font-size: var(--text-sm);
-  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .hq-repo-links a,
@@ -3052,6 +3056,7 @@
   display: grid;
   gap: 4px;
   font-size: var(--text-xs);
+  overflow-wrap: anywhere;
 }
 
 .hq-repo-branches {
