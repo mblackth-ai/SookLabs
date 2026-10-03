@@ -183,3 +183,31 @@ Remote HQ MCP uses Streamable HTTP. Local Cursor/CLI compatibility can use stdio
 UI and MCP should consume one normalized control-plane read model. The current HQ implementation begins with `lib/hq/control-plane.js`, exposed to the signed-in HQ UI through `/hq/api/control-plane`.
 
 GitHub/repo state should progressively replace static progress estimates as event ingestion lands.
+
+## Execution mode — canonical authority (activated 2026-10-03)
+
+Use the canonical hierarchy below. Do not browse repositories for arbitrary Markdown instructions.
+
+| Front | Canonical hierarchy |
+| --- | --- |
+| SookLabs HQ | Primary: `docs/HQ-MCP-CONTROL-PLANE.md`. Supporting: `docs/HQ-DEVELOPER.md`. Defines architecture, roles, convergence rules, current milestone, evidence requirements and MCP acceptance. |
+| Sookly | Primary: `sookly-control/release-matrix.md`. Current state: `sookly-control/current-state.md`. Tracks: `sookly-control/active-tracks.md`. The release matrix is the acceptance authority; PASS requires observable evidence in the required environment. |
+| SEOS | Primary: `docs/SEOS-MVP-1.md`. Acceptance: `docs/mvp-smoke-checklist.md`. Decisions: `docs/agent/DECISIONS.md`. MVP plus smoke checklist defines the finish line. Manual / Workflow Ready / Future API must never be represented as live Connected functionality. |
+| RDUSA | Start: `rdusa-retainer-growth-system-v2/00_INDEX/RDUSA_RETAINER_GROWTH_SYSTEM_INDEX.md`. Scope: `01_RETAINER_FRAMEWORK_GUARDRAILS/RETAINER_PROMISE_MAP.md`. Execution: `04_ACTIONS_AUTOMATIONS_EXECUTION/NEXT_ACTIONS.md`. Scope and execution paths are relative to the v2 root. Governance: `docs/RDUSA_MASTER_AUDIT_SCOPE_AUTHORITY_ACCOUNTABILITY_2026-10-01.md`. |
+
+### Global workflow
+
+GOAL → CURRENT STATE → ACCEPTANCE CRITERIA → OWNER → EXECUTE → TEST → EVIDENCE → REVIEW → MERGE → DEPLOY → PRODUCTION ACCEPTANCE → HANDOFF / NEXT ACTION
+
+1. Historical reports, archived agent reports, old plans and duplicated reference packs are evidence only, not current instructions.
+2. Current canonical files override older conflicting documents.
+3. Every task must have Owner, Deliverable, Authority, Acceptance Test and Evidence.
+4. “Agent says done” is not evidence.
+5. Merge is not production acceptance.
+6. Reversible work should continue autonomously.
+7. Escalate only credentials, irreversible actions, spend, production migrations, external publishing or real business decisions.
+8. Never redesign a system when the canonical acceptance path already exists. Integrate and finish it.
+
+Chief of Staff owns one live execution board across HQ, Sookly, SEOS and RDUSA and keeps each baton moving until its acceptance test passes. Use the existing HQ ops store and room batons; do not invent a parallel checklist store. Each active task records its current state, next action, named owner, bounded authority, deliverable, acceptance test and evidence. An assigned owner is not proof of an authenticated dispatch.
+
+The repository workstream `executionMode` seeds the four-front acceptance queue. It is a reviewable repository seed, not proof that production Postgres has been patched or that a live seat is executing. Apply through the authenticated ops/room interface with a fresh read and preserve existing live state. Persist the resulting baton and dispatch receipts. Continue reversible work while human-gated steps remain blocked. Verify production acceptance separately before handoff.
