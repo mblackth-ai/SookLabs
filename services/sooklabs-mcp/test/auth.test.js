@@ -45,6 +45,7 @@ test("JWT acceptance rejects invalid credentials and preserves authenticated sea
     ["wrong issuer", { iss: "https://other-issuer.example.test" }],
     ["expired token", { exp: Math.floor(Date.now() / 1000) - 60 }],
     ["missing subject", { sub: undefined }],
+    ["missing expiration", { exp: undefined }],
   ]) {
     await t.test(name, async () => {
       await assert.rejects(verifier.verifyAccessToken(await sign(claims)));
