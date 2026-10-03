@@ -360,10 +360,10 @@
           "id": "exec-sookly",
           "front": "sookly-journey",
           "title": "Reconcile Journey and CRM against Sookly release acceptance",
-          "currentState": "Kanban TypeScript defects corrected. Postgres/Journey/typecheck/build passed on correction head. Specific notebook and list/filter CI pass on latest draft head; final combined build rerun underway. Production customer journey remains NOT TESTED.",
+          "currentState": "Kanban audit/CSRF/optional-SOP errors corrected. Latest draft head passes Postgres migration, Journey persistence/rules, human-approval tests, typecheck, Next build and notebook/list/filter regression CI. Staging and production customer journey remain NOT TESTED.",
           "deliverable": "Release-matrix-aligned Journey/CRM candidate and clean-user EN/TH acceptance evidence.",
           "acceptanceTest": "Applicable release-matrix tests pass in their required environment, including clean-user setup, Website Chat enquiry/reply, MITL AI, usage, return-login and tenant isolation. Journey production migration/deploy and pilot proof remain separately gated.",
-          "nextAction": "Verify current Kanban-head Postgres/build and notebook/filter CI, then run staging Kanban moves and CC-before-PO acceptance; preserve release matrix and production approval gates.",
+          "nextAction": "Review Kanban diff and run staging moves, CC-before-PO dates, role/status filters and tenant/role denial tests before release approval. Preserve production migration/deploy gates and collect customer-journey acceptance separately.",
           "status": "todo",
           "priority": "P0",
           "owner": "Chief of Staff",
@@ -380,6 +380,13 @@
               "kind": "ci",
               "url": "https://github.com/mblackth-ai/sookly-omnichat/actions/runs/37141719714",
               "scope": "Notebook CC-before-PO gate and contact-list/filter regression tests",
+              "status": "PASS",
+              "head": "8d94194502862e0f5e0b7dbd58b2f0fc7a8ec1b0"
+            },
+            {
+              "kind": "ci",
+              "url": "https://github.com/mblackth-ai/sookly-omnichat/actions/runs/37141719681",
+              "scope": "Latest-head Postgres, Journey, typecheck and Next build; not production acceptance",
               "status": "PASS",
               "head": "8d94194502862e0f5e0b7dbd58b2f0fc7a8ec1b0"
             }
