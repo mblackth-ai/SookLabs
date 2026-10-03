@@ -1,8 +1,10 @@
-import { loadSooklabsEnv } from "./load-env.js";
+import { chdir } from "node:process";
+import { loadSooklabsEnv, repoRoot } from "./load-env.js";
 import { loadConfig } from "./config.js";
 import { createApp } from "./server.js";
 
 loadSooklabsEnv();
+chdir(repoRoot);
 
 const config = loadConfig();
 

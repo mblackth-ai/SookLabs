@@ -1,10 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import {
-  projectStatus,
-  blockers,
-  buildStatus,
-  deployStatus,
-} from "./github.js";
+import { readControlPlaneBlockers } from "./control-plane.js";
+import { projectStatus, buildStatus, deployStatus } from "./github.js";
 
 const emptyInput = {};
 
@@ -19,7 +15,7 @@ export function createMcpServer(github) {
     },
     {
       instructions:
-        "Read-only SookLabs internal MCP. GitHub repo status for mblackth-ai/SookLabs. Seat identity comes from the OAuth access token only.",
+        "Read-only SookLabs internal MCP. GitHub repo status for mblackth-ai/SookLabs; HQ control-plane blockers for the room list. Seat identity comes from the OAuth access token sub only.",
     }
   );
 
@@ -56,13 +52,14 @@ export function createMcpServer(github) {
     "blockers",
     {
       description:
-        "Open GitHub issues labeled blocker when that label exists; otherwise all open issues with label_missing: true.",
+        "HQ control-plane blocker list (getControlPlaneSnapshot().blockers) as stored in ops — not GitHub issues.",
       inputSchema: emptyInput,
       annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
     },
     async (_args, extra) => {
       const seat = seatFromExtra(extra);
-      return toolResult(await blockers(github, seat));
+      const blockers = await readControlPlaneBlockers();
+      return toolResult({ blockers, seat });
     }
   );
 
