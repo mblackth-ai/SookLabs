@@ -49,3 +49,9 @@ _tmp_*/
 .vercel
 # n8n provision run artifacts (local only)
 docs/n8n/hq-provision-result.json
+
+# HQ room transcript when Postgres is not configured (local only)
+/data/hq/room.json
+/data/hq/room.json.tmp
+/data/hq/swarm.json
+/data/hq/swarm.json.tmp

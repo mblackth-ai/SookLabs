@@ -5,6 +5,18 @@ function isHqHost(host) {
   return host === "hq.sooklabs.com" || host === "hq.localhost";
 }
 
+function isRoomMachineRequest(request) {
+  const method = request.method.toUpperCase();
+  if (method === "POST") return true;
+  if (method !== "GET" && method !== "HEAD") return false;
+  if (request.headers.get("rsc") === "1") return false;
+  if (request.headers.get("next-router-prefetch") === "1") return false;
+  if (request.nextUrl.searchParams.get("format") === "json") return true;
+  const accept = request.headers.get("accept") || "";
+  if (accept.includes("text/html") || accept.includes("text/x-component")) return false;
+  return accept.includes("application/json");
+}
+
 function withSecurityHeaders(response) {
   response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
   response.headers.set("X-Frame-Options", "DENY");
@@ -40,6 +52,24 @@ export async function middleware(request) {
     return withSecurityHeaders(NextResponse.next());
   }
 
+  if (pathname === "/hq/swarm" || pathname === "/hq/api/swarm") {
+    const publicPath = request.nextUrl.pathname;
+    if (publicPath === "/swarm" || publicPath === "/api/swarm") {
+      url.pathname = publicPath.replace("swarm", "room");
+    } else {
+      url.pathname = pathname.replace("/swarm", "/room");
+    }
+    return withSecurityHeaders(NextResponse.redirect(url, 307));
+  }
+
+  // One open room. Browsers get the page; JSON reads and posts use the same URL.
+  if (pathname === "/hq/room" && isRoomMachineRequest(request)) {
+    url.pathname = "/hq/api/room";
+    const headers = new Headers(request.headers);
+    headers.set("x-hq-room-public-path", request.nextUrl.pathname);
+    return withSecurityHeaders(NextResponse.rewrite(url, { request: { headers } }));
+  }
+
   // Unauthenticated entry points (cron / agent callback / pending poll use secrets in the route itself).
   const isOpenPath =
     pathname === "/hq/login" ||
@@ -47,7 +77,10 @@ export async function middleware(request) {
     pathname === "/hq/api/logout" ||
     pathname === "/hq/api/cron/morning" ||
     pathname === "/hq/api/agents/callback" ||
-    pathname === "/hq/api/agents/pending";
+    pathname === "/hq/api/agents/pending" ||
+    pathname === "/hq/room" ||
+    pathname === "/hq/api/room" ||
+    pathname.startsWith("/hq/api/room/");
   if (isOpenPath) {
     const res = rewroteHost ? NextResponse.rewrite(url) : NextResponse.next();
     return withSecurityHeaders(res);
