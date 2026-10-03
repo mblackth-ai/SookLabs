@@ -28,20 +28,6 @@ export function createGitHubClient({ token }) {
     return response.json();
   }
 
-  /**
-   * @param {string} path
-   * @param {RequestInit} [init]
-   */
-  async function ghRaw(path, init = {}) {
-    const headers = {
-      Accept: "application/vnd.github+json",
-      "X-GitHub-Api-Version": "2022-11-28",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(init.headers ?? {}),
-    };
-    return fetch(`${base}${path}`, { ...init, headers });
-  }
-
   return {
     async getRepository() {
       return gh("");
@@ -64,16 +50,6 @@ export function createGitHubClient({ token }) {
         if (page > 10) break;
       }
       return issues;
-    },
-
-    async repoHasLabel(labelName) {
-      const response = await ghRaw(`/labels/${encodeURIComponent(labelName)}`);
-      if (response.status === 404) return false;
-      if (!response.ok) {
-        const body = await response.text().catch(() => "");
-        throw new Error(`GitHub API ${response.status} /labels/${labelName}: ${body.slice(0, 300)}`);
-      }
-      return true;
     },
 
     async getDefaultBranchHeadSha(defaultBranch) {
@@ -107,20 +83,6 @@ export function createGitHubClient({ token }) {
   };
 }
 
-function mapIssueRow(issue) {
-  return {
-    number: issue.number,
-    title: issue.title,
-    url: issue.html_url,
-    labels: (issue.labels ?? []).map((label) => label.name),
-    updated_at: issue.updated_at,
-  };
-}
-
-function issueHasLabel(issue, labelName) {
-  return (issue.labels ?? []).some((label) => label.name === labelName);
-}
-
 /**
  * @param {ReturnType<createGitHubClient>} github
  * @param {string} seat
@@ -135,31 +97,6 @@ export async function projectStatus(github, seat) {
     open_issue_count: openIssues.length,
     homepage: repo.homepage ?? null,
     visibility: repo.private ? "private" : repo.visibility ?? "public",
-    seat,
-  };
-}
-
-/**
- * @param {ReturnType<createGitHubClient>} github
- * @param {string} seat
- */
-export async function blockers(github, seat) {
-  const [openIssues, blockerLabelOnRepo] = await Promise.all([
-    github.listOpenIssues(),
-    github.repoHasLabel("blocker"),
-  ]);
-
-  if (!blockerLabelOnRepo) {
-    return {
-      issues: openIssues.map(mapIssueRow),
-      seat,
-      label_missing: true,
-    };
-  }
-
-  const blockerIssues = openIssues.filter((issue) => issueHasLabel(issue, "blocker"));
-  return {
-    issues: blockerIssues.map(mapIssueRow),
     seat,
   };
 }
