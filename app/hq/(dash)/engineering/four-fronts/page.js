@@ -31,16 +31,16 @@ export default function FourFrontsPage() {
       <TopBar
         title="Four Fronts"
         subtitle="Engineering evidence only. Overall is the rounded mean of these four tracks. The founder board is the eight fronts."
-        actions={<Badge variant="accent" size="sm">{average}% overall</Badge>}
+        actions={<Badge variant="accent" size="sm">{average}% · four-front estimate</Badge>}
       />
 
       <div className="hq-page-content">
         <Card id="rdusa-pilot" padding="md" style={{ marginBottom: 16 }}>
           <div className="hq-flex-between hq-mb-2">
-            <div>
+            <div style={{ minWidth: 0, overflowWrap: "anywhere" }}>
               <div className="hq-card-title">RDUSA pilot acceptance</div>
               <div className="hq-text-sm-secondary">
-                Finish line: {pilot.path}. Four-front percentages are a different board. {average}% overall is not pilot ready.
+                Finish line: {pilot.path}. Four-front percentages are a different board. A {average}% four-front estimate is not pilot ready.
               </div>
             </div>
             <Badge variant={pilot.pilotReady ? "success" : "error"} size="sm">
