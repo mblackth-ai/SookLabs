@@ -15,7 +15,12 @@ import {
   roomJsonScript,
   seatsForTier,
   seatPresence,
+  boardMarkdown,
 } from "@/lib/hq/swarm-contract";
+
+// HQ Swarm Room as a command center. Every number on this page comes from the
+// room API (messages, dispatches, seat strip, PR field) or the HQ snapshot
+// (/hq/api/room/summary). Nothing is shown until it has loaded.
 
 const DISPATCH_LABEL = {
   queued: "Queued",
@@ -26,6 +31,18 @@ const DISPATCH_LABEL = {
   offline: "Offline",
   timed_out: "Timed out",
 };
+
+const SEAT_STATE_LABEL = {
+  ...DISPATCH_LABEL,
+  online: "Online",
+  ready: "Ready",
+  idle: "Idle",
+  unknown: "Not loaded",
+};
+
+const OPEN_STATES = ["queued", "dispatching", "thinking"];
+const AGENT_SEATS = ROOM_SEATS.filter((seat) => seat.tier === "agent");
+const SUMMARY_EVERY_MS = 30000;
 
 const STAMP = new Intl.DateTimeFormat("en-GB", {
   timeZone: "Asia/Bangkok",
@@ -43,6 +60,13 @@ const TIER_LINKS = [
   { id: "spectator", label: "Spectator", href: "/hq/room?as=spectator" },
 ];
 
+const THREAD_FILTERS = [
+  { id: "all", label: "All" },
+  { id: "decision", label: "Decisions" },
+  { id: "baton", label: "Batons" },
+  { id: "evidence", label: "Evidence" },
+];
+
 function formatStamp(iso) {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return "";
@@ -52,7 +76,26 @@ function formatStamp(iso) {
 function storageLabel(storage) {
   if (storage === "postgres") return "Saved in Postgres";
   if (storage === "file") return "Saved in the local file";
-  return "Storage unavailable";
+  return "";
+}
+
+function tone(state) {
+  if (state === "offline" || state === "unknown") return "off";
+  if (state === "failed") return "bad";
+  if (state === "idle" || state === "timed_out" || state === "queued") return "warn";
+  if (state === "thinking" || state === "dispatching") return "busy";
+  return "on";
+}
+
+function seatName(id) {
+  return ROOM_SEATS.find((seat) => seat.id === id)?.callsign || id;
+}
+
+function ciMark(state) {
+  if (state === "pass") return "CI ✓";
+  if (state === "fail") return "CI ✗";
+  if (state === "pending") return "CI …";
+  return "CI ?";
 }
 
 export function RoomBoard({ tier, draft = true, connections = [], initialFeed = [], loadError = "" }) {
@@ -62,13 +105,14 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
   const [roomSeats, setRoomSeats] = useState(ROOM_SEATS);
   const [strip, setStrip] = useState([]);
   const [dispatches, setDispatches] = useState([]);
+  const [summary, setSummary] = useState(null);
   const [feed, setFeed] = useState(initialFeed);
   const [held, setHeld] = useState([]);
   const [roomStorage, setRoomStorage] = useState("");
   const [seat, setSeat] = useState(seats[0]?.id || "mark");
   const [connectionToken, setConnectionToken] = useState("");
   const [opened, setOpened] = useState(false);
-  const [kind, setKind] = useState(kinds[0] || "chat");
+  const [mode, setMode] = useState("chat");
   const [text, setText] = useState("");
   const [refType, setRefType] = useState("pr");
   const [refUrl, setRefUrl] = useState("");
@@ -82,13 +126,19 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
   const [posting, setPosting] = useState(false);
   const [error, setError] = useState(loadError || "");
   const [copied, setCopied] = useState(false);
+  const [seatFilter, setSeatFilter] = useState("");
+  const [kindFilter, setKindFilter] = useState("all");
   const feedRef = useRef(null);
+  const textRef = useRef(null);
   const copiedTimer = useRef(null);
+  const summaryAt = useRef(0);
   const canPost = tier !== "spectator";
-  const canRecord = tier === "operator" || tier === "agent";
+  const isOperator = tier === "operator";
   const connectionName = connectionForSeat(seat)?.name || "seat";
   const configuredCount = connections.filter((item) => item.configured).length;
   const board = useMemo(() => roomBoardRows(messages), [messages]);
+  const delayMinutes = Math.round(BROADCAST_DELAY_MS / 60000);
+
   // Thread view: a dispatch reply sits under the message it answers.
   const ids = useMemo(() => new Set(messages.map((message) => message.id)), [messages]);
   const repliesBySource = useMemo(() => {
@@ -103,10 +153,50 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
     for (const row of dispatches) map.set(row.sourceMessageId, [...(map.get(row.sourceMessageId) || []), row]);
     return map;
   }, [dispatches]);
+  const latestDispatchBySeat = useMemo(() => {
+    const map = new Map();
+    for (const row of dispatches) {
+      const prev = map.get(row.seatId);
+      if (!prev || (row.updatedAt || row.createdAt) > (prev.updatedAt || prev.createdAt)) map.set(row.seatId, row);
+    }
+    return map;
+  }, [dispatches]);
   const topLevel = messages.filter((message) => !(message.replyTo && ids.has(message.replyTo)));
-  const record = topLevel.filter((message) => message.kind === "baton" || message.kind === "decision");
-  const chatter = topLevel.filter((message) => message.kind !== "baton" && message.kind !== "decision");
-  const delayMinutes = Math.round(BROADCAST_DELAY_MS / 60000);
+
+  function seatState(seatId) {
+    const row = strip.find((item) => item.seatId === seatId);
+    const latest = latestDispatchBySeat.get(seatId);
+    if (latest && OPEN_STATES.includes(latest.status)) return latest.status;
+    if (!row) return "unknown";
+    if (!row.ready) return "offline";
+    if (latest) return latest.status;
+    if (row.adapter === "pull") return row.online ? "online" : "idle";
+    return "ready";
+  }
+
+  const visibleThread = topLevel.filter((message) => {
+    if (kindFilter !== "all") {
+      const kind = message.kind === "evidence" ? "evidence" : message.kind;
+      if (kind !== kindFilter) return false;
+    }
+    if (!seatFilter) return true;
+    if (message.seatId === seatFilter) return true;
+    if ((dispatchesBySource.get(message.id) || []).some((row) => row.seatId === seatFilter)) return true;
+    return (repliesBySource.get(message.id) || []).some((reply) => reply.seatId === seatFilter);
+  });
+
+  // Header stats, all from loaded data.
+  const latestBaton = [...messages].reverse().find((message) => message.kind === "baton" && message.baton?.to);
+  const readySeats = strip.filter((row) => row.ready);
+  const liveSeats = strip.filter((row) => row.ready && (row.adapter !== "pull" || row.online));
+  const offlineSeats = strip.filter((row) => !row.ready);
+  const seatBlockers = offlineSeats.map((row) => ({
+    id: `seat-${row.seatId}`,
+    title: `${row.callsign} offline`,
+    detail: `${row.missing} is not set, so this seat gets no dispatches.`,
+    href: "",
+  }));
+  const blockers = [...(summary?.blockers || []), ...seatBlockers];
 
   const authHeaders = useCallback(() => {
     const headers = { accept: "application/json" };
@@ -115,10 +205,7 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
   }, [connectionToken]);
 
   const loadRoom = useCallback(async () => {
-    const res = await fetch("/hq/api/room/messages?channel=room", {
-      headers: authHeaders(),
-      cache: "no-store",
-    });
+    const res = await fetch("/hq/api/room/messages?channel=room", { headers: authHeaders(), cache: "no-store" });
     const data = await res.json().catch(() => ({}));
     if (!res.ok || !data.ok) throw new Error(data.error || "Could not load the room.");
     setMessages(Array.isArray(data.messages) ? data.messages : []);
@@ -128,9 +215,17 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
     if (data.storage) setRoomStorage(data.storage);
     setOpened(true);
     setError("");
-    const prs = await fetch("/hq/api/room/prs", { headers: authHeaders(), cache: "no-store" });
-    const prData = await prs.json().catch(() => ({}));
-    setPrField(prs.ok && prData.ok ? prData : { prs: [], freshness: "source unavailable", error: prData.error || "" });
+    if (Date.now() - summaryAt.current > SUMMARY_EVERY_MS) {
+      summaryAt.current = Date.now();
+      const [prs, sum] = await Promise.all([
+        fetch("/hq/api/room/prs", { headers: authHeaders(), cache: "no-store" }),
+        fetch("/hq/api/room/summary", { headers: authHeaders(), cache: "no-store" }),
+      ]);
+      const prData = await prs.json().catch(() => ({}));
+      setPrField(prs.ok && prData.ok ? prData : { prs: [], freshness: "source unavailable", error: prData.error || "" });
+      const sumData = await sum.json().catch(() => ({}));
+      setSummary(sum.ok && sumData.ok ? sumData : { error: sumData.error || "The HQ summary could not be loaded." });
+    }
     if (tier === "operator") {
       const review = await fetch("/hq/api/room/public/feed?review=1", { headers: authHeaders(), cache: "no-store" });
       const reviewData = await review.json().catch(() => ({}));
@@ -192,7 +287,7 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
     const el = feedRef.current;
     if (!el) return;
     el.scrollTop = el.scrollHeight;
-  }, [messages, feed]);
+  }, [feed]);
 
   useEffect(
     () => () => {
@@ -218,9 +313,13 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
     setConnectionToken("");
     setOpened(false);
     setMessages([]);
+    setDispatches([]);
+    setStrip([]);
+    setSummary(null);
+    setPrField(null);
+    summaryAt.current = 0;
     setPaste("");
-    const nextKinds = kindsForTier(tier);
-    setKind(nextKinds[0] || "chat");
+    setMode("chat");
   }
 
   async function postJson(url, body) {
@@ -234,29 +333,39 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
     return data;
   }
 
+  function toggleMode(next) {
+    setMode((current) => (current === next ? "chat" : next));
+  }
+
+  function insertMention(name) {
+    const tag = `@${name}`;
+    setText((current) => (current.includes(tag) ? current : `${tag} ${current}`.trimEnd() + (current ? "" : " ")));
+    textRef.current?.focus();
+  }
+
+  function replyTo(message) {
+    if (message.seatId === seat) return;
+    setMode("chat");
+    setText(`@${message.seatId} `);
+    textRef.current?.focus();
+  }
+
   async function onSubmit(event) {
     event.preventDefault();
     if (!canPost || posting) return;
     setPosting(true);
     setError("");
+    const kind = kinds.includes(mode) ? mode : "chat";
     const refs = refUrl.trim() ? [{ type: refType, url: refUrl.trim(), ref: refUrl.trim() }] : [];
-    const baton =
-      kind === "baton"
-        ? { to: batonTo, task: batonTask, next: batonNext, status: batonStatus }
-        : undefined;
+    const baton = kind === "baton" ? { to: batonTo, task: batonTask, next: batonNext, status: batonStatus } : undefined;
     try {
-      const data = await postJson("/hq/api/room/messages", {
-        channel: "room",
-        kind,
-        body: text,
-        refs,
-        baton,
-      });
+      const data = await postJson("/hq/api/room/messages", { channel: "room", kind, body: text, refs, baton });
       setText("");
       setRefUrl("");
       setBatonTask("");
       setBatonNext("");
       setBatonStatus("");
+      setMode("chat");
       setOpened(true);
       if (data.storage) setRoomStorage(data.storage);
       if (data.message) {
@@ -281,9 +390,7 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
       setPaste(data.paste || "");
       setPromoted(data.wrote ? { sha: data.promotedSha, url: data.commitUrl, branch: data.branch } : null);
       if (data.writeError) setError(data.writeError);
-      if (data.message) {
-        setMessages((current) => current.map((item) => (item.id === data.message.id ? data.message : item)));
-      }
+      if (data.message) setMessages((current) => current.map((item) => (item.id === data.message.id ? data.message : item)));
     } catch (err) {
       setError(err.message || "Promote could not be prepared.");
     } finally {
@@ -318,167 +425,170 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
     shareUrl: ROOM_SHARE_URL,
     tier,
     pact: ROOM_PACT,
-    record,
-    chat: chatter,
+    record: topLevel.filter((m) => m.kind === "baton" || m.kind === "decision"),
+    chat: topLevel.filter((m) => m.kind !== "baton" && m.kind !== "decision"),
     board,
     feed,
   };
 
-  function renderDispatches(message) {
+  // ---- pieces -----------------------------------------------------------------
+
+  function renderDispatchGrid(message) {
     const rows = dispatchesBySource.get(message.id);
     if (!rows?.length) return null;
     return (
-      <ul className="hq-room-dispatches" aria-label="Sent to">
-        {rows.map((row) => {
-          const seat = ROOM_SEATS.find((item) => item.id === row.seatId);
-          return (
-            <li key={row.id} className={`hq-room-dispatch hq-room-dispatch--${row.status}`} title={row.error || row.reason}>
-              <span className="hq-room-dispatch-seat">{seat?.callsign || row.seatId}</span>
-              <span className="hq-room-dispatch-state">{DISPATCH_LABEL[row.status] || row.status}</span>
-            </li>
-          );
-        })}
+      <ul className="hq-cc-dispatch-grid" aria-label="Sent to">
+        {rows.map((row) => (
+          <li key={row.id} className={`hq-cc-dispatch hq-cc-tone--${tone(row.status)}`} title={row.error || row.reason}>
+            <span>{seatName(row.seatId)}</span>
+            <strong>{DISPATCH_LABEL[row.status] || row.status}</strong>
+          </li>
+        ))}
       </ul>
     );
   }
 
-  function renderMessage(message) {
+  function kindBadge(message) {
+    if (message.seatId === "mark" && message.kind === "chat" && dispatchesBySource.has(message.id)) return "Command";
+    return message.display || message.kind;
+  }
+
+  function renderCard(message, nested = false) {
     const replies = repliesBySource.get(message.id) || [];
+    const isMark = message.seatId === "mark";
+    const badge = kindBadge(message);
     return (
-      <div key={message.id} className="hq-room-threadroot">
-        {renderPost(message)}
-        {renderDispatches(message)}
-        {replies.length ? <div className="hq-room-thread">{replies.map(renderMessage)}</div> : null}
+      <div key={message.id} className={nested ? "hq-cc-reply" : "hq-cc-threadroot"}>
+        <article className={`hq-cc-card hq-cc-msg hq-cc-msg--${message.display || message.kind}`}>
+          <header className="hq-cc-msg-head">
+            <span className={`hq-cc-author${isMark ? " hq-cc-author--mark" : ""}`}>{isMark ? "MARK" : message.seat}</span>
+            <span className={`hq-cc-badge hq-cc-badge--${String(badge).toLowerCase()}`}>{badge}</span>
+            <time dateTime={message.createdAt}>{formatStamp(message.createdAt)}</time>
+          </header>
+          {message.kind === "baton" && message.baton ? (
+            <div className="hq-cc-baton">
+              <p className="hq-cc-baton-route">
+                {message.seat} → {message.baton.to ? seatName(message.baton.to) : "anyone"}
+                {message.baton.status ? <span className="hq-cc-muted"> · {message.baton.status}</span> : null}
+              </p>
+              <p className="hq-cc-body">{message.body}</p>
+              <dl className="hq-cc-facts">
+                {message.baton.task ? (
+                  <>
+                    <dt>Task</dt>
+                    <dd>{message.baton.task}</dd>
+                  </>
+                ) : null}
+                {message.baton.next ? (
+                  <>
+                    <dt>Next</dt>
+                    <dd>{message.baton.next}</dd>
+                  </>
+                ) : null}
+              </dl>
+            </div>
+          ) : (
+            <p className="hq-cc-body">{message.body}</p>
+          )}
+          {message.refs?.length ? (
+            <dl className="hq-cc-facts hq-cc-facts--boxed">
+              {message.refs.map((ref) => (
+                <div key={`${ref.type}:${ref.ref}`} className="hq-cc-fact">
+                  <dt>{ref.type}</dt>
+                  <dd>
+                    {ref.url ? <a href={ref.url}>{ref.ref}</a> : ref.ref}
+                    {ref.resolves === true ? " ✓ checked" : ref.resolves === false ? " ✗ not found or not green" : ""}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          ) : null}
+          {renderDispatchGrid(message)}
+          {canPost ? (
+            <div className="hq-cc-actions">
+              {isOperator && (message.kind === "baton" || message.kind === "decision") ? (
+                <button type="button" className="hq-cc-btn" onClick={() => promote(message.id)} disabled={posting || Boolean(message.promotedSha)}>
+                  {message.promotedSha ? `Promoted ${message.promotedSha.slice(0, 7)}` : `Promote ${message.kind}`}
+                </button>
+              ) : null}
+              {message.seatId !== seat && AGENT_SEATS.some((item) => item.id === message.seatId) ? (
+                <button type="button" className="hq-cc-btn" onClick={() => replyTo(message)}>
+                  Reply
+                </button>
+              ) : null}
+              {isOperator ? (
+                <button type="button" className="hq-cc-btn hq-cc-btn--quiet" onClick={() => queueBroadcast(message.id)} disabled={posting}>
+                  Queue broadcast
+                </button>
+              ) : null}
+            </div>
+          ) : null}
+        </article>
+        {replies.length ? <div className="hq-cc-replies">{replies.map((reply) => renderCard(reply, true))}</div> : null}
       </div>
     );
   }
 
-  function renderPost(message) {
+  function renderPulse() {
+    const cx = 160;
+    const cy = 104;
+    const nodes = AGENT_SEATS.map((item, index) => {
+      const angle = (-150 + (index * 360) / AGENT_SEATS.length) * (Math.PI / 180);
+      return { ...item, x: cx + Math.cos(angle) * 122, y: cy + Math.sin(angle) * 74, state: seatState(item.id) };
+    });
     return (
-      <article className={`hq-room-post hq-room-post--${message.display || message.kind}`}>
-        <header>
-          <span className="hq-room-seat">{message.seat}</span>
-          <span className="hq-room-role">{message.role}</span>
-          <span className="hq-room-role">{message.seatId}</span>
-          <time dateTime={message.createdAt}>{formatStamp(message.createdAt)}</time>
-          <span className={`hq-room-type hq-room-type--${message.display || message.kind}`}>
-            {message.display || message.kind}
-          </span>
-        </header>
-        <p>{message.body}</p>
-        {message.refs?.length ? (
-          <p className="hq-room-meta">
-            {message.refs.map((ref) => (
-              <span key={`${ref.type}:${ref.ref}`}>
-                {ref.type} {ref.url ? <a href={ref.url}>{ref.ref}</a> : ref.ref}
-                {ref.resolves === true ? " (checked)" : ref.resolves === false ? " (not found or not green)" : ""}
-              </span>
-            ))}
-          </p>
-        ) : null}
-        {message.baton ? (
-          <p className="hq-room-meta">
-            Baton {message.baton.to || "—"} · {message.baton.task || "—"} · {message.baton.status || message.kind}
-          </p>
-        ) : null}
-        {tier === "operator" ? (
-          <p className="hq-room-meta">
-            {message.kind === "baton" || message.kind === "decision" ? (
-              <button type="button" className="hq-room-textbtn" onClick={() => promote(message.id)} disabled={posting}>
-                Promote
-              </button>
-            ) : null}{" "}
-            <button type="button" className="hq-room-textbtn" onClick={() => queueBroadcast(message.id)} disabled={posting}>
-              Queue broadcast
-            </button>
-          </p>
-        ) : null}
-      </article>
+      <svg className="hq-cc-pulse" viewBox="0 0 320 208" role="img" aria-label="Seats connected to the HQ router">
+        {nodes.map((node) => (
+          <line
+            key={`l-${node.id}`}
+            x1={cx}
+            y1={cy}
+            x2={node.x}
+            y2={node.y}
+            className={`hq-cc-pulse-line hq-cc-tone--${tone(node.state)}${OPEN_STATES.includes(node.state) ? " hq-cc-pulse-line--active" : ""}`}
+          />
+        ))}
+        <circle cx={cx} cy={cy} r="30" className="hq-cc-pulse-hub" />
+        <text x={cx} y={cy - 2} className="hq-cc-pulse-hubtext">
+          HQ
+        </text>
+        <text x={cx} y={cy + 11} className="hq-cc-pulse-hubsub">
+          ROUTER
+        </text>
+        {nodes.map((node) => (
+          <g key={node.id}>
+            <circle cx={node.x} cy={node.y} r="19" className={`hq-cc-pulse-node hq-cc-tone--${tone(node.state)}`} />
+            <text x={node.x} y={node.y + 3.5} className="hq-cc-pulse-label">
+              {node.callsign}
+            </text>
+            <title>{`${node.callsign}: ${SEAT_STATE_LABEL[node.state] || node.state}`}</title>
+          </g>
+        ))}
+      </svg>
     );
   }
 
-  return (
-    <div className="hq-room">
-      <div className="hq-room-matrix" aria-hidden="true" />
-      <script id="hq-room" type="application/json" dangerouslySetInnerHTML={{ __html: roomJsonScript(transcript) }} />
-      {draft ? (
-        <p className="hq-room-draft" role="status">
-          Draft. Not a live room. Not deployed. Each seat posts only with its own named connection. The server stamps
-          the author. The shared HQ login cannot post as another seat.
-          {connections.length > 0 ? ` Connections: ${connections.map((item) => item.name).join(", ")}.` : null}
-          {configuredCount === 0 ? " None of those connections are configured, so this draft cannot post." : null}
-        </p>
-      ) : null}
-      <header className="hq-room-header">
-        <div>
-          <p className="hq-room-kicker">{draft ? "SookLabs HQ · Draft" : "SookLabs HQ"}</p>
-          <h1>HQ Swarm Room</h1>
-          <p className="hq-room-lead">
-            One page. Share <a href={ROOM_SHARE_URL}>{ROOM_SHARE_URL}</a>
-          </p>
-        </div>
-        <div className="hq-room-header-actions">
-          <span className="hq-room-storage">{storageLabel(roomStorage)}</span>
-          <Button type="button" variant="secondary" size="sm" onClick={copyLink}>
-            {copied ? "Copied" : "Copy link"}
-          </Button>
-          <Button type="button" variant="ghost" size="sm" href="/hq">
-            HQ home
-          </Button>
-        </div>
-      </header>
+  // ---- spectator ----------------------------------------------------------------
 
-      <nav className={`hq-room-tiers${tier === "spectator" ? " hq-room-tiers--spectator" : ""}`} aria-label="Viewing tiers">
-        {TIER_LINKS.map((item) => (
-          <a key={item.id} href={item.href} aria-current={tier === item.id ? "page" : undefined}>
-            {item.label}
-          </a>
-        ))}
-        <p>
-          {tier === "spectator"
-            ? `Spectating. A separate masked feed, ${delayMinutes} minutes after Mark queues it. Posting is off.`
-            : tier === "crew"
-              ? "Crew can post chat replies only. No batons."
-              : tier === "operator"
-                ? "Operator. Mark queues broadcasts and can ask for a paste block. This room does not merge or deploy."
-                : "Agent. Read, reply, and post batons. Decisions stay with Mark."}
-        </p>
-      </nav>
-
-      <section className="hq-room-pact" aria-label="Roles pact">
-        <h2>Roles</h2>
-        <ul>
-          <li>
-            <strong>Edit.</strong> {ROOM_PACT.edit}
-          </li>
-          <li>
-            <strong>Stay off.</strong> {ROOM_PACT.stayOff}
-          </li>
-          <li>
-            <strong>Merge.</strong> {ROOM_PACT.merge}
-          </li>
-        </ul>
-      </section>
-
-      {tier !== "spectator" && strip.length ? (
-        <section className="hq-room-strip" aria-label="Connected seats">
-          {strip.map((row) => (
-            <span
-              key={row.seatId}
-              className={`hq-room-strip-seat${row.online ? " hq-room-strip-seat--online" : ""}`}
-              title={row.ready ? `${row.adapter} adapter` : `Not connected: ${row.missing}`}
-            >
-              <span className="hq-room-strip-dot" aria-hidden="true" />
-              {row.callsign}
-              <span className="hq-room-strip-state">
-                {!row.ready ? "Offline" : row.adapter === "pull" ? (row.online ? "Online" : "Idle") : "Ready"}
-              </span>
-            </span>
-          ))}
-        </section>
-      ) : null}
-
-      {tier === "spectator" ? (
+  if (tier === "spectator") {
+    return (
+      <div className="hq-room">
+        <div className="hq-room-matrix" aria-hidden="true" />
+        <script id="hq-room" type="application/json" dangerouslySetInnerHTML={{ __html: roomJsonScript(transcript) }} />
+        <header className="hq-room-header">
+          <div>
+            <p className="hq-room-kicker">SookLabs HQ</p>
+            <h1>HQ Swarm Room</h1>
+            <p className="hq-room-lead">
+              Spectating. A separate masked feed, {delayMinutes} minutes after Mark queues it. Posting is off.
+            </p>
+          </div>
+          <div className="hq-room-header-actions">
+            <Button type="button" variant="secondary" size="sm" onClick={copyLink}>
+              {copied ? "Copied" : "Copy link"}
+            </Button>
+          </div>
+        </header>
         <div className="hq-room-grid">
           <section className="hq-room-feed" aria-label="Public feed">
             <div className="hq-room-log" ref={feedRef} role="log">
@@ -502,237 +612,437 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
             </section>
           </aside>
         </div>
-      ) : (
-        <div className="hq-room-grid">
-          <section className="hq-room-feed" aria-label="Room posts">
-            <div className="hq-room-log" ref={feedRef} role="log" aria-relevant="additions">
-              {!opened ? <p className="hq-room-note">Enter this seat&apos;s connection to load the room.</p> : null}
-              {opened && messages.length === 0 ? <p className="hq-room-note">No posts yet.</p> : null}
-              {record.length > 0 ? <p className="hq-room-note">Batons and decisions.</p> : null}
-              {record.map(renderMessage)}
-              {chatter.length > 0 ? <p className="hq-room-note">Chat is not the record.</p> : null}
-              {chatter.map(renderMessage)}
-            </div>
-          </section>
+        {error ? (
+          <p className="hq-room-error" role="alert">
+            {error}
+          </p>
+        ) : null}
+      </div>
+    );
+  }
 
-          <aside className="hq-room-side">
-            <section aria-label="Live board">
-              <h2>Live board</h2>
-              <p className="hq-room-note">Batons and decisions. Not a GitHub scrape. Chat is not the record.</p>
-              <div className="hq-room-table-wrap">
-                <table className="hq-room-table">
-                  <thead>
-                    <tr>
-                      <th>Seat</th>
-                      <th>Task</th>
-                      <th>State</th>
-                      <th>Evidence</th>
-                      <th>When</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {board.length === 0 ? (
-                      <tr>
-                        <td colSpan={5}>No board rows yet.</td>
-                      </tr>
-                    ) : (
-                      board.map((row) => (
-                        <tr key={row.id}>
-                          <th scope="row">{row.seat}</th>
-                          <td>{row.task}</td>
-                          <td>{row.state}</td>
-                          <td>{row.evidence ? <a href={row.evidence}>Link</a> : "—"}</td>
-                          <td>{row.at ? <time dateTime={row.at}>{formatStamp(row.at)}</time> : "—"}</td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </section>
-            <section aria-label="PR field">
-              <h2>PR field</h2>
-              <p className="hq-room-note">
-                {prField
-                  ? `Open PRs from GitHub · ${prField.freshness}${prField.reconciledAt ? ` · checked ${formatStamp(prField.reconciledAt)}` : ""}`
-                  : "Loads with the room."}
-                {prField?.error ? ` · ${prField.error}` : ""}
-              </p>
-              {prField?.prs?.length ? (
-                <div className="hq-room-table-wrap">
-                  <table className="hq-room-table">
-                    <thead>
-                      <tr>
-                        <th>PR</th>
-                        <th>Title</th>
-                        <th>State</th>
-                        <th>CI</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {prField.prs.map((pr) => (
-                        <tr key={`${pr.repo}#${pr.number}`}>
-                          <th scope="row">
-                            <a href={pr.url}>#{pr.number}</a>
-                          </th>
-                          <td>{pr.title}</td>
-                          <td>{pr.merged ? "merged" : pr.draft ? "draft" : pr.state}</td>
-                          <td>{pr.ciState}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+  // ---- command center ----------------------------------------------------------
+
+  const percent = summary && typeof summary.finishLine?.percent === "number" ? summary.finishLine.percent : null;
+  const waiting = summary?.approvals ? summary.approvals.length : null;
+  const primaryLabel = isOperator && mode === "chat" ? "Dispatch command" : "Post";
+
+  return (
+    <div className="hq-room hq-cc">
+      <div className="hq-room-matrix" aria-hidden="true" />
+      <script id="hq-room" type="application/json" dangerouslySetInnerHTML={{ __html: roomJsonScript(transcript) }} />
+
+      <div className="hq-cc-layout">
+        <section className="hq-cc-card hq-cc-hero" aria-label="Command center">
+          <p className="hq-cc-kicker">SookLabs HQ / Swarm control</p>
+          <h1>Finish Line Command Center</h1>
+          <p className="hq-cc-lead">One instruction. Shared context. Specialized execution.</p>
+          <div className="hq-cc-pills">
+            <span className={`hq-cc-pill${draft ? " hq-cc-pill--draft" : " hq-cc-pill--live"}`}>
+              <span className="hq-cc-dot" aria-hidden="true" />
+              {draft ? "Draft" : "Room live"}
+            </span>
+            {storageLabel(roomStorage) ? <span className="hq-cc-pill">{storageLabel(roomStorage)}</span> : null}
+            <button type="button" className="hq-cc-pill hq-cc-pill--button" onClick={copyLink}>
+              {copied ? "Copied" : "Copy link"}
+            </button>
+          </div>
+          {draft ? (
+            <p className="hq-cc-note" role="status">
+              Draft until HQ_ROOM_STATUS=live.
+              {configuredCount === 0 ? " No seat connection is configured, so nobody can post." : ""}
+            </p>
+          ) : null}
+          <dl className="hq-cc-stats">
+            <div>
+              <dt>Finish line</dt>
+              <dd className="hq-cc-big">{percent === null ? "—" : `${percent}%`}</dd>
+              {percent !== null ? (
+                <div className="hq-cc-bar" role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100}>
+                  <span style={{ width: `${percent}%` }} />
                 </div>
-              ) : prField ? (
-                <p className="hq-room-note">No PRs to show.</p>
               ) : null}
-            </section>
-            {promoted ? (
-              <section aria-label="Promoted">
-                <h2>Promoted</h2>
-                <p className="hq-room-note">
-                  Committed to <code>{promoted.branch}</code>: <a href={promoted.url}>{String(promoted.sha).slice(0, 7)}</a>
-                </p>
-              </section>
-            ) : null}
-            {held.length > 0 ? (
-              <section aria-label="Held broadcasts">
-                <h2>Held</h2>
-                <ul className="hq-room-prs">
-                  {held.map((row) => (
-                    <li key={row.id}>{row.warning || "Held. Not on the public feed."}</li>
-                  ))}
-                </ul>
-              </section>
-            ) : null}
-            {paste ? (
-              <section aria-label="Ready to paste">
-                <h2>Ready to paste</h2>
-                <p className="hq-room-note">For the writer seat. This room did not commit.</p>
-                <pre className="hq-room-paste">{paste}</pre>
-              </section>
-            ) : null}
-          </aside>
-        </div>
-      )}
+              <dd className="hq-cc-sub" title={summary?.finishLine?.basis || ""}>
+                {percent === null ? (opened ? summary?.error || "Loading…" : "Load the room") : "four-front estimate"}
+              </dd>
+            </div>
+            <div>
+              <dt>Baton holder</dt>
+              <dd className="hq-cc-big hq-cc-big--text">{latestBaton ? seatName(latestBaton.baton.to) : "—"}</dd>
+              <dd className="hq-cc-sub">{latestBaton ? latestBaton.baton.task || latestBaton.body : opened ? "No baton yet" : "Load the room"}</dd>
+            </div>
+            <div>
+              <dt>Awaiting Mark</dt>
+              <dd className="hq-cc-big">{waiting === null ? "—" : waiting}</dd>
+              <dd className="hq-cc-sub">approval gates</dd>
+            </div>
+            <div>
+              <dt>Active seats</dt>
+              <dd className="hq-cc-big">{strip.length ? `${liveSeats.length}/${strip.length}` : "—"}</dd>
+              <dd className="hq-cc-sub">{strip.length ? `${offlineSeats.length} offline · ${readySeats.length} connected` : "Load the room"}</dd>
+            </div>
+          </dl>
+        </section>
 
-      {canPost ? (
-        <form className="hq-room-composer" onSubmit={onSubmit}>
-          <div className="hq-room-seats" role="group" aria-label="Seat">
-            {seats.map((item) => {
-              const live = roomSeats.find((row) => row.id === item.id);
-              const presence = seatPresence(live?.lastSeenAt);
+        <section className="hq-cc-card hq-cc-pulsecard" aria-label="System pulse">
+          <header className="hq-cc-cardhead">
+            <h2>System pulse</h2>
+            <span className="hq-cc-muted">{opened ? "live state" : "not loaded"}</span>
+          </header>
+          {renderPulse()}
+        </section>
+
+        <section className="hq-cc-card hq-cc-seatscard" aria-label="Swarm seats">
+          <header className="hq-cc-cardhead">
+            <div>
+              <h2>Swarm seats</h2>
+              <p className="hq-cc-muted">Tap a seat to filter the mission thread.</p>
+            </div>
+            <button type="button" className="hq-cc-btn" onClick={() => setSeatFilter("")} aria-pressed={!seatFilter}>
+              Show all
+            </button>
+          </header>
+          <div className="hq-cc-seatgrid">
+            {AGENT_SEATS.map((item) => {
+              const state = seatState(item.id);
+              const row = strip.find((entry) => entry.seatId === item.id);
               return (
                 <button
                   key={item.id}
                   type="button"
-                  className={`hq-room-seatbtn${seat === item.id ? " hq-room-seatbtn--active" : ""}`}
-                  aria-pressed={seat === item.id}
-                  onClick={() => selectSeat(item.id)}
+                  className={`hq-cc-seat${seatFilter === item.id ? " hq-cc-seat--active" : ""}`}
+                  aria-pressed={seatFilter === item.id}
+                  onClick={() => setSeatFilter((current) => (current === item.id ? "" : item.id))}
+                  title={row ? (row.ready ? `${row.adapter} adapter` : `Not connected: ${row.missing}`) : ""}
                 >
-                  {item.callsign}
-                  <small>
-                    {item.role}
-                    {presence === "silent" ? " · silent" : ""}
-                  </small>
+                  <span className="hq-cc-seat-name">
+                    {item.callsign}
+                    <span className={`hq-cc-dot hq-cc-tone--${tone(state)}`} aria-hidden="true" />
+                  </span>
+                  <span className="hq-cc-seat-role">{item.role}</span>
+                  <span className="hq-cc-seat-state">{(SEAT_STATE_LABEL[state] || state).toLowerCase()}</span>
                 </button>
               );
             })}
           </div>
-          <div className="hq-room-fields">
-            <label>
-              Kind
-              <select name="kind" value={kind} onChange={(event) => setKind(event.target.value)}>
-                {kinds.map((item) => (
-                  <option key={item} value={item}>
-                    {item}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Ref type
-              <select value={refType} onChange={(event) => setRefType(event.target.value)}>
-                {ROOM_REF_TYPES.map((item) => (
-                  <option key={item} value={item}>
-                    {item}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Ref URL
-              <input value={refUrl} onChange={(event) => setRefUrl(event.target.value)} />
-            </label>
-            {kind === "baton" && canRecord ? (
-              <>
-                <label>
-                  Baton to
-                  <input value={batonTo} onChange={(event) => setBatonTo(event.target.value)} />
-                </label>
-                <label>
-                  Task
-                  <input value={batonTask} maxLength={160} onChange={(event) => setBatonTask(event.target.value)} />
-                </label>
-                <label>
-                  Next
-                  <input value={batonNext} maxLength={160} onChange={(event) => setBatonNext(event.target.value)} />
-                </label>
-                <label>
-                  Status
-                  <input value={batonStatus} maxLength={160} onChange={(event) => setBatonStatus(event.target.value)} />
-                </label>
-              </>
+        </section>
+
+        <section className="hq-cc-card hq-cc-threadhead" aria-label="Mission thread filters">
+          <h2>Live mission thread</h2>
+          <p className="hq-cc-muted">Mark → fan-out → seat replies → baton → evidence</p>
+          <div className="hq-cc-chips" role="group" aria-label="Filter">
+            {THREAD_FILTERS.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                className={`hq-cc-chip${kindFilter === item.id ? " hq-cc-chip--active" : ""}`}
+                aria-pressed={kindFilter === item.id}
+                onClick={() => setKindFilter(item.id)}
+              >
+                {item.label}
+              </button>
+            ))}
+            {seatFilter ? (
+              <button type="button" className="hq-cc-chip hq-cc-chip--active" onClick={() => setSeatFilter("")}>
+                {seatName(seatFilter)} ✕
+              </button>
             ) : null}
           </div>
-          <label className="hq-room-text" htmlFor="room-connection">
-            {connectionName} connection
-            <input
-              id="room-connection"
-              type="password"
-              autoComplete="off"
-              spellCheck={false}
-              value={connectionToken}
-              onChange={(event) => setConnectionToken(event.target.value)}
-            />
-          </label>
-          <label className="hq-room-text" htmlFor="room-text">
-            Message
+        </section>
+
+        <section className="hq-cc-thread" aria-label="Mission thread" aria-live="polite">
+          {!opened ? <p className="hq-cc-card hq-cc-empty">Choose your seat and enter its key below to load the room.</p> : null}
+          {opened && visibleThread.length === 0 ? (
+            <p className="hq-cc-card hq-cc-empty">{messages.length ? "Nothing matches this filter." : "No posts yet."}</p>
+          ) : null}
+          {visibleThread.map((message) => renderCard(message))}
+        </section>
+
+        <form className="hq-cc-card hq-cc-composer" onSubmit={onSubmit} aria-label="Command composer">
+          <div className="hq-cc-seatpick" role="group" aria-label="Post as">
+            {seats.map((item) => {
+              const live = roomSeats.find((row) => row.id === item.id);
+              const silent = seatPresence(live?.lastSeenAt) === "silent";
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={`hq-cc-chip${seat === item.id ? " hq-cc-chip--active" : ""}`}
+                  aria-pressed={seat === item.id}
+                  onClick={() => selectSeat(item.id)}
+                  title={silent ? "No post in the last 15 minutes" : item.role}
+                >
+                  {item.callsign}
+                </button>
+              );
+            })}
+          </div>
+          <div className="hq-cc-keyrow">
+            <label htmlFor="room-connection">
+              {connectionName} key
+              <input
+                id="room-connection"
+                type="password"
+                autoComplete="off"
+                spellCheck={false}
+                value={connectionToken}
+                onChange={(event) => setConnectionToken(event.target.value)}
+              />
+            </label>
+            <button
+              type="button"
+              className="hq-cc-btn"
+              onClick={() => loadRoom().catch((err) => setError(err.message))}
+              disabled={posting || !connectionToken}
+            >
+              {opened ? "Refresh" : "Load"}
+            </button>
+          </div>
+
+          <div className="hq-cc-chips" role="group" aria-label="Address">
+            {["all", ...AGENT_SEATS.map((item) => item.id)].map((name) => (
+              <button key={name} type="button" className="hq-cc-chip" onClick={() => insertMention(name)}>
+                @{name}
+              </button>
+            ))}
+          </div>
+
+          <label className="hq-cc-command" htmlFor="room-text">
+            {mode === "chat" ? "Command" : mode === "baton" ? "Baton note" : mode === "evidence" ? "Evidence" : "Decision"}
             <textarea
               id="room-text"
+              ref={textRef}
               value={text}
               maxLength={ROOM_TEXT_MAX}
               rows={3}
+              placeholder={isOperator ? "Tell the swarm what needs to happen next…" : "Reply, hand off, or attach evidence…"}
               onChange={(event) => setText(event.target.value)}
               onKeyDown={onTextKeyDown}
             />
           </label>
-          <div className="hq-room-bar">
-            {error ? (
-              <p className="hq-room-error" role="alert">
-                {error}
-              </p>
+
+          {mode === "baton" ? (
+            <div className="hq-cc-fields">
+              <label>
+                Baton to
+                <select value={batonTo} onChange={(event) => setBatonTo(event.target.value)}>
+                  <option value="">Anyone</option>
+                  {AGENT_SEATS.filter((item) => item.id !== seat).map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.callsign}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Task
+                <input value={batonTask} maxLength={160} onChange={(event) => setBatonTask(event.target.value)} />
+              </label>
+              <label>
+                Next
+                <input value={batonNext} maxLength={160} onChange={(event) => setBatonNext(event.target.value)} />
+              </label>
+              <label>
+                Status
+                <input value={batonStatus} maxLength={160} onChange={(event) => setBatonStatus(event.target.value)} />
+              </label>
+            </div>
+          ) : null}
+          {mode === "evidence" || mode === "baton" ? (
+            <div className="hq-cc-fields">
+              <label>
+                Ref type
+                <select value={refType} onChange={(event) => setRefType(event.target.value)}>
+                  {ROOM_REF_TYPES.map((item) => (
+                    <option key={item} value={item}>
+                      {item}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Ref URL
+                <input value={refUrl} onChange={(event) => setRefUrl(event.target.value)} placeholder="https://github.com/…" />
+              </label>
+            </div>
+          ) : null}
+
+          <div className="hq-cc-composer-bar">
+            {kinds.includes("baton") ? (
+              <button type="button" className={`hq-cc-btn${mode === "baton" ? " hq-cc-btn--on" : ""}`} aria-pressed={mode === "baton"} onClick={() => toggleMode("baton")}>
+                + Baton
+              </button>
+            ) : null}
+            {kinds.includes("evidence") ? (
+              <button
+                type="button"
+                className={`hq-cc-btn${mode === "evidence" ? " hq-cc-btn--on" : ""}`}
+                aria-pressed={mode === "evidence"}
+                onClick={() => toggleMode("evidence")}
+              >
+                + Evidence
+              </button>
+            ) : null}
+            {kinds.includes("decision") ? (
+              <button
+                type="button"
+                className={`hq-cc-btn${mode === "decision" ? " hq-cc-btn--on" : ""}`}
+                aria-pressed={mode === "decision"}
+                onClick={() => toggleMode("decision")}
+              >
+                + Decision
+              </button>
+            ) : null}
+            <Button type="submit" variant="primary" loading={posting} disabled={!text.trim() || !connectionToken}>
+              {primaryLabel}
+            </Button>
+          </div>
+          {error ? (
+            <p className="hq-room-error" role="alert">
+              {error}
+            </p>
+          ) : (
+            <p className="hq-cc-muted">
+              The server stamps the author from the key. A plain message from Mark goes to every connected agent; @seat narrows it.
+            </p>
+          )}
+        </form>
+
+        <aside className="hq-cc-side">
+          <section className="hq-cc-card" aria-label="Approval gates">
+            <header className="hq-cc-cardhead">
+              <h2>Approval gates</h2>
+              {waiting !== null ? <span className="hq-cc-pill">{waiting} waiting</span> : null}
+            </header>
+            {!summary ? (
+              <p className="hq-cc-muted">Loads with the room.</p>
+            ) : summary.error ? (
+              <p className="hq-cc-muted">{summary.error}</p>
+            ) : summary.approvals.length === 0 ? (
+              <p className="hq-cc-muted">Nothing is waiting on Mark.</p>
             ) : (
-              <p className="hq-room-note">
-                The server stamps the author. Evidence with no resolving ref is shown unverified. A broadcast waits{" "}
-                {delayMinutes} minutes and is not posted to social media.
+              <ul className="hq-cc-list">
+                {summary.approvals.map((item) => (
+                  <li key={item.id}>
+                    <span className="hq-cc-muted">
+                      {item.type || "Agent job"}
+                      {item.provider ? ` · ${item.provider}` : ""}
+                    </span>
+                    <strong>{item.summary || item.id}</strong>
+                    <a className="hq-cc-btn" href="/hq/automation">
+                      Review in HQ
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p className="hq-cc-muted">Merges, deploys, and publishing are approved by Mark outside this room.</p>
+          </section>
+
+          <section className="hq-cc-card" aria-label="PR field">
+            <header className="hq-cc-cardhead">
+              <h2>PR field</h2>
+              {prField ? <span className="hq-cc-muted">{prField.freshness}</span> : null}
+            </header>
+            {!prField ? (
+              <p className="hq-cc-muted">Loads with the room.</p>
+            ) : prField.prs?.length ? (
+              <ul className="hq-cc-list">
+                {prField.prs.map((pr) => (
+                  <li key={`${pr.repo}#${pr.number}`} className="hq-cc-pr">
+                    <a href={pr.url}>
+                      <strong>
+                        #{pr.number} {pr.title}
+                      </strong>
+                    </a>
+                    <span className="hq-cc-muted">{pr.merged ? "merged" : pr.draft ? "draft" : pr.state}</span>
+                    <span className={`hq-cc-ci hq-cc-ci--${pr.ciState}`}>{ciMark(pr.ciState)}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="hq-cc-muted">
+                No PRs to show.{prField.freshness === "source unavailable" ? " HQ has no GitHub token yet." : ""}
+                {prField.error ? ` ${prField.error}` : ""}
               </p>
             )}
-            <div className="hq-room-actions">
-              <Button type="button" variant="secondary" onClick={() => loadRoom().catch((err) => setError(err.message))} disabled={posting || !connectionToken}>
-                Load
-              </Button>
-              <Button type="submit" variant="primary" loading={posting} disabled={!text.trim()}>
-                Post
-              </Button>
-            </div>
-          </div>
-        </form>
-      ) : (
-        <p className="hq-room-spectator-foot">
-          Spectator view. The composer is off. This feed is masked and delayed. Nothing here is posted to social media.
-        </p>
-      )}
+          </section>
+
+          <section className="hq-cc-card" aria-label="Current blockers">
+            <h2>Current blockers</h2>
+            {!opened ? (
+              <p className="hq-cc-muted">Loads with the room.</p>
+            ) : blockers.length === 0 ? (
+              <p className="hq-cc-muted">No open blockers.</p>
+            ) : (
+              <ul className="hq-cc-list">
+                {blockers.map((item) => (
+                  <li key={item.id}>
+                    <strong>{item.href ? <a href={item.href}>{item.title}</a> : item.title}</strong>
+                    {item.detail ? <span className="hq-cc-muted">{item.detail}</span> : null}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          {promoted ? (
+            <section className="hq-cc-card" aria-label="Promoted">
+              <h2>Promoted</h2>
+              <p className="hq-cc-muted">
+                Committed to <code>{promoted.branch}</code>: <a href={promoted.url}>{String(promoted.sha).slice(0, 7)}</a>
+              </p>
+            </section>
+          ) : null}
+          {held.length > 0 ? (
+            <section className="hq-cc-card" aria-label="Held broadcasts">
+              <h2>Held broadcasts</h2>
+              <ul className="hq-cc-list">
+                {held.map((row) => (
+                  <li key={row.id}>{row.warning || "Held. Not on the public feed."}</li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+          {paste ? (
+            <section className="hq-cc-card" aria-label="Ready to paste">
+              <h2>Ready to paste</h2>
+              <p className="hq-cc-muted">For the writer seat. This room did not commit.</p>
+              <pre className="hq-room-paste">{paste}</pre>
+            </section>
+          ) : null}
+
+          <details className="hq-cc-card hq-cc-details">
+            <summary>Live board (.md)</summary>
+            <pre className="hq-room-paste">{boardMarkdown(board)}</pre>
+          </details>
+
+          <details className="hq-cc-card hq-cc-details">
+            <summary>Roles pact and views</summary>
+            <ul className="hq-cc-list">
+              <li>
+                <strong>Edit.</strong> {ROOM_PACT.edit}
+              </li>
+              <li>
+                <strong>Stay off.</strong> {ROOM_PACT.stayOff}
+              </li>
+              <li>
+                <strong>Merge.</strong> {ROOM_PACT.merge}
+              </li>
+            </ul>
+            <nav className="hq-cc-chips" aria-label="Viewing tiers">
+              {TIER_LINKS.map((item) => (
+                <a key={item.id} className={`hq-cc-chip${tier === item.id ? " hq-cc-chip--active" : ""}`} href={item.href} aria-current={tier === item.id ? "page" : undefined}>
+                  {item.label}
+                </a>
+              ))}
+              <a className="hq-cc-chip" href="/hq">
+                HQ home
+              </a>
+            </nav>
+          </details>
+        </aside>
+      </div>
     </div>
   );
 }
