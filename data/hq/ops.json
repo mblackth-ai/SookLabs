@@ -360,7 +360,7 @@
           "id": "exec-sookly",
           "front": "sookly-journey",
           "title": "Reconcile Journey and CRM against Sookly release acceptance",
-          "currentState": "Contact-filter main is separate from production provenance. Kanban draft's failing audit/CSRF/optional-SOP TypeScript errors corrected; Postgres migration, Journey tests, typecheck and build passed on the correction head. Added specific notebook/list regression CI; current-head checks still pending. Production customer journey remains NOT TESTED.",
+          "currentState": "Kanban TypeScript defects corrected. Postgres/Journey/typecheck/build passed on correction head. Specific notebook and list/filter CI pass on latest draft head; final combined build rerun underway. Production customer journey remains NOT TESTED.",
           "deliverable": "Release-matrix-aligned Journey/CRM candidate and clean-user EN/TH acceptance evidence.",
           "acceptanceTest": "Applicable release-matrix tests pass in their required environment, including clean-user setup, Website Chat enquiry/reply, MITL AI, usage, return-login and tenant isolation. Journey production migration/deploy and pilot proof remain separately gated.",
           "nextAction": "Verify current Kanban-head Postgres/build and notebook/filter CI, then run staging Kanban moves and CC-before-PO acceptance; preserve release matrix and production approval gates.",
@@ -375,6 +375,13 @@
               "scope": "Postgres/Journey/typecheck/build before added contacts workflow",
               "status": "PASS",
               "head": "1278bfb7c61d1be12c6042c31bc3023473bee8cf"
+            },
+            {
+              "kind": "ci",
+              "url": "https://github.com/mblackth-ai/sookly-omnichat/actions/runs/37141719714",
+              "scope": "Notebook CC-before-PO gate and contact-list/filter regression tests",
+              "status": "PASS",
+              "head": "8d94194502862e0f5e0b7dbd58b2f0fc7a8ec1b0"
             }
           ],
           "acceptanceStatus": "NOT TESTED",
@@ -398,10 +405,10 @@
           "id": "exec-seos",
           "front": "seos-social",
           "title": "Verify SEOS MVP and truthful social functionality",
-          "currentState": "Browser persistence remains the canonical MVP behavior. Publication lifecycle draft now has separate lifecycle and dependency-install CI. CI revealed missing SWC helper lock entry; restored from the SEOS refactor candidate with matching dependency versions. Rerun pending. Real n8n round-trip and production connection acceptance remain unverified.",
+          "currentState": "Publication lifecycle and clean dependency installation both pass on the updated draft after restoring the missing SWC helper lock entry. Browser-store MVP, real n8n round-trip and production connection acceptance remain unverified.",
           "deliverable": "MVP smoke evidence and accurate Manual / Workflow Ready / Future API presentation.",
           "acceptanceTest": "MVP setup → seed → edit → export and all applicable smoke checklist items pass; auth, exports, HQ cross-link and Authority persistence are evidenced. Connected appears only for a verified live connection.",
-          "nextAction": "Verify lifecycle and clean-install CI; run real n8n return/import/error/persistence acceptance on the refactor draft when approved workflow access exists. Keep channel status truthful.",
+          "nextAction": "Run canonical MVP smoke and real n8n return/import/error/persistence acceptance when staging and approved workflow access are available; retain Manual / Workflow Ready labels until live evidence exists.",
           "status": "todo",
           "priority": "P0",
           "owner": "Chief of Staff",
@@ -412,6 +419,13 @@
               "url": "https://github.com/mblackth-ai/SEOS/actions/runs/37141630442",
               "scope": "Clean install identified missing SWC helper; not acceptance evidence",
               "status": "FAIL"
+            },
+            {
+              "kind": "ci",
+              "url": "https://github.com/mblackth-ai/SEOS/actions/runs/37141752738",
+              "scope": "Lifecycle fixture suite and clean dependency installation only; no live connector or browser acceptance",
+              "status": "PASS",
+              "head": "fbf0170bb7552d0bb3288be2ef8c02d468f60822"
             }
           ],
           "acceptanceStatus": "NOT TESTED",
