@@ -20,7 +20,7 @@ test("legacy explicit seat list stays compatible", () => {
   assert.equal(authorizedSeat(registry, "codex"), "codex");
 });
 test("invalid registry fails closed", () => {
-  for (const raw of ['{broken', '{"worker":"invented-seat"}', '{"worker":null}', 'unlisted-seat']) {
+  for (const raw of ['{broken', '{"worker":"invented-seat"}', '{"worker":null}', 'unlisted-seat', "{}"]) {
     assert.deepEqual(parseSeatRegistry(raw).seatAllowlist, []);
   }
 });
