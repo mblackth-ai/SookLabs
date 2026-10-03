@@ -108,10 +108,11 @@ npm run lint                 # exits 1: 72 pre-existing errors (see Gotchas)
   even though fonts.googleapis.com is reachable. `next build --webpack`
   succeeds. Treat a Turbopack-only font failure as environmental unless it
   also fails with `--webpack`.
-- **`npm run lint` already fails on master+#5** (72 errors, 40 warnings —
-  e.g. `react-hooks/rules-of-hooks` flags `usePostgres()` in
-  `lib/hq/ops.js`). Compare counts before/after your change instead of
-  expecting exit 0.
+- **Lint baseline depends on the branch.** PR #5 (`ede0dd2`) has 73
+  pre-existing errors; Cursor's lint pass on
+  `cursor/hq-tl-readonly-git-graph-df16` (`d47927a`) brings it to 0 errors /
+  10 warnings. Compare counts on your base before and after your change
+  instead of expecting exit 0.
 - **Screenshots are viewport-height.** The dashboard scrolls inside its own
   panel, so `fullPage` only captures 1440×900. Screenshot the sub-page you
   need (e.g. `/hq/retainers`) rather than expecting one long image.

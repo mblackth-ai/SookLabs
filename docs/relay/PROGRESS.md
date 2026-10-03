@@ -22,6 +22,10 @@ Re-verified in the browser: all flags 0, all flows PASS, builds pass, lint uncha
 
 **BATON 2026-10-03 (loop tick):** PR #5 moved 392874c → ede0dd2 (Cursor: eight fronts, finish-line docs). Rebased this branch onto ede0dd2 (one conflict in the four-fronts subtitle: kept Cursor's text, kept my label) and added the "eight-front mean" label to PR #5's new board. Re-verified: 114 loads, flags 0, flows PASS, build passes, lint unchanged. Read `docs/SOOKLABS_MASTER_OPERATING_MODEL.md` (af1ca4a); batons follow its format.
 
+**LANE (per `docs/BUSINESS_SUITE_MVP_MAP.md` + `FINISH_LINE_ACCEPTANCE_ALL_FRONTS.md` SW-1):** Claude = copy, research, specs, gap analysis, QA evidence. The badge/link/drawer fixes above were coding work Mark approved explicitly; from here, UI findings go to **Cursor as specs**: P1-2 branch-card Merge/Delete labels, P3 white 8px frame (likely Tailwind v4 `@tailwind base` in `app/globals.css`), duplicate "Overview" nav entry, clipped percentage-timeline end labels, hard-coded "Good morning.", login empty-submit round-trip. Details and screenshots in `docs/relay/visual-inspection-2026-10-02.md`.
+
+**OTHER BATON DONE:** SL-CONTENT-001 (Frontier OS social copy) → evidence `docs/relay/evidence/SL-CONTENT-001-claude.md` on `claude/sl-content-001` (from `chatgpt/hq-live-oversight-repo-timeline`); relay handed to Analytics.
+
 **OUT OF SCOPE:** P1-2, P2-1, P2-6, P3s; SEOS; merge/deploy/PR.
 
 **QUESTIONS FOR MARK:** go-ahead on P2 fixes (Badge, link colour, drawer wrap)? Which progress number is canonical per product (P1-1)? Should "Merge" on branch cards exist (P1-2)? Revoke-on-logout (P2-1)?

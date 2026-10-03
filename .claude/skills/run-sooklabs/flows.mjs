@@ -71,8 +71,12 @@ const flows = {
     const emptyValid = await page.locator("input[type=password]").evaluate((i) => i.validationMessage).catch(() => "");
     const s2 = await shot(page, "login__empty-submit");
     await page.fill("input[type=password]", "definitely-wrong");
-    await page.locator("button[type=submit]").click();
-    await page.waitForSelector("[role=alert]", { timeout: 10_000 }).catch(() => {});
+    // Wait for the login response, not just an alert: the empty-submit alert is still on screen and clears mid-request.
+    await Promise.all([
+      page.waitForResponse((r) => r.url().includes("/hq/api/login"), { timeout: 15_000 }).catch(() => {}),
+      page.locator("button[type=submit]").click(),
+    ]);
+    await page.locator("[role=alert]").first().filter({ hasText: /\S/ }).waitFor({ timeout: 10_000 }).catch(() => {});
     const wrongErr = await page.locator("[role=alert]").first().textContent().catch(() => null);
     const s3 = await shot(page, "login__wrong-password");
     await page.fill("input[type=password]", envFile("HQ_ACCESS_PASSWORD"));
