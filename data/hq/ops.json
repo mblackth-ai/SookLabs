@@ -148,7 +148,12 @@
           "priority": "P0",
           "owner": "James",
           "due": "2026-08-01",
-          "links": [{ "label": "SEOS Hub", "url": "/hq/seos" }]
+          "links": [
+            {
+              "label": "SEOS Hub",
+              "url": "/hq/seos"
+            }
+          ]
         },
         {
           "id": "ss-2",
@@ -230,8 +235,14 @@
           "owner": "Mark",
           "due": "2026-08-01",
           "links": [
-            { "label": "Privacy", "url": "https://sooklabs.com/privacy" },
-            { "label": "Terms", "url": "https://sooklabs.com/terms" },
+            {
+              "label": "Privacy",
+              "url": "https://sooklabs.com/privacy"
+            },
+            {
+              "label": "Terms",
+              "url": "https://sooklabs.com/terms"
+            },
             {
               "label": "Responsible Builder Policy",
               "url": "https://support.reddithelp.com/hc/en-us/articles/42728983564564-Responsible-Builder-Policy"
@@ -251,8 +262,14 @@
               "label": "Access pack",
               "url": "https://github.com/mblackth-ai/SEOS/blob/main/docs/REDDIT_ACCESS_REQUEST_PACK.md"
             },
-            { "label": "Data API Terms", "url": "https://www.redditinc.com/policies/data-api-terms" },
-            { "label": "Privacy", "url": "https://sooklabs.com/privacy" }
+            {
+              "label": "Data API Terms",
+              "url": "https://www.redditinc.com/policies/data-api-terms"
+            },
+            {
+              "label": "Privacy",
+              "url": "https://sooklabs.com/privacy"
+            }
           ],
           "platform": "reddit"
         },
@@ -298,6 +315,132 @@
           "owner": "James",
           "due": "2026-08-20",
           "links": []
+        }
+      ]
+    },
+    "executionMode": {
+      "label": "Execution Mode — four-front acceptance queue",
+      "boardHref": "/hq",
+      "items": [
+        {
+          "id": "exec-hq-mcp",
+          "front": "hq-mcp",
+          "title": "Converge room backend and MCP; prove two-seat baton handoff",
+          "currentState": "Canonical milestone defined; separate internal MCP draft remains open. Integration and production acceptance not verified.",
+          "deliverable": "One integrated room/MCP candidate and an auditable two-seat handoff acceptance record.",
+          "acceptanceTest": "One room objective routes to two distinct authenticated seats sharing normalized state; evidence returns without impersonation; concurrency, webhook deduplication, SSE reconnect, promote idempotency and MCP audit checks pass. Production acceptance follows approved deployment.",
+          "nextAction": "Inspect room/backend and MCP candidates against current master; reconcile shared seat identity and read model before integration acceptance.",
+          "status": "todo",
+          "priority": "P0",
+          "owner": "Chief of Staff",
+          "authority": "Reversible preparation, integration and verification within canonical scope; escalate credentials, irreversible actions, spend, production migrations, external publishing and business decisions.",
+          "evidence": [],
+          "acceptanceStatus": "NOT TESTED",
+          "dispatchStatus": "NOT DISPATCHED",
+          "links": [
+            {
+              "label": "HQ authority",
+              "url": "https://github.com/mblackth-ai/SookLabs/blob/master/docs/HQ-MCP-CONTROL-PLANE.md"
+            },
+            {
+              "label": "HQ implementation",
+              "url": "https://github.com/mblackth-ai/SookLabs/blob/master/docs/HQ-DEVELOPER.md"
+            }
+          ]
+        },
+        {
+          "id": "exec-sookly",
+          "front": "sookly-journey",
+          "title": "Reconcile Journey and CRM against Sookly release acceptance",
+          "currentState": "Release matrix says PUBLIC RELEASE NOT READY. Active tracks record Journey merged with pilotReady false and production migration/deploy gated; no production PASS established.",
+          "deliverable": "Release-matrix-aligned Journey/CRM candidate and clean-user EN/TH acceptance evidence.",
+          "acceptanceTest": "Applicable release-matrix tests pass in their required environment, including clean-user setup, Website Chat enquiry/reply, MITL AI, usage, return-login and tenant isolation. Journey production migration/deploy and pilot proof remain separately gated.",
+          "nextAction": "Reconcile current PR/commit state with the release matrix; prepare the general authentication and clean-user acceptance path before billing or production changes.",
+          "status": "todo",
+          "priority": "P0",
+          "owner": "Chief of Staff",
+          "authority": "Reversible preparation, integration and verification within canonical scope; escalate credentials, irreversible actions, spend, production migrations, external publishing and business decisions.",
+          "evidence": [],
+          "acceptanceStatus": "NOT TESTED",
+          "dispatchStatus": "NOT DISPATCHED",
+          "links": [
+            {
+              "label": "Release acceptance",
+              "url": "https://github.com/mblackth-ai/sookly-omnichat/blob/main/sookly-control/release-matrix.md"
+            },
+            {
+              "label": "Current state",
+              "url": "https://github.com/mblackth-ai/sookly-omnichat/blob/main/sookly-control/current-state.md"
+            },
+            {
+              "label": "Tracks",
+              "url": "https://github.com/mblackth-ai/sookly-omnichat/blob/main/sookly-control/active-tracks.md"
+            }
+          ]
+        },
+        {
+          "id": "exec-seos",
+          "front": "seos-social",
+          "title": "Verify SEOS MVP and truthful social functionality",
+          "currentState": "Canonical MVP documents setup, seed, edit and export with browser persistence. Current environment smoke evidence has not been collected; connector claims remain unverified.",
+          "deliverable": "MVP smoke evidence and accurate Manual / Workflow Ready / Future API presentation.",
+          "acceptanceTest": "MVP setup → seed → edit → export and all applicable smoke checklist items pass; auth, exports, HQ cross-link and Authority persistence are evidenced. Connected appears only for a verified live connection.",
+          "nextAction": "Inspect the current SEOS candidate and available preview; run canonical smoke checks and record gaps without expanding the MVP.",
+          "status": "todo",
+          "priority": "P0",
+          "owner": "Chief of Staff",
+          "authority": "Reversible preparation, integration and verification within canonical scope; escalate credentials, irreversible actions, spend, production migrations, external publishing and business decisions.",
+          "evidence": [],
+          "acceptanceStatus": "NOT TESTED",
+          "dispatchStatus": "NOT DISPATCHED",
+          "links": [
+            {
+              "label": "MVP authority",
+              "url": "https://github.com/mblackth-ai/SEOS/blob/main/docs/SEOS-MVP-1.md"
+            },
+            {
+              "label": "Smoke acceptance",
+              "url": "https://github.com/mblackth-ai/SEOS/blob/main/docs/mvp-smoke-checklist.md"
+            },
+            {
+              "label": "Decisions",
+              "url": "https://github.com/mblackth-ai/SEOS/blob/main/docs/agent/DECISIONS.md"
+            }
+          ]
+        },
+        {
+          "id": "exec-rdusa",
+          "front": "rdusa-internal",
+          "title": "Reconcile retainer scope and current proof of delivery",
+          "currentState": "Governance defines accountability and approval boundaries; NEXT_ACTIONS identifies fresh GSC data, inventory, reporting and access dependencies. Completion evidence has not been reconciled.",
+          "deliverable": "Scope-linked current delivery ledger, evidence map and bounded next-action queue.",
+          "acceptanceTest": "Each material claim resolves to dated evidence and an owned deliverable within governance and the promise map; completed work, blockers and extra-scope work are distinguished. Mark signs off before client delivery or external publishing.",
+          "nextAction": "Reconcile proposal-backed promises with current governance; map existing delivery evidence and identify missing GSC or transcript access while continuing available inventory/report preparation.",
+          "status": "todo",
+          "priority": "P0",
+          "owner": "Chief of Staff",
+          "authority": "Reversible preparation, integration and verification within canonical scope; escalate credentials, irreversible actions, spend, production migrations, external publishing and business decisions.",
+          "evidence": [],
+          "acceptanceStatus": "NOT TESTED",
+          "dispatchStatus": "NOT DISPATCHED",
+          "links": [
+            {
+              "label": "Index",
+              "url": "https://github.com/mblackth-ai/rdusa/blob/main/rdusa-retainer-growth-system-v2/00_INDEX/RDUSA_RETAINER_GROWTH_SYSTEM_INDEX.md"
+            },
+            {
+              "label": "Promise scope",
+              "url": "https://github.com/mblackth-ai/rdusa/blob/main/rdusa-retainer-growth-system-v2/01_RETAINER_FRAMEWORK_GUARDRAILS/RETAINER_PROMISE_MAP.md"
+            },
+            {
+              "label": "Next actions",
+              "url": "https://github.com/mblackth-ai/rdusa/blob/main/rdusa-retainer-growth-system-v2/04_ACTIONS_AUTOMATIONS_EXECUTION/NEXT_ACTIONS.md"
+            },
+            {
+              "label": "Governance",
+              "url": "https://github.com/mblackth-ai/rdusa/blob/main/docs/RDUSA_MASTER_AUDIT_SCOPE_AUTHORITY_ACCOUNTABILITY_2026-10-01.md"
+            }
+          ]
         }
       ]
     }
@@ -414,6 +557,17 @@
         "sooklabs",
         "blog",
         "seo"
+      ]
+    },
+    {
+      "id": "d-execution-mode-2026-10-03",
+      "date": "2026-10-03",
+      "title": "Canonical execution hierarchy and evidence-gated four-front queue",
+      "body": "Use docs/HQ-MCP-CONTROL-PLANE.md execution-mode hierarchy. Chief of Staff owns the four-front acceptance queue. This repository seed has no live dispatch or production acceptance receipt; apply through the authenticated ops/room interface after reviewing current live state.",
+      "tags": [
+        "hq",
+        "execution",
+        "acceptance"
       ]
     }
   ],
