@@ -9,13 +9,15 @@
 relay:
   relay_id: sooklabs.social.frontier-os.v1
   task_id: SL-CONTENT-001
-  current_owner: claude
+  current_owner: analytics
   status: active
-  previous_owner: chatgpt
-  next_owner: analytics
+  previous_owner: claude
+  next_owner: mark
   handoff_ready: false
   branch: chatgpt/hq-live-oversight-repo-timeline
   pr: 6
+  evidence:
+    - docs/relay/evidence/SL-CONTENT-001-claude.md  # Claude: LinkedIn x3, Facebook x2, hooks, CTAs, claims scan
   inputs:
     - docs/AGENT_RELAY_PROTOCOL.md
     - docs/SOOKLABS_SWARM_RUNTIME.md
@@ -34,10 +36,12 @@ relay:
 Human-readable baton:
 
 ```text
-CHATGPT D | CLAUDE A | ANALYTICS - | MARK -
+CHATGPT D | CLAUDE D | ANALYTICS A | MARK -
 ```
 
-The repo records that Claude owns the next editorial step. Until the Butler/webhook runtime exists, this state does **not** itself wake Claude.
+The repo records that Analytics owns the next step. Until the Butler/webhook runtime exists, this state does **not** itself wake Analytics.
+
+**Handoff note (Claude → Analytics, 2026-10-03):** Final copy is in [`docs/relay/evidence/SL-CONTENT-001-claude.md`](./relay/evidence/SL-CONTENT-001-claude.md): LinkedIn versions of all three posts, Facebook versions of posts 1 and 3 (post 2 works as-is), one hook and one CTA each, and a claims/private-detail scan. Analytics: recommend cadence and timing from real performance data; don't rewrite the copy. Nothing is scheduled or published; Mark approves, and Codex posts only to a channel Mark names after HQ Approve. The ChatGPT drafts below are kept unchanged for comparison.
 
 ## Editorial thesis
 

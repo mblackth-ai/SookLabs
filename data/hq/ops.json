@@ -326,11 +326,16 @@
         {
           "id": "sl-1",
           "title": "Claude: refine the 3-post Frontier OS mini-series for LinkedIn + Facebook",
-          "status": "doing",
+          "status": "done",
           "priority": "P0",
           "owner": "Claude",
           "due": "2026-10-03",
-          "links": []
+          "links": [
+            {
+              "label": "SL-CONTENT-001 evidence",
+              "url": "https://github.com/mblackth-ai/SookLabs/blob/claude/sl-content-001/docs/relay/evidence/SL-CONTENT-001-claude.md"
+            }
+          ]
         },
         {
           "id": "sl-2",
