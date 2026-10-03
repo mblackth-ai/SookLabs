@@ -180,6 +180,7 @@ export async function createApp(config) {
         }
         transport = new StreamableHTTPServerTransport({
           sessionIdGenerator: () => randomUUID(),
+          enableJsonResponse: true,
           onsessioninitialized: (id) => {
             sessions.set(id, { transport, subject: req.auth.extra.sub, seat: req.auth.extra.seat, open: 0, lastActive: Date.now() });
           },
