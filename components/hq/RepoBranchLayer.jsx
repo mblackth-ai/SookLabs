@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "./Button";
 
 const DISMISS_KEY = "hq-eight-front-dismissed-branches";
@@ -25,10 +25,12 @@ export function RepoBranchLayer({ branches }) {
   const [pending, setPending] = useState(null);
   const [notice, setNotice] = useState("");
   const [payloadText, setPayloadText] = useState("");
+  const initial = useRef(null);
 
   useEffect(() => {
-    setDismissed(readList(DISMISS_KEY));
-    setMerges(readList(MERGE_KEY));
+    initial.current = { dismissed: readList(DISMISS_KEY), merges: readList(MERGE_KEY) };
+    setDismissed(initial.current.dismissed);
+    setMerges(initial.current.merges);
   }, []);
 
   const visible = branches.filter((branch) => !dismissed.includes(branch.id));

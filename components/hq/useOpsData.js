@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useSaveStatus } from "./SaveStatus";
 
 export function useOpsData(initialData) {
@@ -8,9 +8,11 @@ export function useOpsData(initialData) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const saveStatus = useSaveStatus();
+  const latestInitialData = useRef(initialData);
 
   useEffect(() => {
-    setData(initialData);
+    latestInitialData.current = initialData;
+    setData(latestInitialData.current);
   }, [initialData?.updatedAt]);
 
   const save = useCallback(

@@ -131,6 +131,7 @@ export function ToolsNavDropdown({ className = "", variant = "coverflow" }) {
   const rootRef = useRef(null);
   const panelRef = useRef(null);
   const closeTimer = useRef(null);
+  const mountedRef = useRef(false);
   const panelId = useId();
   const isCoverflow = variant === "coverflow";
 
@@ -148,7 +149,8 @@ export function ToolsNavDropdown({ className = "", variant = "coverflow" }) {
   }, []);
 
   useEffect(() => {
-    setMounted(true);
+    mountedRef.current = true;
+    setMounted(mountedRef.current);
   }, []);
 
   useEffect(() => {

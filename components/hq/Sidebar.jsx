@@ -41,6 +41,18 @@ function shouldShowSubitem(pathname, parentHref, subitemHref) {
   return isHqNavActive(pathname, parentHref) || isHqNavActive(pathname, subitemHref);
 }
 
+/** Pairs each subitem with the href of the item it nests under (reset at dividers). */
+function withParentHrefs(rows) {
+  let lastParentHref = null;
+  return rows.map((row) => {
+    if (row.kind === "divider") lastParentHref = null;
+    if (row.kind === "item") lastParentHref = row.href;
+    return { row, parentHref: row.kind === "subitem" ? lastParentHref : null };
+  });
+}
+
+const NAV_ROWS = withParentHrefs(nav);
+
 export function Sidebar({ mobileOpen = false, onMobileClose }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -52,8 +64,6 @@ export function Sidebar({ mobileOpen = false, onMobileClose }) {
     router.push("/hq/login");
     router.refresh();
   }
-
-  let lastParentHref = null;
 
   return (
     <aside className={`hq-sidebar${mobileOpen ? " hq-sidebar--open" : ""}`}>
@@ -88,7 +98,7 @@ export function Sidebar({ mobileOpen = false, onMobileClose }) {
           ))}
         </div>
 
-        {nav.map((row, idx) => {
+        {NAV_ROWS.map(({ row, parentHref }, idx) => {
           if (row.kind === "section") {
             return (
               <div key={"sec-" + row.label} className="hq-sidebar-section-label">
@@ -97,11 +107,9 @@ export function Sidebar({ mobileOpen = false, onMobileClose }) {
             );
           }
           if (row.kind === "divider") {
-            lastParentHref = null;
             return <div key={"div-" + idx} className="hq-sidebar-divider" />;
           }
           if (row.kind === "item") {
-            lastParentHref = row.href;
             return (
               <NavRow
                 key={row.id}
@@ -112,7 +120,7 @@ export function Sidebar({ mobileOpen = false, onMobileClose }) {
             );
           }
           if (row.kind === "subitem") {
-            if (!lastParentHref || !shouldShowSubitem(pathname, lastParentHref, row.href)) {
+            if (!parentHref || !shouldShowSubitem(pathname, parentHref, row.href)) {
               return null;
             }
             return (

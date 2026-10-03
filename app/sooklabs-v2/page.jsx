@@ -440,9 +440,11 @@ function usePrefersReducedMotion() {
 
 function useHeroPinProgress(pinRef, reduce) {
   const [p, setP] = useState(0);
+  const pInitial = useRef(0);
   useEffect(() => {
     if (reduce) {
-      setP(0);
+      pInitial.current = 0;
+      setP(pInitial.current);
       return;
     }
     let raf = 0;
@@ -814,10 +816,12 @@ function HeroScrollScene({ p = 0, reduce = false }) {
 function useReveal() {
   const ref = useRef(null);
   const [prog, setProg] = useState(0);
+  const progInitial = useRef(0);
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce) {
-      setProg(1);
+      progInitial.current = 1;
+      setProg(progInitial.current);
       return;
     }
     const el = ref.current;

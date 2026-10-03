@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card } from "./Card";
 import { Badge } from "./Badge";
 import { Button } from "./Button";
@@ -10,14 +10,16 @@ import { Button } from "./Button";
  */
 export function ClickPlayDraftHint() {
   const [last, setLast] = useState(null);
+  const initial = useRef(null);
 
   useEffect(() => {
     try {
       const raw = sessionStorage.getItem("hq-click-play:last");
-      if (raw) setLast(JSON.parse(raw));
+      initial.current = raw ? JSON.parse(raw) : null;
     } catch {
-      setLast(null);
+      initial.current = null;
     }
+    setLast(initial.current);
   }, []);
 
   if (!last) return null;

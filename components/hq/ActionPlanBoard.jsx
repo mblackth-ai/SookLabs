@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useOpsData } from "./useOpsData";
 import { Card } from "./Card";
 import { Button } from "./Button";
@@ -282,15 +282,17 @@ export function ActionPlanBoard({ initialData, streamKeys, columns = 2 }) {
   const openPriorityCount = (data.todayPriorities || []).filter((p) => !p.done).length;
   const [hideDone, setHideDone] = useState(true);
   const [mobileAccordion, setMobileAccordion] = useState(false);
+  const hideDoneInitial = useRef(true);
 
   useEffect(() => {
     try {
       const saved = localStorage.getItem(HIDE_DONE_KEY);
-      if (saved === "0") setHideDone(false);
-      else if (saved === "1") setHideDone(true);
+      if (saved === "0") hideDoneInitial.current = false;
+      else if (saved === "1") hideDoneInitial.current = true;
     } catch {
       /* ignore */
     }
+    setHideDone(hideDoneInitial.current);
   }, []);
 
   useEffect(() => {
