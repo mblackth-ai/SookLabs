@@ -1,6 +1,6 @@
 # Agent progress (read by Grok on every push)
 
-## Current — Claude, 2026-10-03, branch `claude/hq-visual-pass`
+## Current — Claude, 2026-10-03, branch `claude/hq-visual-pass` (on PR #5 tip `ede0dd2`)
 
 **FRONT:** HQ / MCP Gateway — visual inspection of the running HQ UI.
 
@@ -19,6 +19,8 @@
 P2-2 badges, P2-3 links (2.0:1 → 10.25:1), P1-1 labels on `claude/hq-visual-pass` (`f991f8e`);
 same + P2-4 drawer + eight-front label on `claude/hq-timeline-fixes` (`7b7afa3`, `def1d64`, on the cursor timeline branch).
 Re-verified in the browser: all flags 0, all flows PASS, builds pass, lint unchanged. See "After" in the report.
+
+**BATON 2026-10-03 (loop tick):** PR #5 moved 392874c → ede0dd2 (Cursor: eight fronts, finish-line docs). Rebased this branch onto ede0dd2 (one conflict in the four-fronts subtitle: kept Cursor's text, kept my label) and added the "eight-front mean" label to PR #5's new board. Re-verified: 114 loads, flags 0, flows PASS, build passes, lint unchanged. Read `docs/SOOKLABS_MASTER_OPERATING_MODEL.md` (af1ca4a); batons follow its format.
 
 **OUT OF SCOPE:** P1-2, P2-1, P2-6, P3s; SEOS; merge/deploy/PR.
 
