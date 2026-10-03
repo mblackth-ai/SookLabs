@@ -90,6 +90,8 @@ test("github read tools stay read-only summaries without control-plane keys", as
   const deploy = await deployStatus(github, "claude");
   assert.equal(deploy.deployments.length, 1);
   assert.equal(deploy.overallProgress, undefined);
+  assert.deepEqual(Object.keys(deploy).sort(), ["deployments", "homepage", "seat"]);
+  assert.deepEqual(Object.keys(build).sort(), ["checks", "seat", "sha"]);
 });
 
 test("partial OAuth configuration stays fail-closed with mcp_not_configured", async (t) => {
@@ -251,7 +253,9 @@ test("v1 read path serves all four tools over Streamable HTTP without live GitHu
     const structured = data.result.structuredContent;
     assert.equal(structured.seat, "codex");
     if (name === "blockers") {
+      assert.deepEqual(Object.keys(structured).sort(), ["blockers", "seat"]);
       assert.deepEqual(structured.blockers, expectedBlockers);
+      assert.equal(structured.overallProgress, undefined);
     }
     if (name === "project_status") {
       assert.equal(structured.repo, "mblackth-ai/SookLabs");
