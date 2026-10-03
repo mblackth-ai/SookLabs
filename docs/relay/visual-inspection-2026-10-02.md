@@ -107,6 +107,19 @@ Severity: P0 broken/dangerous · P1 major obstruction · P2 meaningful usability
 - **P3-7** Timeline requests each commit's detail twice (identical `/hq/api/repo-timeline/commit?sha=` calls).
 - **Unconfirmed:** one React hydration-mismatch warning on the first `/hq` load after a cold compile; not reproduced in 6 later loads (UTC and Asia/Bangkok).
 
+## After — fixes applied 2026-10-03 (Mark's go-ahead)
+
+| Finding | Status | Change | Verified |
+| ------- | ------ | ------ | -------- |
+| P2-2 badges spill/clip | **PASS** | `components/hq/Badge.jsx`: `minHeight`, `nowrap`, `flexShrink: 0`; four-fronts title column may wrap the long contract path | wrappedBadges 0, pastRight 0 on all routes × 3 viewports (A: 87 loads, B: 117) |
+| P2-3 default-blue links | **PASS** | `app/hq/hq.css`: `.hq-dash-main a:not([class])` uses `--text-accent` | defaultBlueLinks 0 everywhere; measured 2.0:1 → **10.25:1** |
+| P2-4 commit drawer clipping (branch) | **PASS** | `app/hq/hq.css` (cursor branch): drawer grid `minmax(0, 1fr)`, `overflow-wrap: anywhere` on title, values, paths | timeline flow PASS desktop + mobile; full title, SHA and paths visible |
+| P1-1 conflicting progress numbers | **PASS (labelled)** | Text only: "four-front estimate" (Overview, Four Fronts), "build-board tasks done" (Portfolio), "eight-front mean" (Eight fronts, branch). No numbers or calculations changed | screenshots after |
+
+Builds: A = `claude/hq-visual-pass` (on #5), B = `claude/hq-timeline-fixes` (on `cursor/hq-tl-readonly-git-graph-df16`, with A's commit cherry-picked). Both `next build --webpack` pass; lint unchanged (A 72 errors, B 73 — same as each base). All 9 flows PASS on B; 7 PASS + 2 SKIP (branch-only) on A.
+
+Still open, deliberately not changed: P1-2 (branch-card Merge labels — Mark's call), P2-1 (logout revocation — security decision), P2-5 (Knowledge Usage table on master — already fixed on the branches), P2-6 (stale P0s — check prod), all P3, SEOS (blocked).
+
 ## Not verifiable here (environment)
 - Branch visualisation with real PRs/branches: the server's GitHub calls get 401/403 in this container (placeholder `GITHUB_TOKEN`; unauthenticated Node fetch isn't proxied), so the timeline shows its local-clone fallback (master only). The fallback state itself is verified.
 - Production data on `hq.sooklabs.com` (blocked host).

@@ -15,7 +15,12 @@
 - `docs/relay/visual-inspection-2026-10-02.md` — inventory, findings, operating-model notes.
 - `.claude/skills/run-sooklabs/inspect.mjs`, `flows.mjs`; `driver.mjs` stop fix; SKILL.md gotchas.
 
-**OUT OF SCOPE:** any fix (waits for Mark's go); SEOS; merge/deploy/PR.
+**UPDATE 2026-10-03 — fixes applied (Mark: go on P2s; P1-1 "keep all, label clearly"):**
+P2-2 badges, P2-3 links (2.0:1 → 10.25:1), P1-1 labels on `claude/hq-visual-pass` (`f991f8e`);
+same + P2-4 drawer + eight-front label on `claude/hq-timeline-fixes` (`7b7afa3`, `def1d64`, on the cursor timeline branch).
+Re-verified in the browser: all flags 0, all flows PASS, builds pass, lint unchanged. See "After" in the report.
+
+**OUT OF SCOPE:** P1-2, P2-1, P2-6, P3s; SEOS; merge/deploy/PR.
 
 **QUESTIONS FOR MARK:** go-ahead on P2 fixes (Badge, link colour, drawer wrap)? Which progress number is canonical per product (P1-1)? Should "Merge" on branch cards exist (P1-2)? Revoke-on-logout (P2-1)?
 
