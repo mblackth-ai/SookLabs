@@ -65,6 +65,8 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
   const [batonNext, setBatonNext] = useState("");
   const [batonStatus, setBatonStatus] = useState("");
   const [paste, setPaste] = useState("");
+  const [promoted, setPromoted] = useState(null);
+  const [prField, setPrField] = useState(null);
   const [posting, setPosting] = useState(false);
   const [error, setError] = useState(loadError || "");
   const [copied, setCopied] = useState(false);
@@ -97,6 +99,9 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
     if (data.storage) setRoomStorage(data.storage);
     setOpened(true);
     setError("");
+    const prs = await fetch("/hq/api/room/prs", { headers: authHeaders(), cache: "no-store" });
+    const prData = await prs.json().catch(() => ({}));
+    setPrField(prs.ok && prData.ok ? prData : { prs: [], freshness: "source unavailable", error: prData.error || "" });
     if (tier === "operator") {
       const review = await fetch("/hq/api/room/public/feed?review=1", { headers: authHeaders(), cache: "no-store" });
       const reviewData = await review.json().catch(() => ({}));
@@ -241,6 +246,11 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
     try {
       const data = await postJson(`/hq/api/room/messages/${id}/promote`, {});
       setPaste(data.paste || "");
+      setPromoted(data.wrote ? { sha: data.promotedSha, url: data.commitUrl, branch: data.branch } : null);
+      if (data.writeError) setError(data.writeError);
+      if (data.message) {
+        setMessages((current) => current.map((item) => (item.id === data.message.id ? data.message : item)));
+      }
     } catch (err) {
       setError(err.message || "Promote could not be prepared.");
     } finally {
@@ -299,6 +309,7 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
             {message.refs.map((ref) => (
               <span key={`${ref.type}:${ref.ref}`}>
                 {ref.type} {ref.url ? <a href={ref.url}>{ref.ref}</a> : ref.ref}
+                {ref.resolves === true ? " (checked)" : ref.resolves === false ? " (not found or not green)" : ""}
               </span>
             ))}
           </p>
@@ -459,6 +470,51 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
                 </table>
               </div>
             </section>
+            <section aria-label="PR field">
+              <h2>PR field</h2>
+              <p className="hq-room-note">
+                {prField
+                  ? `Open PRs from GitHub · ${prField.freshness}${prField.reconciledAt ? ` · checked ${formatStamp(prField.reconciledAt)}` : ""}`
+                  : "Loads with the room."}
+                {prField?.error ? ` · ${prField.error}` : ""}
+              </p>
+              {prField?.prs?.length ? (
+                <div className="hq-room-table-wrap">
+                  <table className="hq-room-table">
+                    <thead>
+                      <tr>
+                        <th>PR</th>
+                        <th>Title</th>
+                        <th>State</th>
+                        <th>CI</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {prField.prs.map((pr) => (
+                        <tr key={`${pr.repo}#${pr.number}`}>
+                          <th scope="row">
+                            <a href={pr.url}>#{pr.number}</a>
+                          </th>
+                          <td>{pr.title}</td>
+                          <td>{pr.merged ? "merged" : pr.draft ? "draft" : pr.state}</td>
+                          <td>{pr.ciState}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : prField ? (
+                <p className="hq-room-note">No PRs to show.</p>
+              ) : null}
+            </section>
+            {promoted ? (
+              <section aria-label="Promoted">
+                <h2>Promoted</h2>
+                <p className="hq-room-note">
+                  Committed to <code>{promoted.branch}</code>: <a href={promoted.url}>{String(promoted.sha).slice(0, 7)}</a>
+                </p>
+              </section>
+            ) : null}
             {held.length > 0 ? (
               <section aria-label="Held broadcasts">
                 <h2>Held</h2>
