@@ -22,6 +22,9 @@ export async function POST(request, { params }) {
       promotedSha: saved.promotedSha,
       forSeat: saved.forSeat,
       paste: saved.paste,
+      commitUrl: saved.commitUrl || "",
+      branch: saved.branch || "",
+      writeError: saved.writeError || "",
       message: saved.message,
     });
   } catch (err) {
