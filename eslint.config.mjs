@@ -11,6 +11,8 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     "_tmp_*/**",
+    // Vendored/reference design-system export, not imported by shipped app code.
+    "_reference/**",
   ]),
 ]);
 
