@@ -303,15 +303,18 @@ const flows = {
   },
 };
 
-const BRANCH_ONLY = { repoTimeline: "/hq/fronts/hq", branchCardActions: "/hq/fronts/hq" };
+// Branch-only flows: skip when the build lacks the route or the feature on it (marker text in the HTML).
+const BRANCH_ONLY = { repoTimeline: ["/hq/fronts/hq", "Repo timeline"], branchCardActions: ["/hq/fronts/hq", "Repo branches"] };
 const cookie = readFileSync(join(STATE, "cookie"), "utf8").trim();
 const browser = await req.chromium.launch({ executablePath: chromiumPath });
 for (const [name, fn] of Object.entries(flows)) {
   if (ONLY && !ONLY.includes(name)) continue;
   if (BRANCH_ONLY[name]) {
-    const res = await fetch(`${BASE}${BRANCH_ONLY[name]}`, { headers: { Cookie: cookie } });
-    if (res.status === 404) {
-      console.log(`SKIP ${name} — ${BRANCH_ONLY[name]} not in this build`);
+    const [route, marker] = BRANCH_ONLY[name];
+    const res = await fetch(`${BASE}${route}`, { headers: { Cookie: cookie } });
+    const html = res.status === 404 ? "" : await res.text();
+    if (!html.includes(marker)) {
+      console.log(`SKIP ${name} — "${marker}" not on ${route} in this build`);
       continue;
     }
   }

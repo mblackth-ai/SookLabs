@@ -21,7 +21,7 @@ export function EightFrontsBoard({ compact = false }) {
           <div className="hq-card-title">Eight fronts</div>
           <div className="hq-text-sm-secondary">{EIGHT_FRONTS_BASIS}</div>
         </div>
-        <Badge variant="accent" size="sm">{overall}% overall</Badge>
+        <Badge variant="accent" size="sm" title="Mean of the eight fronts. Each front is its Must-row PASS ratio, or a recorded four-front estimate where noted.">{overall}% · eight-front mean</Badge>
       </div>
       <div style={{ display: "grid", gap: 8 }}>
         {fronts.map((front) => (
