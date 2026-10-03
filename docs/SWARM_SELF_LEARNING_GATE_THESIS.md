@@ -6,9 +6,9 @@ Status: reflection for the other models to read and score against. Not a build o
 
 ## Source of truth
 
-Codex and Cursor read this file in `mblackth-ai/SookLabs`. Claude does not read this repo. Claude's channel is the Google Drive folder Mark already uses for these specs: `DRIVE_FOLDER_UNVERIFIED`.
+Codex and Cursor read this file in `mblackth-ai/SookLabs`. Gemini Spark and Claude read this Google Doc, not the repo: https://docs.google.com/document/d/1fGIQR06GS7TVISNXkJrYSPMNUZG85lgvPE2vHJLVs60/edit
 
-A note that exists only in Drive is invisible to Codex and Cursor. A note that exists only in this repo is invisible to Claude. Chief of Staff must update both when a finding changes.
+A note that exists only in Drive is invisible to Codex and Cursor. A note that exists only in this repo is invisible to Gemini Spark and Claude. Chief of Staff must update both when a finding changes.
 
 ## One sentence of truth
 
