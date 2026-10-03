@@ -18,9 +18,10 @@ import {
   boardMarkdown,
 } from "@/lib/hq/swarm-contract";
 
-// HQ Swarm Room as a command center. Every number on this page comes from the
-// room API (messages, dispatches, seat strip, PR field) or the HQ snapshot
-// (/hq/api/room/summary). Nothing is shown until it has loaded.
+// HQ Swarm Room as a command center. Live metrics are loaded from the room API
+// (messages, dispatches, seat strip, PR field) or the HQ control-plane snapshot
+// (/hq/api/room/summary); seat names, roles and UI labels are configured
+// client-side, and unloaded metrics show "—".
 
 const DISPATCH_LABEL = {
   queued: "Queued",
@@ -186,7 +187,9 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
   });
 
   // Header stats, all from loaded data.
-  const latestBaton = [...messages].reverse().find((message) => message.kind === "baton" && message.baton?.to);
+  const latestBaton = messages
+    .filter((message) => message.kind === "baton" && message.baton?.to)
+    .reduce((latest, message) => (!latest || message.createdAt > latest.createdAt ? message : latest), null);
   const readySeats = strip.filter((row) => row.ready);
   const liveSeats = strip.filter((row) => row.ready && (row.adapter !== "pull" || row.online));
   const offlineSeats = strip.filter((row) => !row.ready);
@@ -197,6 +200,8 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
     href: "",
   }));
   const blockers = [...(summary?.blockers || []), ...seatBlockers];
+  // Never claim "no blockers" while the control-plane half is missing.
+  const controlPlaneBlockers = !summary ? "loading" : summary.error ? "unavailable" : "ok";
 
   const authHeaders = useCallback(() => {
     const headers = { accept: "application/json" };
@@ -655,7 +660,7 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
           ) : null}
           <dl className="hq-cc-stats">
             <div>
-              <dt>Finish line</dt>
+              <dt>Finish-line estimate</dt>
               <dd className="hq-cc-big">{percent === null ? "—" : `${percent}%`}</dd>
               {percent !== null ? (
                 <div className="hq-cc-bar" role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100}>
@@ -663,7 +668,7 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
                 </div>
               ) : null}
               <dd className="hq-cc-sub" title={summary?.finishLine?.basis || ""}>
-                {percent === null ? (opened ? summary?.error || "Loading…" : "Load the room") : "four-front estimate"}
+                {percent === null ? (opened ? summary?.error || "Loading…" : "Load the room") : "Four-front control-plane estimate; not a percentage of all acceptance rows."}
               </dd>
             </div>
             <div>
@@ -677,9 +682,13 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
               <dd className="hq-cc-sub">approval gates</dd>
             </div>
             <div>
-              <dt>Active seats</dt>
+              <dt>Live / ready seats</dt>
               <dd className="hq-cc-big">{strip.length ? `${liveSeats.length}/${strip.length}` : "—"}</dd>
-              <dd className="hq-cc-sub">{strip.length ? `${offlineSeats.length} offline · ${readySeats.length} connected` : "Load the room"}</dd>
+              <dd className="hq-cc-sub" title="Live = a server-side adapter with credentials, or a polling seat seen in the last 5 minutes.">
+                {strip.length
+                  ? `${liveSeats.length} live · ${readySeats.length - liveSeats.length} idle · ${offlineSeats.length} offline`
+                  : "Load the room"}
+              </dd>
             </div>
           </dl>
         </section>
@@ -970,10 +979,15 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
 
           <section className="hq-cc-card" aria-label="Current blockers">
             <h2>Current blockers</h2>
+            {opened && controlPlaneBlockers !== "ok" ? (
+              <p className="hq-cc-muted" role="status">
+                {controlPlaneBlockers === "loading" ? "Loading control-plane blockers…" : "Control-plane blockers unavailable."}
+              </p>
+            ) : null}
             {!opened ? (
               <p className="hq-cc-muted">Loads with the room.</p>
             ) : blockers.length === 0 ? (
-              <p className="hq-cc-muted">No open blockers.</p>
+              controlPlaneBlockers === "ok" ? <p className="hq-cc-muted">No open blockers.</p> : null
             ) : (
               <ul className="hq-cc-list">
                 {blockers.map((item) => (
