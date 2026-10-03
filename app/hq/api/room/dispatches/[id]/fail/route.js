@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 export async function POST(request, { params }) {
   const { id } = await params;
   if (!browserWriteAllowed(request)) return json({ ok: false, error: "Cross-site posts are blocked." }, 403);
-  const auth = requireSeatConnection(request);
+  const auth = await requireSeatConnection(request);
   if (!auth.ok) return json({ ok: false, error: auth.error }, auth.status);
   const payload = await readJson(request);
   if (!payload.ok) return json({ ok: false, error: payload.error }, payload.status);

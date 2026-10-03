@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 // Pull seats (Cursor, Codex, Claude Code, a CLI) poll here with their own
 // connection. Polling is the heartbeat that shows the seat as online.
 export async function GET(request) {
-  const auth = requireSeatConnection(request);
+  const auth = await requireSeatConnection(request);
   if (!auth.ok) return json({ ok: false, error: auth.error }, auth.status);
   try {
     await touchRoomSeat(auth.seat, auth.tokenHash);

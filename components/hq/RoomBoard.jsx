@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AcceptancePanel } from "@/components/hq/AcceptancePanel";
+import { SeatRequests } from "@/components/hq/SeatRequests";
 import { Button } from "@/components/hq/Button";
 import {
   BROADCAST_DELAY_MS,
@@ -934,6 +935,7 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
         </form>
 
         <aside className="hq-cc-side">
+          {isOperator ? <SeatRequests connectionToken={connectionToken} opened={opened} seat={seat} /> : null}
           <AcceptancePanel connectionToken={connectionToken} opened={opened} isOperator={isOperator} />
 
           <section className="hq-cc-card" aria-label="Approval gates">

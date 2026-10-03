@@ -1,4 +1,4 @@
-import { identifySeat } from "@/lib/hq/room-connection";
+import { identifySeatAny } from "@/lib/hq/seat-auth";
 import { callRoomMcp } from "@/lib/hq/room-mcp";
 import { handleRpc, isRpcPayload } from "@/lib/hq/room-mcp-rpc";
 import { json, presentedConnection, readJson } from "@/lib/hq/room-http";
@@ -26,7 +26,7 @@ export async function POST(request) {
     return rpc ? rpcFailure(payload.body?.id, -32001, presented.error, presented.status) : json({ ok: false, error: presented.error }, presented.status);
   }
   const auth = presented.token
-    ? identifySeat({
+    ? await identifySeatAny({
         token: presented.token,
         claimedSeat: rpc ? undefined : payload.body?.seat,
         claimedAuthor: rpc ? undefined : payload.body?.author,

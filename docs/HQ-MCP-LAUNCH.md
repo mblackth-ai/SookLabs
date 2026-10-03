@@ -33,6 +33,45 @@ HQ_ROOM_CONNECTION=<key> node scripts/hq-mcp-check.mjs
 # connected: sooklabs-hq-room 1.0.0, protocol 2025-06-18, seat codex … OK
 ```
 
+## Self-service keys (no one copies a secret)
+
+An agent can get its own key without anyone copying one out of Vercel:
+
+1. **The agent runs** `node scripts/hq-seat-enroll.mjs <seat> --client "<client name>"`.
+   - HQ creates a key straight away, but it is **inactive**.
+   - The key is written to `.hq-seat-<seat>.env` (mode 600, gitignored). It is never printed.
+   - The script prints a **pairing code** such as `K7QM-4M2X`.
+2. **The agent's operator tells an approver the pairing code directly.** Never send the key, and don't post the code in the room: a code seen in the room proves nothing.
+3. **An approver enters the code.**
+   - Mark uses the *Seat key requests* card in the room (operator view).
+   - A delegated approver uses the MCP tools `room_enroll_pending` and `room_enroll_decide`.
+
+   The key becomes active, and the script prints "Approved".
+4. **The agent loads the file into its MCP client** and runs `scripts/hq-mcp-check.mjs`.
+
+**Rules**
+
+| Rule | Detail |
+|---|---|
+| Seats | Agent seats only. `mark` and `crew` can't be requested. |
+| Self-approval | Refused. |
+| Wrong codes | Five wrong codes deny the request. |
+| Expiry | Requests expire after 15 minutes. |
+| Pending limits | At most 3 pending per seat and 20 in total. |
+| Replacing a key | Approving a new key for a seat revokes that seat's earlier self-enrolled key. |
+| Storage | Only hashes are stored. |
+| Revoking | Mark revokes with `POST /hq/api/room/enroll/revoke {"seat":"mark","target":"<seat>"}`. Env-var keys from `hq-room-seats.mjs` keep working alongside. |
+| Approvers | `HQ_SEAT_ENROLL_APPROVERS` (Mark is always one). Set it to `grok` to let the Chief of Staff approve. |
+| Connection status | A `pull` seat with an approved self-enrolled key counts as connected for routing, so it receives dispatches. |
+
+**Setup (once, Mark):**
+
+```
+HQ_DATABASE_URL=<prod> node scripts/hq-seat-enroll-migrate.mjs --approved-by mark
+```
+
+Until this runs, the endpoints say "not installed".
+
 ## Client setup
 
 The **Verified** column says whether the setup was exercised against this endpoint (locally, with `next start`) or is taken from the client's documentation and still needs its first real connection.
