@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { AcceptancePanel } from "@/components/hq/AcceptancePanel";
 import { Button } from "@/components/hq/Button";
 import {
   BROADCAST_DELAY_MS,
@@ -129,6 +130,7 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
   const [copied, setCopied] = useState(false);
   const [seatFilter, setSeatFilter] = useState("");
   const [kindFilter, setKindFilter] = useState("all");
+  const [view, setView] = useState("room");
   const feedRef = useRef(null);
   const textRef = useRef(null);
   const copiedTimer = useRef(null);
@@ -633,7 +635,7 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
   const primaryLabel = isOperator && mode === "chat" ? "Dispatch command" : "Post";
 
   return (
-    <div className="hq-room hq-cc">
+    <div className={`hq-room hq-cc hq-cc--view-${view}`}>
       <div className="hq-room-matrix" aria-hidden="true" />
       <script id="hq-room" type="application/json" dangerouslySetInnerHTML={{ __html: roomJsonScript(transcript) }} />
 
@@ -692,6 +694,20 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
             </div>
           </dl>
         </section>
+
+        <nav className="hq-cc-tabs" aria-label="Room views">
+          <button type="button" className={`hq-cc-chip${view === "room" ? " hq-cc-chip--active" : ""}`} aria-pressed={view === "room"} onClick={() => setView("room")}>
+            Room
+          </button>
+          <button
+            type="button"
+            className={`hq-cc-chip${view === "acceptance" ? " hq-cc-chip--active" : ""}`}
+            aria-pressed={view === "acceptance"}
+            onClick={() => setView("acceptance")}
+          >
+            Acceptance &amp; Sources
+          </button>
+        </nav>
 
         <section className="hq-cc-card hq-cc-pulsecard" aria-label="System pulse">
           <header className="hq-cc-cardhead">
@@ -918,6 +934,8 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
         </form>
 
         <aside className="hq-cc-side">
+          <AcceptancePanel connectionToken={connectionToken} opened={opened} isOperator={isOperator} />
+
           <section className="hq-cc-card" aria-label="Approval gates">
             <header className="hq-cc-cardhead">
               <h2>Approval gates</h2>

@@ -189,6 +189,17 @@ There is no control for a bot to approve, merge, deploy, or publish. MCP exposes
 
 Postgres tables, created on first use by the existing `pg` client: `hq_room_seats`, `hq_room_messages`, `hq_room_broadcast`, `hq_mcp_calls`, `hq_ingest_events`, `hq_github_prs`, `hq_kv`. Writes are row-level; posts take a transaction advisory lock so the duplicate check and history trim are consistent when several seats post at once. Test: `HQ_TEST_DATABASE_URL=postgres://… node --test lib/hq/*.test.js`. This repo does not use Drizzle. Without `HQ_DATABASE_URL`, local dev uses gitignored `data/hq/room.json`. The per-seat secrets are new and are not set by this draft.
 
+### Execution loop
+
+`lib/hq/loop-*.js` runs room and ops tasks toward their canonical acceptance test without a browser session:
+
+- wakes come from GitHub Actions every 5 minutes, from seat replies and from GitHub webhooks;
+- claims are leased and fenced;
+- side effects are replay-safe;
+- budgets are per day.
+
+The Acceptance & Sources panel sits beside the chat (on mobile it's a tab). The tables are created only by `scripts/hq-loop-migrate.mjs`; production needs Mark's approval. Details, env vars and rollback: `docs/HQ-LOOP.md`.
+
 ---
 
 ## 7. Limitations (intentional)
