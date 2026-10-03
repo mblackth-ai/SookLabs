@@ -47,7 +47,8 @@ export async function middleware(request) {
     pathname === "/hq/api/logout" ||
     pathname === "/hq/api/cron/morning" ||
     pathname === "/hq/api/agents/callback" ||
-    pathname === "/hq/api/agents/pending";
+    pathname === "/hq/api/agents/pending" ||
+    pathname === "/hq/api/mcp";
   if (isOpenPath) {
     const res = rewroteHost ? NextResponse.rewrite(url) : NextResponse.next();
     return withSecurityHeaders(res);
