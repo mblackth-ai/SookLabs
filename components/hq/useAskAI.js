@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export const ASK_AI_PROVIDERS = [
@@ -26,16 +26,21 @@ export function useAskAI() {
   const [provider, setProvider] = useState("cursor");
   const [followUp, setFollowUp] = useState("");
   const router = useRouter();
+  const initial = useRef(null);
 
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved && ASK_AI_PROVIDERS.some((p) => p.id === saved)) setProvider(saved);
       const savedFocus = localStorage.getItem(FOCUS_KEY);
-      if (savedFocus) setFollowUp(savedFocus);
+      initial.current = {
+        provider: saved && ASK_AI_PROVIDERS.some((p) => p.id === saved) ? saved : null,
+        focus: savedFocus || null,
+      };
     } catch {
-      /* ignore */
+      initial.current = { provider: null, focus: null };
     }
+    if (initial.current.provider) setProvider(initial.current.provider);
+    if (initial.current.focus) setFollowUp(initial.current.focus);
   }, []);
 
   function onProviderChange(next) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "./Card";
 import { Badge } from "./Badge";
@@ -33,6 +33,7 @@ export function ClickPlaySandbox({ sectionId }) {
   const [toast, setToast] = useState("");
   const [promotedItemId, setPromotedItemId] = useState(null);
   const [promoting, setPromoting] = useState(false);
+  const recentDraftsInitial = useRef([]);
 
   const stepStates = useMemo(() => {
     if (!section) return [];
@@ -58,10 +59,11 @@ export function ClickPlaySandbox({ sectionId }) {
     try {
       const key = `hq-click-play:${sectionId}`;
       const prev = JSON.parse(sessionStorage.getItem(key) || "[]");
-      setRecentDrafts(Array.isArray(prev) ? prev.slice(0, 2) : []);
+      recentDraftsInitial.current = Array.isArray(prev) ? prev.slice(0, 2) : [];
     } catch {
-      setRecentDrafts([]);
+      recentDraftsInitial.current = [];
     }
+    setRecentDrafts(recentDraftsInitial.current);
   }, [sectionId]);
 
   if (!section) return null;

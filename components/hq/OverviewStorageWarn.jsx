@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const DISMISS_KEY = "hq-storage-warn-dismissed";
 
@@ -9,13 +9,15 @@ const DISMISS_KEY = "hq-storage-warn-dismissed";
  */
 export function OverviewStorageWarn() {
   const [dismissed, setDismissed] = useState(true);
+  const initial = useRef(true);
 
   useEffect(() => {
     try {
-      setDismissed(sessionStorage.getItem(DISMISS_KEY) === "1");
+      initial.current = sessionStorage.getItem(DISMISS_KEY) === "1";
     } catch {
-      setDismissed(false);
+      initial.current = false;
     }
+    setDismissed(initial.current);
   }, []);
 
   if (dismissed) return null;

@@ -51,13 +51,15 @@ export function BriefingNotesEditor({ initialData }) {
   });
   const [savedSection, setSavedSection] = useState(null);
   const savedTimer = useRef(null);
+  const draftsInitial = useRef(drafts);
 
   useEffect(() => {
-    setDrafts({
+    draftsInitial.current = {
       priorities: data.briefingNotes?.sections?.priorities || "",
       risks: data.briefingNotes?.sections?.risks || "",
       decisions: data.briefingNotes?.sections?.decisions || "",
-    });
+    };
+    setDrafts(draftsInitial.current);
   }, [data.updatedAt, data.briefingNotes?.lastGeneratedAt]);
 
   useEffect(
