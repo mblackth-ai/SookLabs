@@ -15,12 +15,12 @@ export function createMcpServer(github) {
     },
     {
       instructions:
-        "Read-only SookLabs internal MCP. GitHub repo status for mblackth-ai/SookLabs; HQ control-plane blockers for the room list. Seat identity comes from the OAuth access token sub only.",
+        "Read-only SookLabs internal MCP. GitHub repo status for mblackth-ai/SookLabs; HQ control-plane blockers for the room list. Seat identity comes from the configured registry for the verified OAuth subject.",
     }
   );
 
   function seatFromExtra(extra) {
-    const sub = extra?.authInfo?.extra?.sub;
+    const sub = extra?.authInfo?.extra?.seat;
     if (typeof sub !== "string" || !sub) {
       throw new Error("Authenticated seat is missing from token");
     }
