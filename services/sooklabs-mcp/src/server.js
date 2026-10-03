@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { authorizedSeat } from "./seat-auth.js";
 import { metadataHandler } from "@modelcontextprotocol/sdk/server/auth/handlers/metadata.js";
 import { requireBearerAuth } from "@modelcontextprotocol/sdk/server/auth/middleware/bearerAuth.js";
 import { InvalidTokenError } from "@modelcontextprotocol/sdk/server/auth/errors.js";
@@ -49,10 +50,10 @@ export function createConfigRefusalMiddleware(config) {
  * @param {ReturnType<import('./config.js').loadConfig>} config
  */
 export function createSeatAllowlistMiddleware(config) {
-  const allowlist = new Set(config.seatAllowlist);
   return (req, res, next) => {
     const sub = req.auth?.extra?.sub;
-    if (typeof sub !== "string" || !allowlist.has(sub)) {
+    const seat = authorizedSeat(config, sub);
+    if (!seat) {
       res.set(
         "WWW-Authenticate",
         buildWwwAuthenticate(config, "insufficient_scope", "Seat is not on the MCP allowlist")
@@ -63,6 +64,7 @@ export function createSeatAllowlistMiddleware(config) {
       });
       return;
     }
+    req.auth.extra = { ...req.auth.extra, seat };
     next();
   };
 }
@@ -99,7 +101,6 @@ export async function createApp(config) {
   const github = createGitHubClient({
     token: config.githubToken,
   });
-  const mcpServer = createMcpServer(github);
 
   const refusal = createConfigRefusalMiddleware(config);
   /** @type {import('express').RequestHandler[]} */
@@ -180,13 +181,14 @@ export async function createApp(config) {
         transport = new StreamableHTTPServerTransport({
           sessionIdGenerator: () => randomUUID(),
           onsessioninitialized: (id) => {
-            sessions.set(id, { transport, open: 0, lastActive: Date.now() });
+            sessions.set(id, { transport, subject: req.auth.extra.sub, seat: req.auth.extra.seat, open: 0, lastActive: Date.now() });
           },
         });
         transport.onclose = () => {
           const sid = transport.sessionId;
           if (sid) sessions.delete(sid);
         };
+        const mcpServer = createMcpServer(github);
         await mcpServer.connect(transport);
         await transport.handleRequest(req, res, req.body);
         return;
@@ -256,9 +258,21 @@ export async function createApp(config) {
     await session.transport.handleRequest(req, res);
   };
 
-  app.post(config.mcpPath, ...mcpMiddleware, mcpPostHandler);
-  app.get(config.mcpPath, ...mcpMiddleware, mcpGetHandler);
-  app.delete(config.mcpPath, ...mcpMiddleware, mcpDeleteHandler);
+
+  // Sessions are private to the authenticated principal, not bearer session ids.
+  const guardSession = (req, res, next) => {
+    const id = req.headers["mcp-session-id"];
+    const session = id ? sessions.get(String(id)) : null;
+    if (session && (session.subject !== req.auth?.extra?.sub || session.seat !== req.auth?.extra?.seat)) {
+      res.status(403).json({ error: "session_seat_mismatch" });
+      return;
+    }
+    next();
+  };
+
+  app.post(config.mcpPath, ...mcpMiddleware, guardSession, mcpPostHandler);
+  app.get(config.mcpPath, ...mcpMiddleware, guardSession, mcpGetHandler);
+  app.delete(config.mcpPath, ...mcpMiddleware, guardSession, mcpDeleteHandler);
 
   app.get("/healthz", (_req, res) => {
     res.json({
