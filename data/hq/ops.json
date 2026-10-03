@@ -326,15 +326,23 @@
           "id": "exec-hq-mcp",
           "front": "hq-mcp",
           "title": "Converge room backend and MCP; prove two-seat baton handoff",
-          "currentState": "Canonical milestone defined; separate internal MCP draft remains open. Integration and production acceptance not verified.",
+          "currentState": "MCP draft rebased onto current HQ master. JWT signature/audience/issuer/expiry/subject test workflow passed on the updated draft. Production issuer/resource/seat allowlist and authenticated room dispatch are still unavailable; no live acceptance established.",
           "deliverable": "One integrated room/MCP candidate and an auditable two-seat handoff acceptance record.",
           "acceptanceTest": "One room objective routes to two distinct authenticated seats sharing normalized state; evidence returns without impersonation; concurrency, webhook deduplication, SSE reconnect, promote idempotency and MCP audit checks pass. Production acceptance follows approved deployment.",
-          "nextAction": "Inspect room/backend and MCP candidates against current master; reconcile shared seat identity and read model before integration acceptance.",
+          "nextAction": "Configure approved issuer/resource/seat allowlist through secret-safe channels; complete missing-scope, unknown-seat and authenticated read/room handoff acceptance before merge/deploy.",
           "status": "todo",
           "priority": "P0",
           "owner": "Chief of Staff",
           "authority": "Reversible preparation, integration and verification within canonical scope; escalate credentials, irreversible actions, spend, production migrations, external publishing and business decisions.",
-          "evidence": [],
+          "evidence": [
+            {
+              "kind": "ci",
+              "url": "https://github.com/mblackth-ai/SookLabs/actions/runs/37141613099",
+              "scope": "JWT verifier unit checks only",
+              "status": "PASS",
+              "head": "4d1c038bb9234cff8e8ec1b53a3bed894ff34300"
+            }
+          ],
           "acceptanceStatus": "NOT TESTED",
           "dispatchStatus": "NOT DISPATCHED",
           "links": [
@@ -352,15 +360,23 @@
           "id": "exec-sookly",
           "front": "sookly-journey",
           "title": "Reconcile Journey and CRM against Sookly release acceptance",
-          "currentState": "Release matrix says PUBLIC RELEASE NOT READY. Active tracks record Journey merged with pilotReady false and production migration/deploy gated; no production PASS established.",
+          "currentState": "Contact-filter main is separate from production provenance. Kanban draft's failing audit/CSRF/optional-SOP TypeScript errors corrected; Postgres migration, Journey tests, typecheck and build passed on the correction head. Added specific notebook/list regression CI; current-head checks still pending. Production customer journey remains NOT TESTED.",
           "deliverable": "Release-matrix-aligned Journey/CRM candidate and clean-user EN/TH acceptance evidence.",
           "acceptanceTest": "Applicable release-matrix tests pass in their required environment, including clean-user setup, Website Chat enquiry/reply, MITL AI, usage, return-login and tenant isolation. Journey production migration/deploy and pilot proof remain separately gated.",
-          "nextAction": "Reconcile current PR/commit state with the release matrix; prepare the general authentication and clean-user acceptance path before billing or production changes.",
+          "nextAction": "Verify current Kanban-head Postgres/build and notebook/filter CI, then run staging Kanban moves and CC-before-PO acceptance; preserve release matrix and production approval gates.",
           "status": "todo",
           "priority": "P0",
           "owner": "Chief of Staff",
           "authority": "Reversible preparation, integration and verification within canonical scope; escalate credentials, irreversible actions, spend, production migrations, external publishing and business decisions.",
-          "evidence": [],
+          "evidence": [
+            {
+              "kind": "ci",
+              "url": "https://github.com/mblackth-ai/sookly-omnichat/actions/runs/37141511910",
+              "scope": "Postgres/Journey/typecheck/build before added contacts workflow",
+              "status": "PASS",
+              "head": "1278bfb7c61d1be12c6042c31bc3023473bee8cf"
+            }
+          ],
           "acceptanceStatus": "NOT TESTED",
           "dispatchStatus": "NOT DISPATCHED",
           "links": [
@@ -382,15 +398,22 @@
           "id": "exec-seos",
           "front": "seos-social",
           "title": "Verify SEOS MVP and truthful social functionality",
-          "currentState": "Canonical MVP documents setup, seed, edit and export with browser persistence. Current environment smoke evidence has not been collected; connector claims remain unverified.",
+          "currentState": "Browser persistence remains the canonical MVP behavior. Publication lifecycle draft now has separate lifecycle and dependency-install CI. CI revealed missing SWC helper lock entry; restored from the SEOS refactor candidate with matching dependency versions. Rerun pending. Real n8n round-trip and production connection acceptance remain unverified.",
           "deliverable": "MVP smoke evidence and accurate Manual / Workflow Ready / Future API presentation.",
           "acceptanceTest": "MVP setup → seed → edit → export and all applicable smoke checklist items pass; auth, exports, HQ cross-link and Authority persistence are evidenced. Connected appears only for a verified live connection.",
-          "nextAction": "Inspect the current SEOS candidate and available preview; run canonical smoke checks and record gaps without expanding the MVP.",
+          "nextAction": "Verify lifecycle and clean-install CI; run real n8n return/import/error/persistence acceptance on the refactor draft when approved workflow access exists. Keep channel status truthful.",
           "status": "todo",
           "priority": "P0",
           "owner": "Chief of Staff",
           "authority": "Reversible preparation, integration and verification within canonical scope; escalate credentials, irreversible actions, spend, production migrations, external publishing and business decisions.",
-          "evidence": [],
+          "evidence": [
+            {
+              "kind": "ci",
+              "url": "https://github.com/mblackth-ai/SEOS/actions/runs/37141630442",
+              "scope": "Clean install identified missing SWC helper; not acceptance evidence",
+              "status": "FAIL"
+            }
+          ],
           "acceptanceStatus": "NOT TESTED",
           "dispatchStatus": "NOT DISPATCHED",
           "links": [
