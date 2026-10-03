@@ -1,14 +1,12 @@
+import { SOOKLABS_GITHUB_REPO } from "./constants.js";
+
 const GITHUB_API = "https://api.github.com";
 
 /**
- * @param {{ token: string; repo: string }} options
+ * @param {{ token: string }} options
  */
-export function createGitHubClient({ token, repo }) {
-  const [owner, name] = repo.split("/");
-  if (!owner || !name) {
-    throw new Error(`Invalid GitHub repo slug: ${repo}`);
-  }
-
+export function createGitHubClient({ token }) {
+  const [owner, name] = SOOKLABS_GITHUB_REPO.split("/");
   const base = `${GITHUB_API}/repos/${owner}/${name}`;
 
   /**
@@ -28,6 +26,20 @@ export function createGitHubClient({ token, repo }) {
       throw new Error(`GitHub API ${response.status} ${path}: ${body.slice(0, 300)}`);
     }
     return response.json();
+  }
+
+  /**
+   * @param {string} path
+   * @param {RequestInit} [init]
+   */
+  async function ghRaw(path, init = {}) {
+    const headers = {
+      Accept: "application/vnd.github+json",
+      "X-GitHub-Api-Version": "2022-11-28",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(init.headers ?? {}),
+    };
+    return fetch(`${base}${path}`, { ...init, headers });
   }
 
   return {
@@ -52,6 +64,16 @@ export function createGitHubClient({ token, repo }) {
         if (page > 10) break;
       }
       return issues;
+    },
+
+    async repoHasLabel(labelName) {
+      const response = await ghRaw(`/labels/${encodeURIComponent(labelName)}`);
+      if (response.status === 404) return false;
+      if (!response.ok) {
+        const body = await response.text().catch(() => "");
+        throw new Error(`GitHub API ${response.status} /labels/${labelName}: ${body.slice(0, 300)}`);
+      }
+      return true;
     },
 
     async getDefaultBranchHeadSha(defaultBranch) {
@@ -85,8 +107,22 @@ export function createGitHubClient({ token, repo }) {
   };
 }
 
+function mapIssueRow(issue) {
+  return {
+    number: issue.number,
+    title: issue.title,
+    url: issue.html_url,
+    labels: (issue.labels ?? []).map((label) => label.name),
+    updated_at: issue.updated_at,
+  };
+}
+
+function issueHasLabel(issue, labelName) {
+  return (issue.labels ?? []).some((label) => label.name === labelName);
+}
+
 /**
- * @param {import('./github.js').ReturnType<createGitHubClient>} github
+ * @param {ReturnType<createGitHubClient>} github
  * @param {string} seat
  */
 export async function projectStatus(github, seat) {
@@ -108,28 +144,24 @@ export async function projectStatus(github, seat) {
  * @param {string} seat
  */
 export async function blockers(github, seat) {
-  const openIssues = await github.listOpenIssues();
-  const hasBlockerLabel = openIssues.some((issue) =>
-    (issue.labels ?? []).some((label) => label.name === "blocker")
-  );
+  const [openIssues, blockerLabelOnRepo] = await Promise.all([
+    github.listOpenIssues(),
+    github.repoHasLabel("blocker"),
+  ]);
 
-  const selected = hasBlockerLabel
-    ? openIssues.filter((issue) => (issue.labels ?? []).some((label) => label.name === "blocker"))
-    : openIssues;
-
-  const issues = selected.map((issue) => ({
-    number: issue.number,
-    title: issue.title,
-    url: issue.html_url,
-    labels: (issue.labels ?? []).map((label) => label.name),
-    updated_at: issue.updated_at,
-  }));
-
-  const result = { issues, seat };
-  if (!hasBlockerLabel) {
-    result.label_missing = true;
+  if (!blockerLabelOnRepo) {
+    return {
+      issues: openIssues.map(mapIssueRow),
+      seat,
+      label_missing: true,
+    };
   }
-  return result;
+
+  const blockerIssues = openIssues.filter((issue) => issueHasLabel(issue, "blocker"));
+  return {
+    issues: blockerIssues.map(mapIssueRow),
+    seat,
+  };
 }
 
 /**

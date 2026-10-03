@@ -1,5 +1,3 @@
-const DEFAULT_GITHUB_REPO = "mblackth-ai/SookLabs";
-
 function parseAllowlist(raw) {
   if (!raw?.trim()) return [];
   return raw
@@ -13,7 +11,6 @@ function parseAllowlist(raw) {
  *   oauthIssuerUrl: string;
  *   resourceIdentifier: string;
  *   seatAllowlist: string[];
- *   githubRepo: string;
  *   githubToken: string;
  *   bindHost: string;
  *   bindPort: number;
@@ -27,10 +24,6 @@ export function loadConfig() {
   const oauthIssuerUrl = process.env.SOOKLABS_MCP_OAUTH_ISSUER_URL?.trim() ?? "";
   const resourceIdentifier = process.env.SOOKLABS_MCP_RESOURCE_IDENTIFIER?.trim() ?? "";
   const seatAllowlist = parseAllowlist(process.env.SOOKLABS_MCP_SEAT_ALLOWLIST);
-  const githubRepo = (process.env.SOOKLABS_MCP_GITHUB_REPO?.trim() || DEFAULT_GITHUB_REPO).replace(
-    /^\/+|\/+$/g,
-    ""
-  );
   const githubToken =
     process.env.GITHUB_TOKEN?.trim() || process.env.GH_TOKEN?.trim() || "";
   const bindHost = process.env.SOOKLABS_MCP_BIND_HOST?.trim() || "127.0.0.1";
@@ -63,7 +56,6 @@ export function loadConfig() {
     oauthIssuerUrl,
     resourceIdentifier,
     seatAllowlist,
-    githubRepo,
     githubToken,
     bindHost,
     bindPort,

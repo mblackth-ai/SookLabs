@@ -9,6 +9,7 @@ import {
   createJwtAccessTokenVerifier,
   fetchAuthorizationServerMetadata,
 } from "./auth.js";
+import { SOOKLABS_GITHUB_REPO, SOOKLABS_MCP_REQUIRED_SCOPE } from "./constants.js";
 import { createGitHubClient } from "./github.js";
 import { createMcpServer } from "./tools.js";
 
@@ -82,6 +83,7 @@ export async function createApp(config) {
     const protectedResourceMetadata = {
       resource: config.resourceServerUrl.href,
       authorization_servers: [config.oauthIssuerUrl.replace(/\/$/, "")],
+      scopes_supported: [SOOKLABS_MCP_REQUIRED_SCOPE],
       resource_name: "SookLabs Internal MCP",
     };
     const rsPath =
@@ -96,7 +98,6 @@ export async function createApp(config) {
 
   const github = createGitHubClient({
     token: config.githubToken,
-    repo: config.githubRepo,
   });
   const mcpServer = createMcpServer(github);
 
@@ -128,6 +129,7 @@ export async function createApp(config) {
     mcpMiddleware.push(
       requireBearerAuth({
         verifier: wrappedVerifier,
+        requiredScopes: [SOOKLABS_MCP_REQUIRED_SCOPE],
         resourceMetadataUrl: config.protectedResourceMetadataUrl ?? undefined,
         expectedResource: config.resourceServerUrl,
       }),
@@ -262,7 +264,7 @@ export async function createApp(config) {
     res.json({
       ok: true,
       authConfigured: config.isAuthConfigured,
-      githubRepo: config.githubRepo,
+      githubRepo: SOOKLABS_GITHUB_REPO,
       githubTokenPresent: Boolean(config.githubToken),
     });
   });
