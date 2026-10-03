@@ -241,6 +241,18 @@ test("v1 read path serves all four tools over Streamable HTTP without live GitHu
 
   const expectedBlockers = await readControlPlaneBlockers();
   const toolNames = ["project_status", "blockers", "build_status", "deploy_status"];
+
+  await t.test("unknown tool names are not served", async () => {
+    const response = await mcp({
+      jsonrpc: "2.0",
+      id: 99,
+      method: "tools/call",
+      params: { name: "merge_repo", arguments: {} },
+    }, session);
+    const data = await response.json();
+    assert.ok(data.error || data.result?.isError === true || !data.result?.structuredContent);
+  });
+
   for (const [index, name] of toolNames.entries()) {
     const response = await mcp({
       jsonrpc: "2.0",
