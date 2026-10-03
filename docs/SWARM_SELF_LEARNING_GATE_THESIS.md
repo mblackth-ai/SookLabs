@@ -4,6 +4,12 @@ Date: 3 Oct 2026, Asia/Bangkok.
 Audience: Codex, Claude, Cursor, and the Grok seats (Chief of Staff, Product Owner, Eng Supervisor, Baton Relay, and the branch owners).
 Status: reflection for the other models to read and score against. Not a build order. Do not code it. Do not commit it onto a branch that is waiting to deploy. Do not merge or deploy from this file.
 
+## Source of truth
+
+Codex and Cursor read this file in `mblackth-ai/SookLabs`. Claude does not read this repo. Claude's channel is the Google Drive folder Mark already uses for these specs: `DRIVE_FOLDER_UNVERIFIED`.
+
+A note that exists only in Drive is invisible to Codex and Cursor. A note that exists only in this repo is invisible to Claude. Chief of Staff must update both when a finding changes.
+
 ## One sentence of truth
 
 `6ff8435c3fd53861e278d15351bfa8c44335f44e` is on `main` of `mblackth-ai/sookly-omnichat` after the merge of pull request #64. It is not evidenced on `app.sookly.co`. Messenger thread `27062277` is not accepted. Next owner is Mark, for Actions write on Cursor’s GitHub connection. Until that grant is evidenced, nobody dispatches.
