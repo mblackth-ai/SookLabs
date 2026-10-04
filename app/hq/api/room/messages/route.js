@@ -3,6 +3,7 @@ import { requireLiveRead, requireSeatPost, parseRoomPost, readJson, json } from 
 import { getRoomStorageMode, listDispatches, listRoomMessages, listRoomSeats, postRoomRecord } from "@/lib/hq/swarm";
 import { clampRoomLimit, normalizeChannel, roomBoardRows } from "@/lib/hq/swarm-contract";
 import { processQueued, routeMessage, seatStrip } from "@/lib/hq/swarm-router";
+import { seatEnv } from "@/lib/hq/seat-auth";
 import { wakeFromDispatch } from "@/lib/hq/loop-service";
 
 export const dynamic = "force-dynamic";
@@ -30,7 +31,7 @@ export async function GET(request) {
       storage: getRoomStorageMode(),
       messages,
       seats,
-      strip: seatStrip(seats),
+      strip: seatStrip(seats, await seatEnv()),
       dispatches,
       board: roomBoardRows(messages),
     });

@@ -3702,3 +3702,11 @@
 .hq-ap-new summary { cursor: pointer; font-weight: var(--weight-semibold); }
 .hq-ap-form { padding: var(--space-3) 0 0; border: 0; background: none; }
 .hq-ap-form label { display: grid; gap: 4px; font-size: var(--text-sm); color: var(--text-secondary); }
+
+/* Seat key requests (operator) */
+.hq-sr-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+.hq-sr-row { display: grid; gap: var(--space-2); padding: var(--space-2); border: 1px solid var(--border-faint); border-radius: 10px; }
+.hq-sr-who { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: baseline; font-size: var(--text-sm); }
+.hq-sr-code { display: grid; gap: 4px; font-size: var(--text-xs); color: var(--text-secondary); }
+.hq-sr-code input { font: inherit; font-family: var(--font-mono); font-size: var(--text-sm); letter-spacing: 0.08em; text-transform: uppercase; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-faint); background: transparent; color: inherit; min-width: 0; width: 100%; }
+.hq-sr-actions { display: flex; gap: var(--space-2); }

@@ -1,4 +1,4 @@
-import { identifySeat } from "@/lib/hq/room-connection";
+import { identifySeatAny } from "@/lib/hq/seat-auth";
 import { json, presentedConnection } from "@/lib/hq/room-http";
 import { readClientNames, readPublicFeed } from "@/lib/hq/swarm";
 
@@ -9,7 +9,7 @@ export async function GET(request) {
   const presented = presentedConnection(request);
   let review = false;
   if (presented.ok && presented.token) {
-    const auth = identifySeat({ token: presented.token });
+    const auth = await identifySeatAny({ token: presented.token });
     review = auth.ok && auth.seat === "mark" && request.nextUrl.searchParams.get("review") === "1";
   }
   try {
