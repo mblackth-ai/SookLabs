@@ -3713,3 +3713,5 @@
 .hq-sr-actions { display: flex; gap: var(--space-2); }
 .hq-sr-install { display: grid; gap: var(--space-2); }
 .hq-sr-delegate { display: flex; gap: var(--space-2); align-items: center; font-size: var(--text-sm); }
+.hq-cc-remember { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; font-size: var(--text-sm); }
+.hq-cc-remember label { display: flex; gap: var(--space-2); align-items: center; }

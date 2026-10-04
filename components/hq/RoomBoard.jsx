@@ -101,6 +101,27 @@ function ciMark(state) {
   return "CI ?";
 }
 
+// "Remember on this device": a seat key kept in this browser's localStorage only
+// (never sent anywhere except as the room header). Forget clears it; a saved key
+// that stops working is removed automatically.
+const REMEMBER_PREFIX = "hq-room-key:";
+function readRemembered(seatId) {
+  try {
+    return window.localStorage.getItem(REMEMBER_PREFIX + seatId) || "";
+  } catch {
+    return "";
+  }
+}
+function writeRemembered(seatId, value) {
+  try {
+    if (value) window.localStorage.setItem(REMEMBER_PREFIX + seatId, value);
+    else window.localStorage.removeItem(REMEMBER_PREFIX + seatId);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function RoomBoard({ tier, draft = true, connections = [], initialFeed = [], loadError = "" }) {
   const seats = seatsForTier(tier);
   const kinds = kindsForTier(tier);
@@ -115,6 +136,9 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
   const [seat, setSeat] = useState(seats[0]?.id || "mark");
   const [connectionToken, setConnectionToken] = useState("");
   const [opened, setOpened] = useState(false);
+  const [remember, setRemember] = useState(false);
+  const [remembered, setRemembered] = useState(false);
+  const [autoLoad, setAutoLoad] = useState(false);
   const [mode, setMode] = useState("chat");
   const [text, setText] = useState("");
   const [refType, setRefType] = useState("pr");
@@ -314,6 +338,63 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
     } catch {
       setError("Could not copy the link.");
     }
+  }
+
+  // Restore a key saved on this device for the chosen seat, then open the room.
+  useEffect(() => {
+    if (tier === "spectator") return undefined;
+    let cancelled = false;
+    Promise.resolve().then(() => {
+      if (cancelled) return;
+      const stored = readRemembered(seat);
+      setRemembered(Boolean(stored));
+      setRemember(Boolean(stored));
+      if (stored) {
+        setConnectionToken(stored);
+        setAutoLoad(true);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [seat, tier]);
+
+  useEffect(() => {
+    if (!autoLoad || !connectionToken) return undefined;
+    let cancelled = false;
+    Promise.resolve().then(async () => {
+      if (cancelled) return;
+      setAutoLoad(false);
+      try {
+        await loadRoom();
+      } catch {
+        writeRemembered(seat, "");
+        setRemembered(false);
+        setRemember(false);
+        setConnectionToken("");
+        setError("The key saved on this device no longer works, so it was removed. Enter the current key.");
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [autoLoad, connectionToken, loadRoom, seat]);
+
+  async function openRoom() {
+    try {
+      await loadRoom();
+      if (remember) setRemembered(writeRemembered(seat, connectionToken));
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  function forgetKey() {
+    writeRemembered(seat, "");
+    setRemembered(false);
+    setRemember(false);
+    setConnectionToken("");
+    setOpened(false);
   }
 
   function selectSeat(next) {
@@ -818,11 +899,26 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
             <button
               type="button"
               className="hq-cc-btn"
-              onClick={() => loadRoom().catch((err) => setError(err.message))}
+              onClick={openRoom}
               disabled={posting || !connectionToken}
             >
               {opened ? "Refresh" : "Load"}
             </button>
+          </div>
+          <div className="hq-cc-remember">
+            {remembered ? (
+              <>
+                <span className="hq-cc-muted">{connectionName} key saved on this device.</span>
+                <button type="button" className="hq-cc-btn hq-cc-btn--quiet" onClick={forgetKey}>
+                  Forget
+                </button>
+              </>
+            ) : (
+              <label>
+                <input type="checkbox" checked={remember} onChange={(event) => setRemember(event.target.checked)} />
+                Remember on this device (your own phone or computer only)
+              </label>
+            )}
           </div>
 
           <div className="hq-cc-chips" role="group" aria-label="Address">
