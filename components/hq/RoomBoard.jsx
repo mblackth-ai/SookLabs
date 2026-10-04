@@ -220,12 +220,20 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
   const readySeats = strip.filter((row) => row.ready);
   const liveSeats = strip.filter((row) => row.ready && (row.adapter !== "pull" || row.online));
   const offlineSeats = strip.filter((row) => !row.ready);
-  const seatBlockers = offlineSeats.map((row) => ({
-    id: `seat-${row.seatId}`,
-    title: `${row.callsign} offline`,
-    detail: `${row.missing} is not set, so this seat gets no dispatches.`,
-    href: "",
-  }));
+  const seatBlockers = offlineSeats.map((row) => {
+    const noAdapter = String(row.missing || "").startsWith("HQ_SEAT_ADAPTER_");
+    const awaitingKey = row.adapter === "pull" && String(row.missing || "").startsWith("HQ_ROOM_CONNECTION_");
+    return {
+      id: `seat-${row.seatId}`,
+      seatId: row.seatId,
+      title: awaitingKey ? `${row.callsign} connected, waiting for its key` : `${row.callsign} offline`,
+      detail: awaitingKey
+        ? `Ask ${row.callsign} to run the pairing step, then approve its code in Seat key requests.`
+        : `${row.missing} is not set, so this seat gets no dispatches.`,
+      action: noAdapter ? "connect" : awaitingKey ? "disconnect" : "",
+      href: "",
+    };
+  });
   const blockers = [...(summary?.blockers || []), ...seatBlockers];
   // Never claim "no blockers" while the control-plane half is missing.
   const controlPlaneBlockers = !summary ? "loading" : summary.error ? "unavailable" : "ok";
@@ -386,6 +394,26 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
       if (remember) setRemembered(writeRemembered(seat, connectionToken));
     } catch (err) {
       setError(err.message);
+    }
+  }
+
+  // Mark only: connect an agent seat as `pull` from the room (no secret; the agent still needs an approved key).
+  async function connectSeat(target, connected) {
+    setPosting(true);
+    setError("");
+    try {
+      const res = await fetch("/hq/api/room/enroll/connect", {
+        method: "POST",
+        headers: { ...authHeaders(), "content-type": "application/json" },
+        body: JSON.stringify({ seat, target, connected }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) throw new Error(data.error || "That seat could not be connected.");
+      await loadRoom();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setPosting(false);
     }
   }
 
@@ -1110,6 +1138,16 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
                   <li key={item.id}>
                     <strong>{item.href ? <a href={item.href}>{item.title}</a> : item.title}</strong>
                     {item.detail ? <span className="hq-cc-muted">{item.detail}</span> : null}
+                    {isOperator && item.action === "connect" ? (
+                      <button type="button" className="hq-cc-btn" disabled={posting} onClick={() => connectSeat(item.seatId, true)}>
+                        Connect
+                      </button>
+                    ) : null}
+                    {isOperator && item.action === "disconnect" ? (
+                      <button type="button" className="hq-cc-btn hq-cc-btn--quiet" disabled={posting} onClick={() => connectSeat(item.seatId, false)}>
+                        Disconnect
+                      </button>
+                    ) : null}
                   </li>
                 ))}
               </ul>
