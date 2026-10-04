@@ -74,7 +74,23 @@ export function SeatRequests({ connectionToken, opened, seat }) {
     load();
   }
 
+  async function post(path, payload, done) {
+    setBusy(path);
+    setNote("");
+    const res = await fetch(path, { method: "POST", headers: headers(), body: JSON.stringify({ seat, ...payload }) });
+    const body = await res.json().catch(() => ({}));
+    setBusy("");
+    if (!res.ok || !body.ok) {
+      setNote(body.error || "That did not go through.");
+      return;
+    }
+    setNote(done(body));
+    load();
+  }
+
   if (!opened) return null;
+  const isMark = seat === "mark";
+  const grokApproves = (data?.approvers || []).includes("grok");
   const pending = (data?.requests || []).filter((row) => row.status === "pending");
   const active = (data?.requests || []).filter((row) => row.status === "active");
 
@@ -93,7 +109,30 @@ export function SeatRequests({ connectionToken, opened, seat }) {
           {note}
         </p>
       ) : null}
-      {data && !pending.length ? <p className="hq-cc-muted">No pending requests.</p> : null}
+      {data?.installed === false ? (
+        <div className="hq-sr-install">
+          <p className="hq-cc-note">Seat key requests are not switched on yet. This adds two tables to the HQ database and changes nothing else.</p>
+          {isMark ? (
+            <button type="button" className="hq-cc-btn" disabled={Boolean(busy)} onClick={() => post("/hq/api/room/enroll/install", {}, (b) => (b.created ? "Seat key requests are on." : "Already on."))}>
+              Switch on seat key requests
+            </button>
+          ) : null}
+        </div>
+      ) : null}
+      {data?.installed && isMark ? (
+        <label className="hq-sr-delegate">
+          <input
+            type="checkbox"
+            checked={grokApproves}
+            disabled={Boolean(busy)}
+            onChange={(event) =>
+              post("/hq/api/room/enroll/approvers", { approvers: event.target.checked ? ["grok"] : [] }, (b) => `Approvers: ${b.approvers.join(", ")}.`)
+            }
+          />
+          Let Grok (Chief of Staff) approve key requests
+        </label>
+      ) : null}
+      {data?.installed && !pending.length ? <p className="hq-cc-muted">No pending requests.</p> : null}
       <ul className="hq-sr-list">
         {pending.map((row) => (
           <li key={row.id} className="hq-sr-row">

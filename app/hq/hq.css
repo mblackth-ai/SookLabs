@@ -3653,8 +3653,9 @@
   .hq-cc--view-acceptance .hq-cc-threadhead,
   .hq-cc--view-acceptance .hq-cc-thread,
   .hq-cc--view-acceptance .hq-cc-composer,
-  .hq-cc--view-acceptance .hq-cc-side > :not(.hq-ap),
-  .hq-cc--view-room .hq-ap { display: none; }
+  .hq-cc--view-acceptance .hq-cc-side > :not(.hq-ap):not(.hq-sr),
+  .hq-cc--view-room .hq-ap,
+  .hq-cc--view-room .hq-sr { display: none; }
 }
 
 .hq-ap { display: grid; gap: var(--space-3); }
@@ -3710,3 +3711,5 @@
 .hq-sr-code { display: grid; gap: 4px; font-size: var(--text-xs); color: var(--text-secondary); }
 .hq-sr-code input { font: inherit; font-family: var(--font-mono); font-size: var(--text-sm); letter-spacing: 0.08em; text-transform: uppercase; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-faint); background: transparent; color: inherit; min-width: 0; width: 100%; }
 .hq-sr-actions { display: flex; gap: var(--space-2); }
+.hq-sr-install { display: grid; gap: var(--space-2); }
+.hq-sr-delegate { display: flex; gap: var(--space-2); align-items: center; font-size: var(--text-sm); }

@@ -141,6 +141,11 @@ export function AcceptancePanel({ connectionToken, opened, isOperator }) {
         </p>
       ) : null}
       {board && !board.installed ? <p className="hq-cc-note">{board.note}</p> : null}
+      {board && !board.installed && isOperator ? (
+        <button type="button" className="hq-cc-btn" disabled={busy} onClick={() => post("/hq/api/room/loop/install", {})}>
+          Install loop tables
+        </button>
+      ) : null}
 
       {board?.installed ? (
         <dl className="hq-ap-health">

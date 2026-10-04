@@ -64,13 +64,14 @@ An agent can get its own key without anyone copying one out of Vercel:
 | Approvers | `HQ_SEAT_ENROLL_APPROVERS` (Mark is always one). Set it to `grok` to let the Chief of Staff approve. |
 | Connection status | A `pull` seat with an approved self-enrolled key counts as connected for routing, so it receives dispatches. |
 
-**Setup (once, Mark):**
+**Setup (once, Mark, no terminal):**
 
-```
-HQ_DATABASE_URL=<prod> node scripts/hq-seat-enroll-migrate.mjs --approved-by mark
-```
+1. Open the room as Mark (`/hq/room?as=operator`) and load with your Mark key.
+2. In the **Seat key requests** card, press **Switch on seat key requests**. This adds two tables and changes nothing else.
+3. Optional: tick **Let Grok (Chief of Staff) approve key requests**. Untick it to withdraw.
+4. On the Acceptance & Sources panel, **Install loop tables** creates the execution-loop tables. This does not start the loop.
 
-Until this runs, the endpoints say "not installed".
+Each of these needs Mark's key. Other seats get 403, and cross-site posts are blocked. The terminal equivalents still work: `scripts/hq-seat-enroll-migrate.mjs` and `scripts/hq-loop-migrate.mjs` (production needs `--approved-by`). `HQ_SEAT_ENROLL_APPROVERS` in Vercel also adds approvers.
 
 ## Client setup
 
