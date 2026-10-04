@@ -1,4 +1,4 @@
-import { enrollApprovers, listEnrollments, requestEnrollment } from "@/lib/hq/seat-enroll";
+import { currentApprovers, listEnrollments, requestEnrollment } from "@/lib/hq/seat-enroll";
 import { enrollUnavailable } from "@/lib/hq/seat-enroll-http";
 import { json, readJson, requireSeatConnection } from "@/lib/hq/room-http";
 
@@ -25,19 +25,23 @@ export async function POST(request) {
       key: result.key,
       pairingCode: result.pairingCode,
       expiresAt: result.expiresAt,
-      approvers: enrollApprovers(),
+      approvers: await currentApprovers(),
       next: "Store the key privately as HQ_ROOM_CONNECTION. Give ONLY the pairing code to an approver. The key works once they approve.",
     },
     201
   );
 }
 
-/** Approvers see pending and active requests (never keys or codes). */
+/** Approvers see pending and active requests (never keys or codes). Mark also sees whether it is installed. */
 export async function GET(request) {
   const auth = await requireSeatConnection(request);
   if (!auth.ok) return json({ ok: false, error: auth.error }, auth.status);
-  if (!enrollApprovers().includes(auth.seat)) return json({ ok: false, error: "This seat cannot approve key requests." }, 403);
   const down = await enrollUnavailable();
-  if (down) return json({ ok: false, error: down.error }, down.status);
-  return json({ ok: true, approvers: enrollApprovers(), requests: await listEnrollments() });
+  if (down) {
+    if (auth.seat === "mark") return json({ ok: true, installed: false, note: down.error, approvers: ["mark"], requests: [] });
+    return json({ ok: false, error: down.error }, down.status);
+  }
+  const approvers = await currentApprovers();
+  if (!approvers.includes(auth.seat)) return json({ ok: false, error: "This seat cannot approve key requests." }, 403);
+  return json({ ok: true, installed: true, approvers, requests: await listEnrollments() });
 }
