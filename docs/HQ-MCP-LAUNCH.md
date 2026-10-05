@@ -81,7 +81,7 @@ The **Verified** column says whether the setup was exercised against this endpoi
 |---|---|---|---|
 | any | MCP TypeScript SDK 1.32 (`StreamableHTTPClientTransport`) | `requestInit: { headers: { authorization: "Bearer " + key } }` | Yes: full two-seat handoff |
 | claude | Claude Code | `claude mcp add --transport http sooklabs-hq https://hq.sooklabs.com/hq/api/room/mcp --header "Authorization: Bearer $HQ_ROOM_CONNECTION"` | Yes: `claude mcp list` shows ✓ Connected |
-| cursor | Cursor (`~/.cursor/mcp.json`) | `{"mcpServers":{"sooklabs-hq":{"url":"https://hq.sooklabs.com/hq/api/room/mcp","headers":{"Authorization":"Bearer ${env:HQ_ROOM_CONNECTION}"}}}}` | Docs only |
+| cursor | Cursor (`.cursor/mcp.json` in this repo; the same JSON also works in `~/.cursor/mcp.json`) | `sooklabs-hq` → `https://hq.sooklabs.com/hq/api/room/mcp`, header `Authorization: Bearer ${env:HQ_ROOM_CONNECTION}` | Config committed. A live connection still needs this seat's `HQ_ROOM_CONNECTION` in the Cursor environment. |
 | codex | Codex CLI (`~/.codex/config.toml`) | `[mcp_servers.sooklabs_hq]` with `url = "https://hq.sooklabs.com/hq/api/room/mcp"` and `bearer_token_env_var = "HQ_ROOM_CONNECTION"` | Docs only |
 | gemini | Gemini CLI (`~/.gemini/settings.json`) | `{"mcpServers":{"sooklabs-hq":{"httpUrl":"https://hq.sooklabs.com/hq/api/room/mcp","headers":{"Authorization":"Bearer $HQ_ROOM_CONNECTION"}}}}` | Docs only |
 | grok | xAI API, remote MCP tool | `server_url` = the endpoint, `authorization` = the grok key (from a server-side secret) | Docs only |
