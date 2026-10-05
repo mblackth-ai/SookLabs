@@ -1,5 +1,6 @@
 import { timingSafeEqual, createHash } from "crypto";
 import { json } from "@/lib/hq/room-http";
+import { runDriveBridgeTick } from "@/lib/hq/drive-bridge-service";
 import { runTick } from "@/lib/hq/loop-service";
 
 export const dynamic = "force-dynamic";
@@ -25,7 +26,13 @@ function authorized(request) {
 async function handle(request, trigger) {
   if (!authorized(request)) return json({ ok: false, error: "Send the worker secret." }, 401);
   try {
-    return json({ ok: true, ...(await runTick(trigger)) });
+    const summary = await runTick(trigger);
+    // The Drive bridge rides the same wake. Its failure never fails the tick.
+    const drive = await runDriveBridgeTick().catch(() => {
+      console.error("drive bridge tick failed");
+      return { ok: false, error: "Drive bridge pass failed; the next wake retries." };
+    });
+    return json({ ok: true, ...summary, drive });
   } catch {
     console.error("loop tick failed");
     return json({ ok: false, error: "The tick failed; leases will expire and the next wake recovers." }, 503);
