@@ -3735,3 +3735,55 @@
 .hq-cc-joinbanner--live { animation: hq-door 1.6s ease-in-out infinite; }
 @keyframes hq-door { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-warning) 45%, transparent); } 50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-warning) 0%, transparent); } }
 @media (prefers-reduced-motion: reduce) { .hq-cc-joinbanner--live { animation: none; } }
+
+/* Sookly journey kanban (HQ pilot) */
+.hq-sj-board {
+  display: flex;
+  gap: var(--space-3);
+  overflow-x: auto;
+  padding-bottom: var(--space-2);
+  margin-top: var(--space-3);
+}
+.hq-sj-col {
+  flex: 0 0 min(240px, 78vw);
+  min-height: 200px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-2);
+}
+.hq-sj-colhead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+.hq-sj-colhead h3 {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+.hq-sj-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+.hq-sj-card {
+  width: 100%;
+  text-align: left;
+  display: grid;
+  gap: 4px;
+  padding: var(--space-2);
+  font: inherit;
+  color: inherit;
+  background: var(--bg-base);
+  border: 1px solid var(--border-faint);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+.hq-sj-card:hover { border-color: var(--border-default); }
+.hq-sj-blocker { font-size: var(--text-xs); color: var(--color-warning); }
+.hq-sj-detail { margin-top: var(--space-4); }

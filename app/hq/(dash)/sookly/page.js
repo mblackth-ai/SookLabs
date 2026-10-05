@@ -5,6 +5,12 @@ import { Badge } from "@/components/hq/Badge";
 
 const links = [
   {
+    href: "/hq/sookly/journey",
+    title: "Journey / CRM kanban",
+    subtitle: "RDUSA order SOP stages, integrations, suggested next actions (HQ pilot)",
+    badge: "Pilot",
+  },
+  {
     href: "/hq/sookly/action-plan",
     title: "MVP1 Action Plan",
     subtitle: "Persisted build checklist for sookly.co and app.sookly.com",
