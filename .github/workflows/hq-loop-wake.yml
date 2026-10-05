@@ -1,0 +1,33 @@
+# Durable wake for the HQ execution loop. Every 5 minutes (GitHub may delay
+# scheduled runs) it calls the tick endpoint once; the tick claims due tasks
+# under database leases, so a missed or doubled run is harmless.
+# Needs repository secrets HQ_LOOP_TICK_URL and HQ_LOOP_WORKER_SECRET (Mark).
+name: hq-loop-wake
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+permissions: {}
+concurrency:
+  group: hq-loop-wake
+  cancel-in-progress: false
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Tick
+        env:
+          URL: ${{ secrets.HQ_LOOP_TICK_URL }}
+          SECRET: ${{ secrets.HQ_LOOP_WORKER_SECRET }}
+        run: |
+          if [ -z "$URL" ] || [ -z "$SECRET" ]; then
+            echo "::notice::HQ_LOOP_TICK_URL / HQ_LOOP_WORKER_SECRET not set; the loop is not woken."
+            exit 0
+          fi
+          code=$(curl -sS -o body.json -w '%{http_code}' --max-time 90 -X POST "$URL" \
+            -H "authorization: Bearer $SECRET" -H "x-hq-wake: github-schedule")
+          # Actions logs can be public: print the status and step count only, never task text.
+          echo "tick HTTP $code, steps: $(grep -o '"taskId"' body.json | wc -l)"
+          rm -f body.json
+          test "$code" = "200"

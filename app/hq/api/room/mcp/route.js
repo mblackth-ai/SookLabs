@@ -1,23 +1,62 @@
-import { identifySeat } from "@/lib/hq/room-connection";
+import { identifySeatAny } from "@/lib/hq/seat-auth";
 import { callRoomMcp } from "@/lib/hq/room-mcp";
+import { handleRpc, isRpcPayload } from "@/lib/hq/room-mcp-rpc";
 import { json, presentedConnection, readJson } from "@/lib/hq/room-http";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
+// One URL, two shapes:
+// - MCP Streamable HTTP (JSON-RPC 2.0, stateless, JSON responses) for MCP clients;
+// - the original `{ name, args }` POST, kept for scripts that already use it.
+
+const rpcFailure = (id, code, message, status, headers = {}) =>
+  new Response(JSON.stringify({ jsonrpc: "2.0", id: id ?? null, error: { code, message } }), {
+    status,
+    headers: { "content-type": "application/json", "cache-control": "no-store", ...headers },
+  });
+
 export async function POST(request) {
   const payload = await readJson(request);
   if (!payload.ok) return json({ ok: false, error: payload.error }, payload.status);
-  const presented = presentedConnection(request, payload.body?.connection);
-  if (!presented.ok) return json({ ok: false, error: presented.error }, presented.status);
+  const rpc = isRpcPayload(payload.body);
+  const presented = presentedConnection(request, rpc ? "" : payload.body?.connection);
+  if (!presented.ok) {
+    return rpc ? rpcFailure(payload.body?.id, -32001, presented.error, presented.status) : json({ ok: false, error: presented.error }, presented.status);
+  }
   const auth = presented.token
-    ? identifySeat({
+    ? await identifySeatAny({
         token: presented.token,
-        claimedSeat: payload.body?.seat,
-        claimedAuthor: payload.body?.author,
+        claimedSeat: rpc ? undefined : payload.body?.seat,
+        claimedAuthor: rpc ? undefined : payload.body?.author,
       })
-    : { ok: false, status: 401, error: "Send this seat's connection.", seat: "", tokenHash: "" };
+    : { ok: false, status: 401, error: "Send this seat's connection as Authorization: Bearer <key>.", seat: "", tokenHash: "" };
+
+  if (rpc) {
+    const seat = auth.ok ? auth.seat : "";
+    const tokenHash = auth.ok ? auth.tokenHash : "";
+    let out;
+    try {
+      out = await handleRpc(payload.body, {
+        seat,
+        authError: auth.ok ? null : { status: auth.status, error: auth.error },
+        callTool: ({ name, args }) => callRoomMcp({ name, args, seat, tokenHash, authError: null }),
+      });
+    } catch {
+      console.error("room mcp rpc failed");
+      return rpcFailure(payload.body?.id, -32603, "The room tool could not run.", 500);
+    }
+    if (out === null) return new Response(null, { status: 202, headers: { "cache-control": "no-store" } });
+    if (!auth.ok) {
+      return new Response(JSON.stringify(out), {
+        status: auth.status || 401,
+        headers: { "content-type": "application/json", "cache-control": "no-store", "www-authenticate": 'Bearer realm="sooklabs-hq-room"' },
+      });
+    }
+    return json(out);
+  }
+
   const name = payload.body?.name || payload.body?.tool;
   try {
     const result = await callRoomMcp({
@@ -33,4 +72,13 @@ export async function POST(request) {
     console.error("room mcp failed");
     return json({ ok: false, error: "The room tool could not run." }, 503);
   }
+}
+
+// Stateless server: no server-initiated SSE stream and no sessions to delete.
+export async function GET() {
+  return new Response(null, { status: 405, headers: { allow: "POST" } });
+}
+
+export async function DELETE() {
+  return new Response(null, { status: 405, headers: { allow: "POST" } });
 }

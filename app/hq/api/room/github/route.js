@@ -1,5 +1,7 @@
 import { githubConfig, sha256Hex, verifyWebhookSignature } from "@/lib/hq/github";
+import { after } from "next/server";
 import { json } from "@/lib/hq/room-http";
+import { wakeFromRepo } from "@/lib/hq/loop-service";
 import { ingestGithubEvent } from "@/lib/hq/swarm";
 
 export const dynamic = "force-dynamic";
@@ -29,6 +31,8 @@ export async function POST(request) {
   }
   try {
     const result = await ingestGithubEvent({ deliveryId, eventType, payload, payloadSha256: sha256Hex(raw) });
+    const repo = payload?.repository?.full_name;
+    if (!result.duplicate && repo) after(() => wakeFromRepo(repo));
     return json({ ok: true, duplicate: result.duplicate, error: result.error || undefined });
   } catch {
     console.error("room github ingest failed");

@@ -3,6 +3,8 @@ import { requireLiveRead, requireSeatPost, parseRoomPost, readJson, json } from 
 import { getRoomStorageMode, listDispatches, listRoomMessages, listRoomSeats, postRoomRecord } from "@/lib/hq/swarm";
 import { clampRoomLimit, normalizeChannel, roomBoardRows } from "@/lib/hq/swarm-contract";
 import { processQueued, routeMessage, seatStrip } from "@/lib/hq/swarm-router";
+import { seatEnv } from "@/lib/hq/seat-auth";
+import { wakeFromDispatch } from "@/lib/hq/loop-service";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -29,7 +31,7 @@ export async function GET(request) {
       storage: getRoomStorageMode(),
       messages,
       seats,
-      strip: seatStrip(seats),
+      strip: seatStrip(seats, await seatEnv()),
       dispatches,
       board: roomBoardRows(messages),
     });
@@ -64,6 +66,8 @@ export async function POST(request) {
     return json({ ok: false, error: "The message could not be saved." }, 503);
   }
   if (saved.error) return json({ ok: false, error: saved.error.error }, saved.error.status);
+  // A reply to a dispatch may be what an execution-loop task is waiting on.
+  if (dispatchId && !saved.deduped) after(() => wakeFromDispatch(dispatchId));
 
   // The message is committed. Routing is separate: if it fails, the post still stands.
   let dispatches = [];

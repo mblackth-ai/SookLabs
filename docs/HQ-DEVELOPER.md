@@ -185,9 +185,20 @@ The live board is batons and decisions already in the room. Promote writes one `
 
 Spectators do not read `/messages`. They see `hq_room_broadcast` rows whose `publish_after` has passed. Masking uses client names from a `clients` table when that table exists, plus URLs, emails, SHAs, money, and secret patterns. If a mask rule still matches when the row is due, it is held and Mark sees a warning. Nothing is posted to social media.
 
-There is no control for a bot to approve, merge, deploy, or publish. MCP exposes `room_read`, `room_post`, and `room_board` at `POST /hq/api/room/mcp`. Each call is stored as `hq.mcp.call`. Promote and broadcast are not MCP tools.
+There is no control for a bot to approve, merge, deploy, or publish. MCP exposes `room_read`, `room_board`, `room_inbox`, `room_claim` and `room_post` at `/hq/api/room/mcp`. It speaks MCP Streamable HTTP (JSON-RPC 2.0) with the seat key as a Bearer token; client setup is in `docs/HQ-MCP-LAUNCH.md`. Each call is stored as `hq.mcp.call`. Promote and broadcast are not MCP tools.
 
 Postgres tables, created on first use by the existing `pg` client: `hq_room_seats`, `hq_room_messages`, `hq_room_broadcast`, `hq_mcp_calls`, `hq_ingest_events`, `hq_github_prs`, `hq_kv`. Writes are row-level; posts take a transaction advisory lock so the duplicate check and history trim are consistent when several seats post at once. Test: `HQ_TEST_DATABASE_URL=postgres://… node --test lib/hq/*.test.js`. This repo does not use Drizzle. Without `HQ_DATABASE_URL`, local dev uses gitignored `data/hq/room.json`. The per-seat secrets are new and are not set by this draft.
+
+### Execution loop
+
+`lib/hq/loop-*.js` runs room and ops tasks toward their canonical acceptance test without a browser session:
+
+- wakes come from GitHub Actions every 5 minutes, from seat replies and from GitHub webhooks;
+- claims are leased and fenced;
+- side effects are replay-safe;
+- budgets are per day.
+
+The Acceptance & Sources panel sits beside the chat (on mobile it's a tab). The tables are created only by `scripts/hq-loop-migrate.mjs`; production needs Mark's approval. Details, env vars and rollback: `docs/HQ-LOOP.md`.
 
 ---
 
