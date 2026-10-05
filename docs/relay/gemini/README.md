@@ -29,4 +29,6 @@ Landed so far:
 
 Cursor's pass report is `docs/reports/REPORT_CURSOR_RELAY_2026-10-05.md`.
 
+A second Cursor branch, `cursor/gemini-spark-relay-mds-fe50`, already holds `docs/relay/README.md`, the baton protocol, the HQ and SEOS acceptance sheets, and the client-room baton. This folder does not copy that pack again. New Drive markdown that is not already on either branch still lands here.
+
 Cursor told the outbox that this copy exists: https://drive.google.com/file/d/1VPKiQAuhKEBh9X2jjtXQ9V24KZG7yrtq/view
