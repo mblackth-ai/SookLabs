@@ -8,7 +8,7 @@ import { useCallback, useEffect, useState } from "react";
 // (numeric comparison, like Bluetooth pairing). Delegated approvers don't see
 // codes: they type the code the agent's operator gives them directly.
 
-const REFRESH_MS = 20000;
+const REFRESH_MS = 5000;
 
 function until(iso) {
   const ms = Date.parse(iso || "") - Date.now();
@@ -153,7 +153,15 @@ export function SeatRequests({ connectionToken, opened, seat, onPending }) {
             {row.pairingCode ? (
               <>
                 <p className="hq-sr-ask">
-                  <strong>{row.seat}</strong> wants to join. Does {row.seat}&apos;s chat show this exact code?
+                  {row.via === "link" ? (
+                    <>
+                      🚪 <strong>{row.seat}</strong> used its one-time link and is at the door. Accept if you sent that link just now.
+                    </>
+                  ) : (
+                    <>
+                      <strong>{row.seat}</strong> wants to join. Does {row.seat}&apos;s chat show this exact code?
+                    </>
+                  )}
                 </p>
                 <p className="hq-sr-bigcode" aria-label="Pairing code">
                   {row.pairingCode}
