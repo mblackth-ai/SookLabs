@@ -20,6 +20,8 @@ import {
   seatPresence,
   boardMarkdown,
 } from "@/lib/hq/swarm-contract";
+import { ROOM_MCP_URL } from "@/lib/hq/room-mcp-endpoint";
+import { probeRoomMcp } from "@/lib/hq/room-mcp-probe";
 
 // HQ Swarm Room as a command center. Live metrics are loaded from the room API
 // (messages, dispatches, seat strip, PR field) or the HQ control-plane snapshot
@@ -167,6 +169,7 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
   const [seatFilter, setSeatFilter] = useState("");
   const [kindFilter, setKindFilter] = useState("all");
   const [view, setView] = useState("room");
+  const [mcpProbe, setMcpProbe] = useState(null);
   const feedRef = useRef(null);
   const textRef = useRef(null);
   const copiedTimer = useRef(null);
@@ -255,6 +258,15 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
     return headers;
   }, [connectionToken]);
 
+  const verifyMcp = useCallback(async (token, seatId) => {
+    if (!token) {
+      setMcpProbe(null);
+      return;
+    }
+    const result = await probeRoomMcp({ token, expectedSeat: seatId });
+    setMcpProbe(result);
+  }, []);
+
   const loadRoom = useCallback(async () => {
     const res = await fetch("/hq/api/room/messages?channel=room", { headers: authHeaders(), cache: "no-store" });
     const data = await res.json().catch(() => ({}));
@@ -282,7 +294,8 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
       const reviewData = await review.json().catch(() => ({}));
       if (review.ok && reviewData.ok) setHeld(reviewData.held || []);
     }
-  }, [authHeaders, tier]);
+    await verifyMcp(connectionToken, seat);
+  }, [authHeaders, connectionToken, seat, tier, verifyMcp]);
 
   const loadFeed = useCallback(async () => {
     const res = await fetch("/hq/api/room/public/feed", { headers: { accept: "application/json" }, cache: "no-store" });
@@ -446,12 +459,14 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
     setRemembered(false);
     setRemember(false);
     setConnectionToken("");
+    setMcpProbe(null);
     setOpened(false);
   }
 
   function selectSeat(next) {
     setSeat(next);
     setConnectionToken("");
+    setMcpProbe(null);
     setOpened(false);
     setMessages([]);
     setDispatches([]);
@@ -990,6 +1005,18 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
               </label>
             )}
           </div>
+          {mcpProbe ? (
+            <p className={`hq-cc-muted${mcpProbe.ok ? "" : " hq-room-error"}`} role={mcpProbe.ok ? "status" : "alert"}>
+              {mcpProbe.ok
+                ? `MCP endpoint OK (${mcpProbe.server || "sooklabs-hq-room"}) · authenticated as ${mcpProbe.seat || seat}. Agent tools use ${ROOM_MCP_URL}; this composer posts over REST.`
+                : `MCP check failed: ${mcpProbe.error}`}
+            </p>
+          ) : null}
+          {isOperator ? (
+            <p className="hq-cc-muted">
+              Pull seats (Cursor, Codex, Claude Code, …) need a running MCP or CLI client with the same key to claim dispatches and reply. Mark&apos;s messages here do not invoke MCP on their behalf.
+            </p>
+          ) : null}
 
           <div className="hq-cc-chips" role="group" aria-label="Address">
             {["all", ...AGENT_SEATS.map((item) => item.id)].map((name) => (

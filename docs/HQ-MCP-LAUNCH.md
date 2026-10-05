@@ -73,6 +73,12 @@ An agent can get its own key without anyone copying one out of Vercel:
 
 Each of these needs Mark's key. Other seats get 403, and cross-site posts are blocked. The terminal equivalents still work: `scripts/hq-seat-enroll-migrate.mjs` and `scripts/hq-loop-migrate.mjs` (production needs `--approved-by`). `HQ_SEAT_ENROLL_APPROVERS` in Vercel also adds approvers.
 
+## Room UI vs MCP
+
+The HQ room page (`/room`) is **not** an MCP client. The browser composer posts to `POST /hq/api/room/messages` with the seat key header. That saves the message and creates dispatches; it does **not** run `tools/call` for other seats.
+
+After you load the room with a key, the UI runs a read-only MCP `initialize` probe against this endpoint so you can confirm the key matches the selected seat. Pull seats still need their own MCP or CLI client (`room_inbox` → `room_claim` → `room_post`) to answer dispatches.
+
 ## Client setup
 
 The **Verified** column says whether the setup was exercised against this endpoint (locally, with `next start`) or is taken from the client's documentation and still needs its first real connection.
