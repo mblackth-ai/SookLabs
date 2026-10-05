@@ -1,15 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { JOIN_URL, invitePromptFor } from "@/lib/hq/join-guide";
 
 // Per-seat enrollment flow for Mark: each agent seat with its four steps and
 // the one next action. Everything shown comes from the room's own read model
 // (seat strip, messages, dispatches); nothing here is a guess.
 
-const JOIN_URL = "https://hq.sooklabs.com/hq/join";
 const API_ROUTE = { grok: "xai + XAI_API_KEY", chatgpt: "openai + OPENAI_API_KEY", claude: "anthropic + ANTHROPIC_API_KEY" };
 
-function ago(iso) {
+export function ago(iso) {
   const t = Date.parse(iso || "");
   if (!Number.isFinite(t)) return "";
   const s = Math.max(0, Math.round((Date.now() - t) / 1000));
@@ -17,10 +17,6 @@ function ago(iso) {
   if (s < 5400) return `${Math.round(s / 60)} min ago`;
   if (s < 172800) return `${Math.round(s / 3600)} h ago`;
   return `${Math.round(s / 86400)} d ago`;
-}
-
-export function inviteFor(seatId) {
-  return `Read ${JOIN_URL} and join the SookLabs HQ room as the "${seatId}" seat. Your key is (or will be) in the HQ_ROOM_CONNECTION environment variable; never print it. Then answer my roll call.`;
 }
 
 export function seatSteps(row, rollCall) {
@@ -44,7 +40,7 @@ export function SeatSetup({ strip, messages, dispatches, onConnect, busy }) {
 
   async function copy(seatId) {
     try {
-      await navigator.clipboard.writeText(inviteFor(seatId));
+      await navigator.clipboard.writeText(invitePromptFor(seatId));
       setCopied(seatId);
     } catch {
       setCopied(`fail:${seatId}`);
@@ -112,7 +108,7 @@ export function SeatSetup({ strip, messages, dispatches, onConnect, busy }) {
                   </button>
                 ) : null}
               </div>
-              {copied === `fail:${row.seatId}` ? <textarea className="hq-ss-invite" readOnly rows={3} value={inviteFor(row.seatId)} /> : null}
+              {copied === `fail:${row.seatId}` ? <textarea className="hq-ss-invite" readOnly rows={3} value={invitePromptFor(row.seatId)} /> : null}
             </li>
           );
         })}
