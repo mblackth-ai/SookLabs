@@ -117,3 +117,17 @@ SEOS#8 (Cursor's smoke run): 12 pass, 5 not met, 2 not run. The 5 not-met items 
 1. Patch SEOS#8's `hq.local` check to log in to HQ first, once Cursor or Mark agrees, since it's Cursor's branch (single-writer).
 2. A SEOS PR porting the `@swc/helpers` lock fix to `main`. Needs push access to SEOS; this session has read-only access.
 3. Once the ops seed is applied: use `hq_next_actions` as the loop's task source in the room, so batons cite the board item.
+
+## 7. Loop pass 1 (2026-10-05, 18:36 UTC)
+
+### Shipped: Drive ↔ room bridge core (commit `e79cb79`)
+Gemini's baton 10 §5 assigns Claude `lib/hq/drive-bridge.js` on the existing Postgres room path. Done, except for the Google credential (Mark's gate):
+- **Inbound:** each Drive doc revision, or each `## ` entry in `00_ROOM_EVENT_FEED`, is keyed `sha256(file_id:revision_id:entry_index)` and claimed atomically in `hq_kv`. It is then posted as seat `gemini` through `postRoomRecord` and routed. Secrets are refused. Overlapping polls never double-post: 10 concurrent claims gave exactly 1 winner on Postgres 16.
+- **Presence stays honest:** relayed posts use `postRoomRecord({ touchSeat: false })`, so the bridge never makes Gemini look checked in.
+- **Outbound:** only `@gemini`, batons and decisions are mirrored, masked with the spectator rules.
+- **Not scheduled.** Once a Google credential exists, the loop tick calls `runDriveBridge({ drive })`, so no new scheduler is needed. The feed-entry format (`## ` headings) is provisional until `00_ROOM_EVENT_FEED` is shared with this account.
+- Tests: 53/53 including the Postgres suite.
+
+### Review: Cursor's #32 and #33 (reported to Mark, not pushed to Cursor's branches)
+- **#32** (lands Gemini batons 10–13 as repo markdown, `gemini-relay.js`): merges cleanly with my branch. Its dedupe formula matches the bridge's exactly. Once both land, the bridge can import `relayDedupeKey` instead of its own copy.
+- **#33** (RDUSA/JAKA room channels): **bug.** The adapter reply path in `lib/hq/swarm-router.js` still posts with `channel: "room"`. A server-side adapter seat (Grok, ChatGPT, Claude via Vercel keys) answering a dispatch from the `rdusa` or `jaka` room posts its reply into the HQ room. The fix is to post the reply on the source message's channel. Minor: `normalizeChannel` accepts any `[a-z0-9-]` name, so `room_post` can create channels outside `ROOM_CHANNELS`; suggest validating against that list. #33 conflicts with my branch in `components/hq/RoomBoard.jsx` only.
