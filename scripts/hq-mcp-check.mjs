@@ -8,7 +8,9 @@
  * from the environment and never printed. Read-only: initialize, tools/list,
  * room_inbox (which also marks the seat as seen) and room_board.
  */
-const url = process.argv[2] || process.env.HQ_MCP_URL || "https://hq.sooklabs.com/hq/api/room/mcp";
+import { ROOM_MCP_URL } from "../lib/hq/room-mcp-endpoint.js";
+
+const url = process.argv[2] || process.env.HQ_MCP_URL || ROOM_MCP_URL;
 const key = (process.env.HQ_ROOM_CONNECTION || "").trim();
 if (!key) {
   console.error("Set HQ_ROOM_CONNECTION to this seat's key (it is not printed).");

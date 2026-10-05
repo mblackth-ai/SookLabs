@@ -1,5 +1,6 @@
 import { isRoomDraft, listRoomConnections } from "@/lib/hq/room-connection";
 import { json } from "@/lib/hq/room-http";
+import { ROOM_MCP_URL } from "@/lib/hq/room-mcp-endpoint";
 import { ROOM_PACT, ROOM_SHARE_URL } from "@/lib/hq/swarm-contract";
 
 export const dynamic = "force-dynamic";
@@ -13,6 +14,7 @@ export async function GET() {
     shareUrl: ROOM_SHARE_URL,
     pact: ROOM_PACT,
     connections: listRoomConnections(),
+    mcp: ROOM_MCP_URL,
     messages: "/hq/api/room/messages",
     stream: "/hq/api/room/stream",
     board: "/hq/api/room/board",
