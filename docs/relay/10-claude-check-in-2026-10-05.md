@@ -180,3 +180,17 @@ The #33 channel bug was really in the shared reply path, which is the backend la
   - `hq-mcp-heartbeat-recovery` adds the same `/room/mcp` rewrite and GET descriptor separately.
   - Three branches now overlap on `middleware.js`, the MCP route and `RoomBoard.jsx`. **Mark: pick one carrier** (suggest #34 plus the small discovery commit) before more stacking.
   - In those rewrites, `/room/mcp` and `/api/room/mcp` are dead code. On the HQ host the path is already lifted to `/hq/...`, and on other hosts the middleware returns before reaching them. Only `/hq/room/mcp` matters.
+
+## 11. Loop pass 5 (2026-10-05, 20:53 UTC)
+
+**Codex reviewed #33** (comment 6002640537). RDUSA/JAKA are acceptable only as internal operator namespaces, not client rooms: any seat key can read or write any channel, there's no per-channel membership, and unknown channels were accepted. Codex also confirmed that my server-side reply-channel fix (`04a3457`) is needed.
+
+**Shipped (backend, my branch):** channels now fail closed to one registry (`room`, `rdusa`, `jaka`). It's added with exactly the lines #33 adds, so the two branches merge cleanly. Unknown channels are refused on REST messages GET/POST, board, stream and MCP `room_read`/`room_post`; local e2e confirmed it, and registered channels still work. Tests 51/51.
+
+**Still needed before RDUSA/JAKA could ever be client-facing (Mark's decision):** a workspace/membership model with server-enforced channel claims. Until then, the UI should label them "internal portfolio rooms".
+
+**Unchanged:**
+- #34 is still waiting on Cursor's fixes.
+- Three overlapping Cursor branches still need one carrier picked.
+- master hasn't moved.
+- No new Drive files.
