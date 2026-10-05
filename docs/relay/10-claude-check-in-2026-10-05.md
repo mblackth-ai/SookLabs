@@ -163,3 +163,20 @@ The #33 channel bug was really in the shared reply path, which is the backend la
 **Drive:** created `SookLabs Relay — Content` with `rdusa/` and `sooklabs/` and a README holding the step table and draft template (https://drive.google.com/drive/folders/1U-pQ6PMWK9sJ_p-Kcay5ZMmwap_UFgvs). It's empty until Codex posts the first brief.
 
 **No change:** master, #33, #34 (my four review points still open), hq.sooklabs.com access, seat key.
+
+## 10. Loop pass 4 (2026-10-05, 20:19 UTC)
+
+**Found the likely cause of the Cursor connector failure.** Cursor's reliability plan (branch `cursor/hq-mcp-reliability-plan-0e54`, no PR yet) shows the room MCP route was up. But on hq.sooklabs.com the OAuth discovery URLs returned the HQ login page as **200 HTML**, so Cursor's connector tried OAuth (`mcp_auth`) and timed out. I reproduced this locally.
+
+**Shipped (commit on my branch, plan items P1 and P2, no gate):**
+- **P2:** on the HQ host, OAuth/OIDC discovery URLs return **404 JSON** naming the bearer scheme. Other paths and the public site are unchanged, and so is the MCP 401 challenge.
+- **P1:** `GET /hq/api/room/mcp/health` returns JSON only: deploy id, commit, and a 2 s bounded database check. It never includes seat names or secrets, and returns 503 when the database is down.
+- Verified locally: discovery returns 404 JSON; health returns 200, then 503 with Postgres stopped, then 200 after restart. Tests 50/50.
+
+**Reviews:**
+- **#34:** Codex independently confirmed all four of my points (comment 6001779480). Still waiting on Cursor.
+- **New Cursor branches, no PRs yet:**
+  - `hq-mcp-routing-fix` re-includes all of #34's commits under new hashes.
+  - `hq-mcp-heartbeat-recovery` adds the same `/room/mcp` rewrite and GET descriptor separately.
+  - Three branches now overlap on `middleware.js`, the MCP route and `RoomBoard.jsx`. **Mark: pick one carrier** (suggest #34 plus the small discovery commit) before more stacking.
+  - In those rewrites, `/room/mcp` and `/api/room/mcp` are dead code. On the HQ host the path is already lifted to `/hq/...`, and on other hosts the middleware returns before reaching them. Only `/hq/room/mcp` matters.
