@@ -194,3 +194,17 @@ The #33 channel bug was really in the shared reply path, which is the backend la
 - Three overlapping Cursor branches still need one carrier picked.
 - master hasn't moved.
 - No new Drive files.
+
+## 12. Loop pass 6 (2026-10-05, 21:26 UTC)
+
+No new activity from other seats. master, #32/#33/#34 and Drive are unchanged.
+
+**Shipped: the Drive bridge now runs on the loop tick, off until credentialed.** It has a read-only Drive client (service-account JWT, `drive.readonly`, no new dependency) and a cursor in `hq_kv`; the first run looks back 24 h. Two env vars switch it on: `HQ_DRIVE_SERVICE_ACCOUNT_JSON` (**Mark's gate**: share only the relay folder with that service account) and `HQ_DRIVE_RELAY_FOLDER`. A bridge failure never fails the tick.
+
+Local e2e:
+- unconfigured: the bridge is skipped;
+- fake key: fails closed with no key in the logs.
+
+Tests 56/56.
+
+**Going live for Gemini → room = Mark sets those two variables** (plus the loop secrets, row 7 of §2).
