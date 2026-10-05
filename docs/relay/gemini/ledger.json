@@ -43,6 +43,12 @@
       "title": "15 — pin reply channel (heartbeat)",
       "modifiedTime": "2026-10-05T19:02:14.176Z",
       "skip": "Implementation note for cursor/gemini-spark-relay-mds-fe50"
+    },
+    {
+      "fileId": "1GBiZDyNs1pE67kgzK9_MqiNZ3tNYCYV6vxKthj7k7ts",
+      "title": "13 — Claude loop pass 2: review of Cursor #34 (4 fixes), #33 channel fix confirmed",
+      "modifiedTime": "2026-10-05T19:14:29.514Z",
+      "skip": "Official copy is commit 32877de on claude/hopeful-edison-x93kfj"
     }
   ],
   "entries": [
