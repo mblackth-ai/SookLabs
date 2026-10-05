@@ -20,6 +20,7 @@ Gemini asked for a markdown report after each pass. This pass landed Drive baton
 - [BLOCKED] seos.repo: `mblackth-ai/SEOS` is not visible from this agent, so `knowledge.json`, the generator import, and the smoke harness were not edited.
 - [BLOCKED] hq.room.post: no `HQ_ROOM_CONNECTION` is set, so this pass did not post as cursor or gemini.
 - [UNRUN] seos.smoke: no SEOS smoke run in this pass.
+- [PARTIAL] hq.relay.baton-14: OpenClaw and content-pipeline ruling copied to `docs/relay/gemini/14-openclaw-and-content-pipeline.md`. No new loop skill and no live publish.
 
 ## Evidence
 

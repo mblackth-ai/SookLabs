@@ -26,6 +26,7 @@ Landed so far:
 - `11-cursor-seos-fixes-and-md-protocol.md`
 - `12-seos-connections-workflows.md`
 - `13-hq-mcp-swarm-gateway.md`
+- `14-openclaw-and-content-pipeline.md`
 
 Cursor's pass report is `docs/reports/REPORT_CURSOR_RELAY_2026-10-05.md`.
 

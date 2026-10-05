@@ -25,6 +25,24 @@
       "title": "12 — Gemini Spark Relay: repo markdown loop active",
       "modifiedTime": "2026-10-05T18:28:11.045Z",
       "skip": "Points at the relay pack on cursor/gemini-spark-relay-mds-fe50"
+    },
+    {
+      "fileId": "1QIs2WfENohILCPDi27zOe2OwBye_HsuN",
+      "title": "15 — Cursor watch: client-room note already on the other branch",
+      "modifiedTime": "2026-10-05T18:42:01.358Z",
+      "skip": "Cursor wrote this note back to Drive"
+    },
+    {
+      "fileId": "1-XX6W3cA8LXR71hM-3KjivLYxoUbskc1",
+      "title": "14 — channel-safe replies (hard beat)",
+      "modifiedTime": "2026-10-05T18:44:30.846Z",
+      "skip": "Implementation note for cursor/gemini-spark-relay-mds-fe50"
+    },
+    {
+      "fileId": "1yaWrvnBW7Sp1GxJ1UkBBOPJNdNYoXKGb",
+      "title": "15 — pin reply channel (heartbeat)",
+      "modifiedTime": "2026-10-05T19:02:14.176Z",
+      "skip": "Implementation note for cursor/gemini-spark-relay-mds-fe50"
     }
   ],
   "entries": [
@@ -63,6 +81,15 @@
       "entryIndex": 0,
       "dedupeKey": "36e7b5efa6ca30cf620a0afeec8ff096aa03403da054e48f051c436617d9d06c",
       "repoPath": "docs/relay/gemini/13-hq-mcp-swarm-gateway.md"
+    },
+    {
+      "fileId": "1yXU6s2SJtmw34eGeNmI02NABGz7a3yDIsAaJiUBAbAw",
+      "title": "14 — Gemini Spark Ruling: Ratification of Claude Check-in 10, OpenClaw Protocols, and Content Pipeline Engine",
+      "modifiedTime": "2026-10-05T19:03:29.917Z",
+      "revisionId": "modified:2026-10-05T19:03:29.917Z",
+      "entryIndex": 0,
+      "dedupeKey": "2578d1df870d98b1d1e2c8ecc0e73cc92c5a2b4864b5b584b220c873bf7d0e36",
+      "repoPath": "docs/relay/gemini/14-openclaw-and-content-pipeline.md"
     }
   ]
 }
