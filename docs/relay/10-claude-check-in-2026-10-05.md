@@ -85,3 +85,35 @@ Already re-implemented in the loop: standing orders, writer-claim fencing, heart
 Not adopted, same as the loop: runtime skill installs, self-modifying agent memory, gateway/channel plugins.
 
 — Claude Code
+
+## 6. Pass 2 (2026-10-05, ~18:30 UTC): work done, with evidence
+
+### HQ / MCP front: room MCP read tools (commit `56501a5`, branch `claude/hopeful-edison-x93kfj`)
+
+Control-plane integration step 4. The room MCP now has two read-only tools, `hq_status` and `hq_next_actions`. Both use the room page's own read model (`lib/hq/room-summary.js`). `/hq/api/room/summary` and the page's offline-seat blockers now use that module too, so MCP and page cannot drift. These tools cover the planned `hq_status`, `pending_approvals` and `next_actions`. For #14 this means: keep only the GitHub reads (`project_status`, `build_status`, `deploy_status`) or move them onto the room MCP, so there's one seat model and one control-plane path.
+
+Local e2e (Postgres 16): `tools/list` shows both tools. `hq_status` as codex returns the same finish line (33%) and blockers as the room page. A wrong key gets `-32001`. Calls are audited in `hq_mcp_calls`. Tests 35/35.
+
+**Finding:** in a database-backed ops store, `hq_next_actions` comes back empty, because the four-front board in `data/hq/ops.json` has never been applied to the ops store. The tool now says so instead of returning a bare empty list. Until Mark applies the seed (ops interface), there is no board of record in production. This is row 8 of §2.
+
+### SEOS front (read-only clone of `mblackth-ai/SEOS` main `38d0777`)
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| Clean install on `main` | **FAIL** | `npm ci` → `Missing: @swc/helpers@0.5.23 from lock file`. The fix (`fbf0170`, SEOS#2) was merged into `cursor/seos-social-control-plane-mvp1`, **not `main`**. |
+| `hq.local` (checklist "HQ cross-link") | **PASS (local)** | HQ built with `NEXT_PUBLIC_SEOS_URL=http://localhost:3000`, logged in, `/hq/seos/knowledge-base` → "Open SEOS app → http://localhost:3000" → SEOS "Operator access / Sign in". Not production. |
+| SEOS#8's automated `hq.local` check | **Would give a false NOT_MET** | It fetches the HQ page without a session. HQ answers 200 with its login page (no SEOS link). The check needs to log in first (`POST /hq/api/login` with `HQ_ACCESS_PASSWORD`, then send the cookie). |
+| `hq.prod` | not run | Needs production; Mark's gate. |
+
+SEOS#8 (Cursor's smoke run): 12 pass, 5 not met, 2 not run. The 5 not-met items are **checklist drift, not bugs**. The product deliberately changed; the checklist didn't:
+- `auth.restricted`: the page says "Operator access", the checklist expects "Restricted access".
+- `auth.command-center`: login lands on Simple Mode "Today", not Command Center.
+- `kb.badge`: "Manual · Server sync", not "Phase 2". Honest, and not Connected.
+- `cc.scores` / `cc.feed`: removed on purpose ("No fake Expansion Stack scores"), matching DECISIONS.md honesty rules.
+
+**Proposal (decision for Mark, with Gemini Spark as contract authority):** update `docs/mvp-smoke-checklist.md` to the shipped wording, keeping the honesty rules. The checklist is the acceptance authority, so this is a canonical-doc change, not something an agent edits on its own. Then those 5 rows can pass on evidence.
+
+### Next tasks I'd take (in my lane, no gate)
+1. Patch SEOS#8's `hq.local` check to log in to HQ first, once Cursor or Mark agrees, since it's Cursor's branch (single-writer).
+2. A SEOS PR porting the `@swc/helpers` lock fix to `main`. Needs push access to SEOS; this session has read-only access.
+3. Once the ops seed is applied: use `hq_next_actions` as the loop's task source in the room, so batons cite the board item.
