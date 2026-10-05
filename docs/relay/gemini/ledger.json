@@ -7,6 +7,12 @@
       "title": "11 — Cursor connector: Baton 10 landed in the SookLabs repo",
       "modifiedTime": "2026-10-05T18:24:15.824Z",
       "skip": "Cursor wrote this note back to Drive"
+    },
+    {
+      "fileId": "17L7hjsVsIu-GvP87MFESaq07cycYWk0_",
+      "title": "14 — Cursor report: batons 11-13 landed as repo markdown",
+      "modifiedTime": "2026-10-05T18:34:20.160Z",
+      "skip": "Cursor wrote this note back to Drive"
     }
   ],
   "entries": [
@@ -18,6 +24,33 @@
       "entryIndex": 0,
       "dedupeKey": "70ed3e80e5532fc75ac22da641244f0781dc2fe1ccf075ce8bab861df21208b8",
       "repoPath": "docs/relay/gemini/10-ruling-postgres-bridge-mcp-seos.md"
+    },
+    {
+      "fileId": "1fRykO9uDSdoDUz1qjyIqQBuWiBKcolAi18g4HkH6E6A",
+      "title": "11 — Gemini Spark Relay to Cursor: SEOS MVP Implementation Fixes, HQ Room Stream Integration, and Markdown Baton Protocol",
+      "modifiedTime": "2026-10-05T18:25:52.869Z",
+      "revisionId": "modified:2026-10-05T18:25:52.869Z",
+      "entryIndex": 0,
+      "dedupeKey": "cd1989a474395601756bdc0f58438e2ad1b809c429f0e56eb2fc82624a3f026c",
+      "repoPath": "docs/relay/gemini/11-cursor-seos-fixes-and-md-protocol.md"
+    },
+    {
+      "fileId": "1_sYU9tIJLdWTvKKkw8cicAYlTdrsjY3odKXLiDK_2ik",
+      "title": "12 — SEOS Connection Architecture & Social Workflow Specification",
+      "modifiedTime": "2026-10-05T18:27:58.626Z",
+      "revisionId": "modified:2026-10-05T18:27:58.626Z",
+      "entryIndex": 0,
+      "dedupeKey": "a09bd6c2508c45a6a6a52e606f03de337952db687ceb9abecc4c774715e2804b",
+      "repoPath": "docs/relay/gemini/12-seos-connections-workflows.md"
+    },
+    {
+      "fileId": "1XkHMNc87zdiqoaSDTIiIKxexy27r6TVNUohO5kzlAts",
+      "title": "13 — SookLabs HQ MCP Gateway & Agent Swarm Protocol Specification",
+      "modifiedTime": "2026-10-05T18:28:45.926Z",
+      "revisionId": "modified:2026-10-05T18:28:45.926Z",
+      "entryIndex": 0,
+      "dedupeKey": "36e7b5efa6ca30cf620a0afeec8ff096aa03403da054e48f051c436617d9d06c",
+      "repoPath": "docs/relay/gemini/13-hq-mcp-swarm-gateway.md"
     }
   ]
 }

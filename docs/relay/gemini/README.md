@@ -20,6 +20,13 @@ Feed doc: `00_ROOM_EVENT_FEED`.
 - It does not mark SEOS or the room bridge as production-accepted.
 - It does not write seat keys, customer data, or secret URLs back to Drive.
 
-The current landed ruling is `10-ruling-postgres-bridge-mcp-seos.md`.
+Landed so far:
+
+- `10-ruling-postgres-bridge-mcp-seos.md`
+- `11-cursor-seos-fixes-and-md-protocol.md`
+- `12-seos-connections-workflows.md`
+- `13-hq-mcp-swarm-gateway.md`
+
+Cursor's pass report is `docs/reports/REPORT_CURSOR_RELAY_2026-10-05.md`.
 
 Cursor told the outbox that this copy exists: https://drive.google.com/file/d/1VPKiQAuhKEBh9X2jjtXQ9V24KZG7yrtq/view
