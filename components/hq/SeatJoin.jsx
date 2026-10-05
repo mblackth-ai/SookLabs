@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { invitePromptFor, joinUrlFor } from "@/lib/hq/join-guide";
-import { ago } from "@/components/hq/SeatSetup";
+import { ago, inviteFor, linkMessage } from "@/components/hq/SeatSetup";
 
-// Opened from a seat's blocker card: that seat's own join link, the prompt to
-// paste into the LLM, Done (invite sent) and Refresh. The status lines come from
-// the room's read model (seat strip, dispatches, messages). The link and prompt
-// hold no key; "invite sent" is remembered in this browser only.
+// Opened from a seat's blocker card: a one-time join link for that seat (Mark
+// only; same link as Seat setup), the prompt to paste into the LLM, Done
+// (invite sent) and Refresh. The status lines come from the room's read model
+// (seat strip, dispatches, messages). Without a link, the prompt points at the
+// public guide. Nothing here holds a key; "invite sent" is kept in this browser only.
 
 const INVITED_PREFIX = "hq-room-invited:";
 function readInvited(seatId) {
@@ -37,15 +37,26 @@ function availability(row) {
   return `Available through the ${row.adapter} adapter.`;
 }
 
-export function SeatJoin({ row, callsign, stateLabel, latestDispatch, lastPost, onRefresh }) {
+export function SeatJoin({ row, callsign, stateLabel, latestDispatch, lastPost, onRefresh, onLink, busy }) {
   const seatId = row?.seatId;
   const [copied, setCopied] = useState("");
   const [invitedAt, setInvitedAt] = useState(() => readInvited(seatId));
   const [refreshing, setRefreshing] = useState(false);
   const [refreshedAt, setRefreshedAt] = useState("");
   const [refreshError, setRefreshError] = useState("");
-  const link = joinUrlFor(seatId);
-  const prompt = invitePromptFor(seatId);
+  const [link, setLink] = useState(null);
+  const [linkError, setLinkError] = useState("");
+  const prompt = link ? linkMessage(seatId, link.url) : inviteFor(seatId);
+
+  async function makeLink() {
+    setLinkError("");
+    try {
+      setLink(await onLink(seatId));
+      setCopied("");
+    } catch (err) {
+      setLinkError(err?.message || "The link could not be made.");
+    }
+  }
 
   async function copy(what, text) {
     try {
@@ -83,22 +94,33 @@ export function SeatJoin({ row, callsign, stateLabel, latestDispatch, lastPost, 
 
   return (
     <div className="hq-sj" aria-label={`Join ${callsign}`}>
+      {onLink ? (
+        <div className="hq-sj-step">
+          <span className="hq-cc-muted">1. One-time join link for {callsign} (one use, 30 minutes; a new one replaces the old)</span>
+          {link ? (
+            <>
+              <a className="hq-sj-link" href={link.url} target="_blank" rel="noreferrer">
+                {link.url.replace("https://", "")}
+              </a>
+              <span className="hq-cc-muted">expires {new Date(link.expiresAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+            </>
+          ) : null}
+          <button type="button" className={`hq-cc-btn${link ? " hq-cc-btn--quiet" : ""}`} disabled={busy} onClick={makeLink}>
+            {link ? "New link" : "Generate one-time link"}
+          </button>
+          {linkError ? <span className="hq-room-error" role="alert">{linkError}</span> : null}
+        </div>
+      ) : null}
       <div className="hq-sj-step">
-        <span className="hq-cc-muted">1. Join link for {callsign}</span>
-        <a className="hq-sj-link" href={link} target="_blank" rel="noreferrer">
-          {link.replace("https://", "")}
-        </a>
-        <button type="button" className="hq-cc-btn hq-cc-btn--quiet" onClick={() => copy("link", link)}>
-          {copied === "link" ? "Link copied" : "Copy link"}
-        </button>
-      </div>
-      <div className="hq-sj-step">
-        <span className="hq-cc-muted">2. Paste this prompt into {callsign}</span>
+        <span className="hq-cc-muted">
+          {onLink ? "2. " : ""}Paste this prompt into {callsign}
+          {link ? "" : onLink ? " (no link yet: it points at the public guide)" : ""}
+        </span>
         <button type="button" className="hq-cc-btn" onClick={() => copy("prompt", prompt)}>
           {copied === "prompt" ? "Prompt copied" : "Copy prompt"}
         </button>
         {copied.startsWith("fail:") ? (
-          <textarea className="hq-ss-invite" readOnly rows={4} value={copied === "fail:link" ? link : prompt} onFocus={(event) => event.target.select()} />
+          <textarea className="hq-ss-invite" readOnly rows={4} value={prompt} onFocus={(event) => event.target.select()} />
         ) : null}
       </div>
       <div className="hq-sj-actions">

@@ -212,6 +212,16 @@ Chief of Staff owns one live execution board across HQ, Sookly, SEOS and RDUSA a
 
 The repository workstream `executionMode` seeds the four-front acceptance queue. It is a reviewable repository seed, not proof that production Postgres has been patched or that a live seat is executing. Apply through the authenticated ops/room interface with a fresh read and preserve existing live state. Persist the resulting baton and dispatch receipts. Continue reversible work while human-gated steps remain blocked. Verify production acceptance separately before handoff.
 
+### Dispatch recovery foundation — stale-worker guard
+
+- Owner: Codex (implementation/tests); integration review remains separate.
+- Deliverable: reject first replies to inactive or expired dispatches in both room stores; fence native provider completion/failure and webhook delivery acknowledgements to their persisted attempt.
+- Authority: reversible repository implementation and isolated test-database checks under execution mode. No production schema change, secret provisioning, MCP write capability or new hosting.
+- Acceptance test: a persisted expired dispatch is swept/reclaimed; its old native worker cannot reply or change the new attempt; concurrent current replies produce one stored message; owning-seat replay returns the existing message; queued/failed/offline/timed-out dispatches cannot be revived by a reply.
+- Evidence: the HQ dispatch recovery workflow exercises the shared guard, existing routing contracts and real disposable Postgres transactions, then lint/build. CI evidence is not production acceptance.
+
+This is a recovery foundation, not the continuous-loop finish line. Existing external pull/webhook replies remain unversioned for compatibility and cannot distinguish two executions by the same seat after reclaim; a future explicitly versioned claim/reply contract must close that gap before full stale-worker isolation is claimed. Native thinking-state restart recovery, durable scheduled wakeups, budgets, verified worker capabilities and the two-authenticated-seat end-to-end milestone remain separate required work. Dispatching-lease recovery is tested by persisted database state, not a deployed worker restart. No live connection or production PASS is inferred from these tests.
+
 ### Acceptance-driven execution loop (mechanics only)
 
 The HQ loop (`lib/hq/loop-*.js`; runbook in `docs/HQ-LOOP.md`) moves these tasks through the global workflow without a browser session. It is bound by this section:

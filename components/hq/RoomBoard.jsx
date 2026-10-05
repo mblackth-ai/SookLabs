@@ -142,6 +142,15 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
   const [remembered, setRemembered] = useState(false);
   const [autoLoad, setAutoLoad] = useState(false);
   const [joinPending, setJoinPending] = useState(0);
+  const lastPending = useRef(0);
+
+  // Live signal when an LLM arrives: tab title count and a short vibration on phones.
+  useEffect(() => {
+    const base = document.title.replace(/^\(\d+\) /, "");
+    document.title = joinPending ? `(${joinPending}) ${base}` : base;
+    if (joinPending > lastPending.current) navigator.vibrate?.([120, 80, 120]);
+    lastPending.current = joinPending;
+  }, [joinPending]);
   const [mode, setMode] = useState("chat");
   const [text, setText] = useState("");
   const [refType, setRefType] = useState("pr");
@@ -424,6 +433,19 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
     } finally {
       setPosting(false);
     }
+  }
+
+  // Mark only: a one-time join link for one seat (also connects it).
+  async function makeJoinLink(target) {
+    const res = await fetch("/hq/api/room/enroll/invite", {
+      method: "POST",
+      headers: { ...authHeaders(), "content-type": "application/json" },
+      body: JSON.stringify({ seat, target }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) throw new Error(data.error || "The link could not be made.");
+    loadRoom().catch(() => {});
+    return { url: data.url, expiresAt: data.expiresAt };
   }
 
   function forgetKey() {
@@ -829,9 +851,9 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
         </nav>
 
         {isOperator && opened && joinPending ? (
-          <div className="hq-cc-joinbanner" role="status">
+          <div className="hq-cc-joinbanner hq-cc-joinbanner--live" role="alert">
             <span>
-              🔔 {joinPending} LLM{joinPending === 1 ? "" : "s"} want{joinPending === 1 ? "s" : ""} to join. Compare the code, then accept.
+              🔔 {joinPending} LLM{joinPending === 1 ? " is" : "s are"} at the door. Review and accept.
             </span>
             <button
               type="button"
@@ -1087,7 +1109,14 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
 
         <aside className="hq-cc-side">
           {isOperator && opened ? (
-            <SeatSetup strip={strip} messages={messages} dispatches={dispatches} busy={posting} onConnect={(target) => connectSeat(target, true)} />
+            <SeatSetup
+              strip={strip}
+              messages={messages}
+              dispatches={dispatches}
+              busy={posting}
+              onConnect={(target) => connectSeat(target, true)}
+              onLink={makeJoinLink}
+            />
           ) : null}
           {isOperator ? <SeatRequests connectionToken={connectionToken} opened={opened} seat={seat} onPending={setJoinPending} /> : null}
           <AcceptancePanel connectionToken={connectionToken} opened={opened} isOperator={isOperator} />
@@ -1204,6 +1233,8 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
                         latestDispatch={latestDispatchBySeat.get(item.seatId)}
                         lastPost={messages.reduce((last, message) => (message.seatId === item.seatId && (!last || message.createdAt > last.createdAt) ? message : last), null)}
                         onRefresh={loadRoom}
+                        onLink={isOperator ? makeJoinLink : null}
+                        busy={posting}
                       />
                     ) : null}
                   </li>
