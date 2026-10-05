@@ -17,8 +17,8 @@ export async function POST(request) {
   }
 
   const source = body?.source;
-  if (source !== "email" && source !== "quo") {
-    return json({ ok: false, error: 'source must be "email" or "quo".' }, 400);
+  if (source !== "email" && source !== "quo" && source !== "calendar") {
+    return json({ ok: false, error: 'source must be "email", "quo", or "calendar".' }, 400);
   }
 
   const result = ingestJourneySignal({
