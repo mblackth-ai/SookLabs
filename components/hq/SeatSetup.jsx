@@ -23,6 +23,10 @@ export function inviteFor(seatId) {
   return `Read ${JOIN_URL} and join the SookLabs HQ room as the "${seatId}" seat. Your key is (or will be) in the HQ_ROOM_CONNECTION environment variable; never print it. Then answer my roll call.`;
 }
 
+export function linkMessage(seatId, url) {
+  return `Join the SookLabs HQ room as the "${seatId}" seat with this one-time link. Open it first for instructions (opening does not use it up), then join exactly as it says, never print your key, and answer my roll call: ${url}`;
+}
+
 export function seatSteps(row, rollCall) {
   const connected = row.adapter !== "none" && !String(row.missing || "").startsWith("HQ_SEAT_ADAPTER_");
   const keyed = connected && row.ready;
@@ -38,8 +42,30 @@ export function seatSteps(row, rollCall) {
   return { connected, keyed, checkedIn, answered, next };
 }
 
-export function SeatSetup({ strip, messages, dispatches, onConnect, busy }) {
+export function SeatSetup({ strip, messages, dispatches, onConnect, onLink, busy }) {
   const [copied, setCopied] = useState("");
+  const [links, setLinks] = useState({});
+  const [linkError, setLinkError] = useState("");
+
+  async function makeLink(seatId) {
+    setLinkError("");
+    try {
+      const link = await onLink(seatId);
+      setLinks((prev) => ({ ...prev, [seatId]: link }));
+    } catch (err) {
+      setLinkError(err.message);
+    }
+  }
+
+  async function copyLink(seatId) {
+    const link = links[seatId];
+    try {
+      await navigator.clipboard.writeText(linkMessage(seatId, link.url));
+      setCopied(`link:${seatId}`);
+    } catch {
+      setCopied(`linkfail:${seatId}`);
+    }
+  }
   const lastCall = [...messages].reverse().find((message) => message.seatId === "mark" && dispatches.some((row) => row.sourceMessageId === message.id));
 
   async function copy(seatId) {
@@ -113,12 +139,32 @@ export function SeatSetup({ strip, messages, dispatches, onConnect, busy }) {
                 ) : null}
               </div>
               {copied === `fail:${row.seatId}` ? <textarea className="hq-ss-invite" readOnly rows={3} value={inviteFor(row.seatId)} /> : null}
+              {!s.keyed && row.adapter !== "openai" && row.adapter !== "xai" && row.adapter !== "anthropic" ? (
+                <div className="hq-ss-link">
+                  {links[row.seatId] ? (
+                    <>
+                      <span className="hq-cc-muted">One-time link ready · expires {new Date(links[row.seatId].expiresAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+                      <button type="button" className="hq-cc-btn" onClick={() => copyLink(row.seatId)}>
+                        {copied === `link:${row.seatId}` ? "Link copied" : "Copy link message"}
+                      </button>
+                      {copied === `linkfail:${row.seatId}` ? (
+                        <textarea className="hq-ss-invite" readOnly rows={4} value={linkMessage(row.seatId, links[row.seatId].url)} />
+                      ) : null}
+                    </>
+                  ) : (
+                    <button type="button" className="hq-cc-btn" disabled={busy} onClick={() => makeLink(row.seatId)}>
+                      Generate one-time link
+                    </button>
+                  )}
+                </div>
+              ) : null}
             </li>
           );
         })}
       </ul>
+      {linkError ? <p className="hq-room-error" role="alert">{linkError}</p> : null}
       <p className="hq-cc-muted">
-        The invite contains no key. Agents read the public guide at {JOIN_URL}.
+        One-time links work once, for one seat, for 30 minutes; a new link replaces the old one. The invite contains no key. Agents read the public guide at {JOIN_URL}.
       </p>
     </section>
   );

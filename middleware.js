@@ -80,6 +80,7 @@ export async function middleware(request) {
     pathname === "/hq/api/agents/pending" ||
     pathname === "/hq/room" ||
     pathname === "/hq/join" ||
+    pathname.startsWith("/hq/join/") ||
     pathname === "/hq/api/room" ||
     pathname.startsWith("/hq/api/room/");
   if (isOpenPath) {
