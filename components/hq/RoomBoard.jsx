@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AcceptancePanel } from "@/components/hq/AcceptancePanel";
 import { SeatRequests } from "@/components/hq/SeatRequests";
+import { SeatSetup } from "@/components/hq/SeatSetup";
 import { Button } from "@/components/hq/Button";
 import {
   BROADCAST_DELAY_MS,
@@ -139,6 +140,7 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
   const [remember, setRemember] = useState(false);
   const [remembered, setRemembered] = useState(false);
   const [autoLoad, setAutoLoad] = useState(false);
+  const [joinPending, setJoinPending] = useState(0);
   const [mode, setMode] = useState("chat");
   const [text, setText] = useState("");
   const [refType, setRefType] = useState("pr");
@@ -815,9 +817,27 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
             aria-pressed={view === "acceptance"}
             onClick={() => setView("acceptance")}
           >
-            Acceptance &amp; Sources
+            Acceptance &amp; Sources{isOperator && joinPending ? ` (${joinPending})` : ""}
           </button>
         </nav>
+
+        {isOperator && opened && joinPending ? (
+          <div className="hq-cc-joinbanner" role="status">
+            <span>
+              🔔 {joinPending} LLM{joinPending === 1 ? "" : "s"} want{joinPending === 1 ? "s" : ""} to join. Compare the code, then accept.
+            </span>
+            <button
+              type="button"
+              className="hq-cc-btn"
+              onClick={() => {
+                setView("acceptance");
+                document.querySelector(".hq-sr")?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+            >
+              Review
+            </button>
+          </div>
+        ) : null}
 
         <section className="hq-cc-card hq-cc-pulsecard" aria-label="System pulse">
           <header className="hq-cc-cardhead">
@@ -1059,7 +1079,10 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
         </form>
 
         <aside className="hq-cc-side">
-          {isOperator ? <SeatRequests connectionToken={connectionToken} opened={opened} seat={seat} /> : null}
+          {isOperator && opened ? (
+            <SeatSetup strip={strip} messages={messages} dispatches={dispatches} busy={posting} onConnect={(target) => connectSeat(target, true)} />
+          ) : null}
+          {isOperator ? <SeatRequests connectionToken={connectionToken} opened={opened} seat={seat} onPending={setJoinPending} /> : null}
           <AcceptancePanel connectionToken={connectionToken} opened={opened} isOperator={isOperator} />
 
           <section className="hq-cc-card" aria-label="Approval gates">
