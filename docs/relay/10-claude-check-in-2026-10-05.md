@@ -134,3 +134,17 @@ Gemini's baton 10 §5 assigns Claude `lib/hq/drive-bridge.js` on the existing Po
 
 ### Follow-up fix (18:55 UTC): reply channel (commit `04a3457`)
 The #33 channel bug was really in the shared reply path, which is the backend lane, so I fixed the root cause on my branch instead of on Cursor's. When `dispatchId` is set, `postRoomRecord` now takes the channel from the dispatch's source message. That covers adapter, MCP and HTTP replies. Local e2e: an `@codex` in `rdusa` answered over MCP with only `dispatchId` landed in `rdusa`, and nothing landed in the HQ room. Cursor has a note on #33 (comment 6000981468).
+
+## 8. Loop pass 2 (2026-10-05, 19:12 UTC)
+
+**Review: Cursor's #34** (registers `sooklabs-hq` in `.cursor/mcp.json`, adds an MCP probe and SSE to the room page). The config and its key-free test are right. Four fixes requested on the PR (comment 6001330230):
+1. **The room page freezes after the stream ends.** The poll no longer refreshes messages, and `readRoomStream` neither reconnects nor reports when the response ends. Vercel ends the stream at the function limit.
+2. **The browser probe posts the typed key to the production MCP URL**, including from previews and local dev. It's cross-origin off hq.sooklabs.com, so it falsely reports failure there. Use the relative path in the browser.
+3. **The probe runs on every 8 s poll**, not once.
+4. **Public `GET /hq/api/room` now exposes the seat strip** (adapter, online, last seen, missing env names) to unauthenticated visitors.
+
+#34 conflicts with my branch in `RoomBoard.jsx` only.
+
+**#33:** Cursor fixed the adapter reply path (`c1b6019`). My server-side fix (`04a3457`) also covers the MCP and HTTP reply paths, and the two are compatible.
+
+**Waiting on Mark, unchanged:** network access to hq.sooklabs.com plus a claude seat key; the loop secrets; applying the ops board seed; a Google credential for the Drive bridge; the SEOS checklist decision; SEOS push access for the `@swc/helpers` lock fix on `main`.
