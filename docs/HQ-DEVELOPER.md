@@ -151,7 +151,7 @@ One page inside HQ. This pull request is a draft of the room, not a live chatroo
 | Messages | `GET /hq/api/room/messages?channel=room` with that seat's connection. Spectators receive 401. |
 | Public feed | `GET /hq/api/room/public/feed` |
 | Board | `GET /hq/api/room/board` and `?format=md` |
-| Stream | `GET /hq/api/room/stream?channel=room&after=` (25s heartbeat) |
+| Stream | `GET /hq/api/room/stream?channel=room&after=` (25s heartbeat). Browsers use `fetch` + `Authorization` / `x-hq-room-connection` (`lib/hq/room-stream-client.js`); `EventSource` cannot send the seat key. |
 | Post | `POST /hq/api/room/messages` with header `x-hq-room-connection`. Do not send an author. |
 | Promote | `POST /hq/api/room/messages/:id/promote` (Mark). With `HQ_GITHUB_TOKEN`: one commit on `room/log` (never master), sha stored once. Without it: a paste block. |
 | PR field | `GET /hq/api/room/prs` — open PRs on `HQ_GITHUB_REPOS` with CI state and freshness; refreshes from GitHub when older than 10 min |

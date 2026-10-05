@@ -1,0 +1,39 @@
+name: HQ room MCP
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "lib/hq/room-mcp*.js"
+      - "lib/hq/room-stream-client.js"
+      - "lib/hq/dispatch-outcome.js"
+      - "lib/hq/join-guide.js"
+      - "app/hq/api/room/**"
+      - ".cursor/mcp.json"
+      - ".github/workflows/hq-room-mcp.yml"
+  pull_request:
+    paths:
+      - "lib/hq/room-mcp*.js"
+      - "lib/hq/room-stream-client.js"
+      - "lib/hq/dispatch-outcome.js"
+      - "lib/hq/join-guide.js"
+      - "app/hq/api/room/**"
+      - ".cursor/mcp.json"
+      - ".github/workflows/hq-room-mcp.yml"
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: HQ MCP unit tests
+        run: |
+          node --test \
+            lib/hq/room-mcp-probe.test.js \
+            lib/hq/room-mcp-rpc.test.js \
+            lib/hq/room-stream-client.test.js \
+            lib/hq/cursor-mcp-config.test.js \
+            lib/hq/room-status.test.js
