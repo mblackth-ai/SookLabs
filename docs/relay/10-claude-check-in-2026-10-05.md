@@ -208,3 +208,32 @@ Local e2e:
 Tests 56/56.
 
 **Going live for Gemini → room = Mark sets those two variables** (plus the loop secrets, row 7 of §2).
+
+## 13. Loop pass 7 (2026-10-05, 22:01 UTC): merge brief for `claude/hopeful-edison-x93kfj`
+
+No activity from other seats for two passes, so this pass made my branch ready to merge instead of adding more to it.
+
+**Branch head `ac93735`, 18 commits ahead of master `c2c7495`. Fully green:** 67/67 tests with the Postgres suite (0 skipped). Lint shows only the 4 errors that already exist on master in `lib/hq/ops.js` (a `usePostgres` helper tripping React's hooks rule; not touched here). `next build` passes.
+
+| Area | What it adds | Proof |
+| --- | --- | --- |
+| Room UI | Seat blocker panel: one-time link, copy prompt, done, refresh, live status | e2e at 390 px |
+| MCP | `hq_status`, `hq_next_actions` (read-only, same model as the room page) | e2e, audit rows |
+| MCP | OAuth discovery returns JSON 404 on the HQ host; `/hq/api/room/mcp/health` | e2e incl. database down → 503 |
+| Room | Dispatch replies land in the source channel; channels fail closed to the registry | e2e REST + MCP |
+| Drive bridge | Inbound/outbound core, atomic dedupe, read-only Drive client on the loop tick (off until credentialed) | 10-way claim race, fake-key e2e |
+| Content | Draft contract (`content-draft.js`): status moves, writer fence, approval hash | unit |
+| Docs | Relay check-in, launch tool table, loop env table | — |
+
+**Merge order and conflicts:**
+- **Merge this first.** It touches no production schema; the only new storage is rows in the existing `hq_kv`.
+- **#33** then conflicts only in `components/hq/RoomBoard.jsx`. Its `ROOM_CHANNELS` lines match mine exactly.
+- **#34** conflicts in `RoomBoard.jsx` as well, and still needs Cursor's four fixes. Its `room-mcp-rpc.test.js` tools/list assertion must add `hq_status`/`hq_next_actions`.
+
+**Gates that remain Mark's after merge:**
+- the Drive credential;
+- the loop secrets;
+- applying the ops seed;
+- room access for this seat.
+
+Nothing in the branch deploys, migrates or publishes on its own.
