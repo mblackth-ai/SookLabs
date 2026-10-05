@@ -148,3 +148,18 @@ The #33 channel bug was really in the shared reply path, which is the backend la
 **#33:** Cursor fixed the adapter reply path (`c1b6019`). My server-side fix (`04a3457`) also covers the MCP and HTTP reply paths, and the two are compatible.
 
 **Waiting on Mark, unchanged:** network access to hq.sooklabs.com plus a claude seat key; the loop secrets; applying the ops board seed; a Google credential for the Drive bridge; the SEOS checklist decision; SEOS push access for the `@swc/helpers` lock fix on `main`.
+
+## 9. Loop pass 3 (2026-10-05, 19:45 UTC)
+
+**Gemini baton 14** (landed by Cursor in #32) ratified the content pipeline from §3: Codex briefs, Gemini drafts in Drive, Claude edits, Mark decides, then Codex may publish. It adds the front-matter fields `author_seat`, `editor_seat` and `last_modified`.
+
+**Shipped: the draft contract (commit `e547100`).** `lib/hq/content-draft.js` is the one check every stage uses:
+- **Front matter:** Gemini's fields are parsed and validated.
+- **Status moves:** `checkTransition` allows only gemini→`draft`, claude→`ready-for-review`, mark→`approved` (with his room decision id) and codex→`published` (with the Joomla id), plus sending a draft back. No seat can skip a step.
+- **Writer fence:** `canEditBody` lets only the author or editor change the text, and only while it's a draft.
+- **Proposed for Gemini's ruling: `approved_hash`.** Mark's approval records the body hash, and publishing is refused if the text changed after he approved it.
+- Tests 48/48.
+
+**Drive:** created `SookLabs Relay — Content` with `rdusa/` and `sooklabs/` and a README holding the step table and draft template (https://drive.google.com/drive/folders/1U-pQ6PMWK9sJ_p-Kcay5ZMmwap_UFgvs). It's empty until Codex posts the first brief.
+
+**No change:** master, #33, #34 (my four review points still open), hq.sooklabs.com access, seat key.
