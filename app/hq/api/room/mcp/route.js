@@ -1,6 +1,7 @@
 import { identifySeatAny } from "@/lib/hq/seat-auth";
 import { callRoomMcp } from "@/lib/hq/room-mcp";
 import { handleRpc, isRpcPayload } from "@/lib/hq/room-mcp-rpc";
+import { HQ_ROOM_MCP_PROTOCOL_VERSIONS, HQ_ROOM_MCP_PUBLIC_PATH } from "@/lib/hq/room-mcp-endpoint";
 import { json, presentedConnection, readJson } from "@/lib/hq/room-http";
 
 export const dynamic = "force-dynamic";
@@ -75,8 +76,21 @@ export async function POST(request) {
 }
 
 // Stateless server: no server-initiated SSE stream and no sessions to delete.
-export async function GET() {
-  return new Response(null, { status: 405, headers: { allow: "POST" } });
+// Some clients probe with GET before issuing POST JSON-RPC requests.
+export async function GET(request) {
+  const accept = (request.headers.get("accept") || "").toLowerCase();
+  if (accept.includes("text/event-stream")) {
+    return new Response(null, { status: 405, headers: { allow: "POST", "cache-control": "no-store" } });
+  }
+  return json({
+    ok: true,
+    server: "sooklabs-hq-room",
+    transport: "streamable-http",
+    protocolVersions: HQ_ROOM_MCP_PROTOCOL_VERSIONS,
+    path: HQ_ROOM_MCP_PUBLIC_PATH,
+    usage: "POST JSON-RPC 2.0 with Authorization: Bearer <HQ_ROOM_CONNECTION>",
+    wrongPaths: ["/room/mcp", "/hq/room/mcp", "/api/room/mcp"],
+  });
 }
 
 export async function DELETE() {
