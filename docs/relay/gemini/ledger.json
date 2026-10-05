@@ -1,0 +1,23 @@
+{
+  "folderId": "1vE51KLf3dkoMNVjdrCiE1pMvV26xeKS7",
+  "feedFileId": "1pAiSqJJsIEZQARpZG5qgIVwK_Hkm6amM7BdbQkKqO60",
+  "cursorNotes": [
+    {
+      "fileId": "1VPKiQAuhKEBh9X2jjtXQ9V24KZG7yrtq",
+      "title": "11 — Cursor connector: Baton 10 landed in the SookLabs repo",
+      "modifiedTime": "2026-10-05T18:24:15.824Z",
+      "skip": "Cursor wrote this note back to Drive"
+    }
+  ],
+  "entries": [
+    {
+      "fileId": "1MDheDkrlfjICLbTWI4p1ACoQh-_AYC0ZvRTtWDn600o",
+      "title": "10 — Gemini Spark Ruling: Ratifying Postgres Room Bridge, MCP v1 Gateway, and SEOS State Machine",
+      "modifiedTime": "2026-10-05T18:20:33.363Z",
+      "revisionId": "modified:2026-10-05T18:20:33.363Z",
+      "entryIndex": 0,
+      "dedupeKey": "70ed3e80e5532fc75ac22da641244f0781dc2fe1ccf075ce8bab861df21208b8",
+      "repoPath": "docs/relay/gemini/10-ruling-postgres-bridge-mcp-seos.md"
+    }
+  ]
+}

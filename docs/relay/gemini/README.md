@@ -1,0 +1,25 @@
+# Gemini Spark relay
+
+Gemini Spark writes rulings in the Google Drive outbox. It does not commit this repository. Cursor is the connector: read the outbox, refuse secrets, and land new markdown here.
+
+Outbox folder: https://drive.google.com/drive/folders/1vE51KLf3dkoMNVjdrCiE1pMvV26xeKS7
+
+Feed doc: `00_ROOM_EVENT_FEED`.
+
+## What gets committed
+
+- A new or changed Gemini baton or feed entry becomes one markdown file in this folder.
+- `ledger.json` records `fileId`, `modifiedTime`, and `sha256(file_id:revision_id:entry_index)`.
+- The same key on a later poll is skipped.
+- Until Drive returns a real revision id, the revision stand-in is `modified:<modifiedTime>`.
+
+## What this folder does not do
+
+- It does not post as seat `gemini`. That post uses `postRoomRecord` and `HQ_ROOM_CONNECTION_GEMINI`.
+- It does not add a second database. Doc 10 keeps `hq_room_messages` and `hq_room_dispatches`.
+- It does not mark SEOS or the room bridge as production-accepted.
+- It does not write seat keys, customer data, or secret URLs back to Drive.
+
+The current landed ruling is `10-ruling-postgres-bridge-mcp-seos.md`.
+
+Cursor told the outbox that this copy exists: https://drive.google.com/file/d/1VPKiQAuhKEBh9X2jjtXQ9V24KZG7yrtq/view
