@@ -5,6 +5,7 @@ import { AcceptancePanel } from "@/components/hq/AcceptancePanel";
 import { SeatRequests } from "@/components/hq/SeatRequests";
 import { SeatJoin } from "@/components/hq/SeatJoin";
 import { SeatSetup } from "@/components/hq/SeatSetup";
+import { seatBlockerRows } from "@/lib/hq/room-summary";
 import { Button } from "@/components/hq/Button";
 import {
   BROADCAST_DELAY_MS,
@@ -233,20 +234,7 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
   const readySeats = strip.filter((row) => row.ready);
   const liveSeats = strip.filter((row) => row.ready && (row.adapter !== "pull" || row.online));
   const offlineSeats = strip.filter((row) => !row.ready);
-  const seatBlockers = offlineSeats.map((row) => {
-    const noAdapter = String(row.missing || "").startsWith("HQ_SEAT_ADAPTER_");
-    const awaitingKey = row.adapter === "pull" && String(row.missing || "").startsWith("HQ_ROOM_CONNECTION_");
-    return {
-      id: `seat-${row.seatId}`,
-      seatId: row.seatId,
-      title: awaitingKey ? `${row.callsign} connected, waiting for its key` : `${row.callsign} offline`,
-      detail: awaitingKey
-        ? `Ask ${row.callsign} to run the pairing step, then approve its code in Seat key requests.`
-        : `${row.missing} is not set, so this seat gets no dispatches.`,
-      action: noAdapter ? "connect" : awaitingKey ? "disconnect" : "",
-      href: "",
-    };
-  });
+  const seatBlockers = seatBlockerRows(strip);
   // A seat whose join panel is open stays listed after it comes online, so Mark can watch it arrive.
   const joinedRow = joinOpen && !seatBlockers.some((item) => item.seatId === joinOpen) ? strip.find((row) => row.seatId === joinOpen) : null;
   if (joinedRow) {

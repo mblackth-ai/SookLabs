@@ -1,5 +1,6 @@
 import { getControlPlaneSnapshot } from "@/lib/hq/control-plane";
 import { json, requireLiveRead } from "@/lib/hq/room-http";
+import { summarizeSnapshot } from "@/lib/hq/room-summary";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -11,29 +12,7 @@ export async function GET(request) {
   if (!auth.ok) return json({ ok: false, error: auth.error }, auth.status);
   try {
     const snapshot = await getControlPlaneSnapshot();
-    return json({
-      ok: true,
-      generatedAt: snapshot.generatedAt,
-      finishLine: {
-        percent: snapshot.overallProgress,
-        basis: "Four-front estimate: the average of the progress set for each front in HQ.",
-        fronts: (snapshot.fronts || []).map((front) => ({ id: front.id, name: front.name, progress: front.progress })),
-      },
-      approvals: (snapshot.approvals || []).map((job) => ({
-        id: job.id,
-        type: job.type || "",
-        summary: job.summary || "",
-        provider: job.provider || "",
-        status: job.status,
-        startedAt: job.startedAt || "",
-      })),
-      blockers: (snapshot.blockers || []).map((item) => ({
-        id: item.id,
-        title: item.title,
-        detail: item.detail || "",
-        href: item.href || "",
-      })),
-    });
+    return json({ ok: true, ...summarizeSnapshot(snapshot) });
   } catch {
     console.error("room summary failed");
     return json({ ok: false, error: "The HQ summary could not be loaded." }, 503);
