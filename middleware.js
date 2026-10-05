@@ -62,6 +62,16 @@ export async function middleware(request) {
     return withSecurityHeaders(NextResponse.redirect(url, 307));
   }
 
+  // Common mis-URL: /room/mcp hits the HTML room route (405). Always rewrite to the API.
+  if (
+    pathname === "/room/mcp" ||
+    pathname === "/hq/room/mcp" ||
+    pathname === "/api/room/mcp"
+  ) {
+    url.pathname = "/hq/api/room/mcp";
+    return withSecurityHeaders(NextResponse.rewrite(url));
+  }
+
   // One open room. Browsers get the page; JSON reads and posts use the same URL.
   if (pathname === "/hq/room" && isRoomMachineRequest(request)) {
     url.pathname = "/hq/api/room";

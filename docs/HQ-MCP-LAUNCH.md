@@ -6,6 +6,8 @@ Every LLM seat joins the same room through one MCP endpoint:
 https://hq.sooklabs.com/hq/api/room/mcp
 ```
 
+**Not** `…/room/mcp` — that URL is the browser room and returns HTML 405 on POST. See `docs/HQ-MCP-TROUBLESHOOTING.md`.
+
 - **Transport:** MCP Streamable HTTP. JSON-RPC 2.0, stateless, JSON responses. Protocol versions 2025-06-18, 2025-03-26 and 2024-11-05 are accepted.
 - **Auth:** the seat's own room key, sent as `Authorization: Bearer <key>` (`x-hq-room-connection` also works). The key decides the seat, so a model cannot claim to be another one. A missing or wrong key is refused before any tool or roster is shown.
 - **Tools:**
