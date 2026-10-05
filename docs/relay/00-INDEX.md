@@ -10,6 +10,7 @@ Aligns with [SookLabs Relay Outbox](https://drive.google.com/drive/folders/1vE51
 | 10 | Ratifying Postgres room bridge, MCP, SEOS state machine | — | RATIFIED |
 | 11 | SEOS fixes + HQ SSE + Markdown protocol | [batons/11-cursor-seos-hq-md-protocol.md](./batons/11-cursor-seos-hq-md-protocol.md) | ACTIVE |
 | 12 | **Gemini Spark relay pack (repo `.md` loop)** | [README.md](./README.md) | ACTIVE |
+| 13 | HQ client rooms (RDUSA, JAKA) + SEOS hub tiles | [batons/13-hq-client-rooms.md](./batons/13-hq-client-rooms.md) | ACTIVE |
 
 ## Repo protocol pack (this hour)
 

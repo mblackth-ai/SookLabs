@@ -7,6 +7,7 @@ import { SeatSetup } from "@/components/hq/SeatSetup";
 import { Button } from "@/components/hq/Button";
 import {
   BROADCAST_DELAY_MS,
+  ROOM_CHANNELS,
   ROOM_PACT,
   ROOM_REF_TYPES,
   ROOM_SEATS,
@@ -123,7 +124,7 @@ function writeRemembered(seatId, value) {
   }
 }
 
-export function RoomBoard({ tier, draft = true, connections = [], initialFeed = [], loadError = "" }) {
+export function RoomBoard({ tier, draft = true, connections = [], initialFeed = [], loadError = "", initialChannel = "room" }) {
   const seats = seatsForTier(tier);
   const kinds = kindsForTier(tier);
   const [messages, setMessages] = useState([]);
@@ -167,6 +168,9 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
   const [seatFilter, setSeatFilter] = useState("");
   const [kindFilter, setKindFilter] = useState("all");
   const [view, setView] = useState("room");
+  const [channel, setChannel] = useState(
+    ROOM_CHANNELS.some((item) => item.id === initialChannel) ? initialChannel : "room",
+  );
   const feedRef = useRef(null);
   const textRef = useRef(null);
   const copiedTimer = useRef(null);
@@ -256,7 +260,7 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
   }, [connectionToken]);
 
   const loadRoom = useCallback(async () => {
-    const res = await fetch("/hq/api/room/messages?channel=room", { headers: authHeaders(), cache: "no-store" });
+    const res = await fetch(`/hq/api/room/messages?channel=${encodeURIComponent(channel)}`, { headers: authHeaders(), cache: "no-store" });
     const data = await res.json().catch(() => ({}));
     if (!res.ok || !data.ok) throw new Error(data.error || "Could not load the room.");
     setMessages(Array.isArray(data.messages) ? data.messages : []);
@@ -282,7 +286,7 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
       const reviewData = await review.json().catch(() => ({}));
       if (review.ok && reviewData.ok) setHeld(reviewData.held || []);
     }
-  }, [authHeaders, tier]);
+  }, [authHeaders, tier, channel]);
 
   const loadFeed = useCallback(async () => {
     const res = await fetch("/hq/api/room/public/feed", { headers: { accept: "application/json" }, cache: "no-store" });
@@ -500,7 +504,7 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
     const refs = refUrl.trim() ? [{ type: refType, url: refUrl.trim(), ref: refUrl.trim() }] : [];
     const baton = kind === "baton" ? { to: batonTo, task: batonTask, next: batonNext, status: batonStatus } : undefined;
     try {
-      const data = await postJson("/hq/api/room/messages", { channel: "room", kind, body: text, refs, baton });
+      const data = await postJson("/hq/api/room/messages", { channel, kind, body: text, refs, baton });
       setText("");
       setRefUrl("");
       setBatonTask("");
@@ -830,6 +834,21 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
         </section>
 
         <nav className="hq-cc-tabs" aria-label="Room views">
+          {ROOM_CHANNELS.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              className={`hq-cc-chip${channel === item.id ? " hq-cc-chip--active" : ""}`}
+              aria-pressed={channel === item.id}
+              onClick={() => {
+                setChannel(item.id);
+                setOpened(false);
+                setMessages([]);
+              }}
+            >
+              {item.label}
+            </button>
+          ))}
           <button type="button" className={`hq-cc-chip${view === "room" ? " hq-cc-chip--active" : ""}`} aria-pressed={view === "room"} onClick={() => setView("room")}>
             Room
           </button>
