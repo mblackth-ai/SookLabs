@@ -179,6 +179,16 @@
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* Prevent the document canvas from showing a light frame around HQ routes. */
+html:has(.hq-scope),
+body:has(.hq-scope) {
+  margin: 0;
+  background: var(--color-gray-950);
 }
 
 /* Reset margins for elements rendered inside HQ without touching the public site */
@@ -602,7 +612,7 @@
   flex-shrink: 0;
   height: 100%;
   background: var(--bg-base);
-  border-right: 1px solid var(--border-faint);
+  border-right: none;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1947,7 +1957,7 @@
   width: 100%;
   max-width: 380px;
   background: var(--bg-surface);
-  border: 1px solid var(--border-default);
+  border: none;
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
   padding: var(--space-8);
@@ -3345,7 +3355,7 @@
   min-width: 0;
   padding: var(--space-4) var(--space-5, 20px);
   background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
+  border: none;
   border-radius: var(--radius-xl);
 }
 
@@ -3408,7 +3418,7 @@
   margin: var(--space-5, 20px) 0 0;
   padding: var(--space-4);
   background: var(--bg-base);
-  border: 1px solid var(--border-faint);
+  border: none;
   border-radius: var(--radius-lg);
 }
 
