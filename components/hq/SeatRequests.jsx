@@ -2,9 +2,11 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-// Seat key requests for approvers. Shows seat, client and expiry from
-// /hq/api/room/enroll; never a key. Approving needs the pairing code the
-// requesting agent's operator gives you directly, not one seen in the room.
+// Join requests for approvers. Shows seat, client and expiry from
+// /hq/api/room/enroll; never a key. Mark sees each pending request's code and
+// accepts only if it matches the code the agent shows him in its own chat
+// (numeric comparison, like Bluetooth pairing). Delegated approvers don't see
+// codes: they type the code the agent's operator gives them directly.
 
 const REFRESH_MS = 20000;
 
@@ -15,7 +17,7 @@ function until(iso) {
   return `${Math.ceil(ms / 60000)} min left`;
 }
 
-export function SeatRequests({ connectionToken, opened, seat }) {
+export function SeatRequests({ connectionToken, opened, seat, onPending }) {
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
   const [codes, setCodes] = useState({});
@@ -55,13 +57,13 @@ export function SeatRequests({ connectionToken, opened, seat }) {
     };
   }, [opened, connectionToken, load]);
 
-  async function decide(id, action) {
+  async function decide(id, action, code = codes[id] || "") {
     setBusy(id);
     setNote("");
     const res = await fetch(`/hq/api/room/enroll/${id}/decide`, {
       method: "POST",
       headers: headers(),
-      body: JSON.stringify({ seat, action, code: codes[id] || "" }),
+      body: JSON.stringify({ seat, action, code }),
     });
     const body = await res.json().catch(() => ({}));
     setBusy("");
@@ -88,6 +90,11 @@ export function SeatRequests({ connectionToken, opened, seat }) {
     load();
   }
 
+  const pendingCount = (data?.requests || []).filter((row) => row.status === "pending").length;
+  useEffect(() => {
+    onPending?.(pendingCount);
+  }, [pendingCount, onPending]);
+
   if (!opened) return null;
   const isMark = seat === "mark";
   const grokApproves = (data?.approvers || []).includes("grok");
@@ -111,7 +118,7 @@ export function SeatRequests({ connectionToken, opened, seat }) {
       ) : null}
       {data?.installed === false ? (
         <div className="hq-sr-install">
-          <p className="hq-cc-note">Seat key requests are not switched on yet. This adds two tables to the HQ database and changes nothing else.</p>
+          <p className="hq-cc-note">Join requests are not switched on (or need a one-column update). This only adds to the HQ database and changes nothing else.</p>
           {isMark ? (
             <button type="button" className="hq-cc-btn" disabled={Boolean(busy)} onClick={() => post("/hq/api/room/enroll/install", {}, (b) => (b.created ? "Seat key requests are on." : "Already on."))}>
               Switch on seat key requests
@@ -143,6 +150,25 @@ export function SeatRequests({ connectionToken, opened, seat }) {
                 {row.attempts ? ` · ${row.attempts} wrong code${row.attempts === 1 ? "" : "s"}` : ""}
               </span>
             </div>
+            {row.pairingCode ? (
+              <>
+                <p className="hq-sr-ask">
+                  <strong>{row.seat}</strong> wants to join. Does {row.seat}&apos;s chat show this exact code?
+                </p>
+                <p className="hq-sr-bigcode" aria-label="Pairing code">
+                  {row.pairingCode}
+                </p>
+                <div className="hq-sr-actions">
+                  <button type="button" className="hq-cc-btn" disabled={busy === row.id} onClick={() => decide(row.id, "approve", row.pairingCode)}>
+                    Yes, accept
+                  </button>
+                  <button type="button" className="hq-cc-btn hq-cc-btn--quiet" disabled={busy === row.id} onClick={() => decide(row.id, "deny", row.pairingCode)}>
+                    No, deny
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
             <label className="hq-sr-code">
               Pairing code
               <input
@@ -162,6 +188,8 @@ export function SeatRequests({ connectionToken, opened, seat }) {
                 Deny
               </button>
             </div>
+              </>
+            )}
           </li>
         ))}
       </ul>

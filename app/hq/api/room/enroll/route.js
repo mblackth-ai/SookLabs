@@ -43,5 +43,8 @@ export async function GET(request) {
   }
   const approvers = await currentApprovers();
   if (!approvers.includes(auth.seat)) return json({ ok: false, error: "This seat cannot approve key requests." }, 403);
-  return json({ ok: true, installed: true, approvers, requests: await listEnrollments() });
+  // Only Mark sees pending pairing codes (to compare with the code the agent shows him). Delegated
+  // approvers must get the code from the agent's operator directly, so a code is never proof by itself.
+  const requests = (await listEnrollments()).map((row) => (auth.seat === "mark" ? row : { ...row, pairingCode: "" }));
+  return json({ ok: true, installed: true, approvers, requests });
 }
