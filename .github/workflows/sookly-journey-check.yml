@@ -1,0 +1,31 @@
+name: Sookly journey heartbeat
+
+on:
+  push:
+    paths:
+      - "lib/sookly/**"
+      - "lib/hq/sookly-journey-report*"
+      - "app/hq/**/sookly/**"
+      - "components/hq/SooklyJourney*"
+      - "scripts/sookly-journey-heartbeat.mjs"
+      - ".github/workflows/sookly-journey-check.yml"
+  pull_request:
+    paths:
+      - "lib/sookly/**"
+      - "lib/hq/sookly-journey-report*"
+      - "app/hq/**/sookly/**"
+      - "components/hq/SooklyJourney*"
+      - "scripts/sookly-journey-heartbeat.mjs"
+      - ".github/workflows/sookly-journey-check.yml"
+  schedule:
+    - cron: "17 */6 * * *"
+
+jobs:
+  heartbeat:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node scripts/sookly-journey-heartbeat.mjs

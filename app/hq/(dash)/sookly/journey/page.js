@@ -3,6 +3,7 @@ import { TopBar } from "@/components/hq/TopBar";
 import { Card } from "@/components/hq/Card";
 import { Badge } from "@/components/hq/Badge";
 import { SooklyJourneyKanban } from "@/components/hq/SooklyJourneyKanban";
+import { SooklyJourneySignalLab } from "@/components/hq/SooklyJourneySignalLab";
 
 export const metadata = {
   title: "Sookly Journey — SookLabs HQ",
@@ -37,6 +38,7 @@ export default function SooklyJourneyPage() {
           </p>
         </Card>
         <SooklyJourneyKanban />
+        <SooklyJourneySignalLab />
       </div>
     </div>
   );

@@ -3787,3 +3787,46 @@
 .hq-sj-card:hover { border-color: var(--border-default); }
 .hq-sj-blocker { font-size: var(--text-xs); color: var(--color-warning); }
 .hq-sj-detail { margin-top: var(--space-4); }
+.hq-sj-checkpoint {
+  margin-bottom: var(--space-4);
+  padding: var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+.hq-sj-checkpoint-bar {
+  height: 6px;
+  margin-top: var(--space-2);
+  background: var(--bg-muted);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.hq-sj-checkpoint-fill {
+  height: 100%;
+  background: var(--text-accent);
+  border-radius: 999px;
+}
+.hq-sj-lab { margin-top: var(--space-4); }
+.hq-sj-lab-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+.hq-sj-lab-json {
+  width: 100%;
+  font-family: var(--font-mono, monospace);
+  font-size: var(--text-xs);
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-muted);
+}
+.hq-sj-lab-out {
+  margin-top: var(--space-2);
+  padding: var(--space-2);
+  font-size: var(--text-xs);
+  overflow: auto;
+  max-height: 240px;
+  background: var(--bg-muted);
+  border-radius: var(--radius-sm);
+}

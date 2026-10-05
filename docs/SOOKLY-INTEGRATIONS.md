@@ -66,7 +66,22 @@ Manual evidence: URL, timestamp, operator, optional screenshot hash. Feeds autom
 - `suggestStageFromSignal` — assist-only stage transitions + Xero suggest hooks
 - `supplierLoopDue` — highlight when the supplier is the next actor in the loop
 
-HQ `/hq/sookly/journey` surfaces pilot cases, **Suggested next actions**, and routing examples until the app ingests live events.
+HQ `/hq/sookly/journey` surfaces pilot cases, **Suggested next actions**, routing examples, and a **Signal ingest lab**.
+
+**Dry-run API (HQ session):** `POST /hq/api/sookly/journey/signals` with body:
+
+```json
+{
+  "source": "email",
+  "caseId": "case-rdusa-003",
+  "currentStageId": "inquiry",
+  "payload": { "direction": "inbound", "subject": "Quote please" }
+}
+```
+
+Returns `event` draft + `transition` (stage suggestion + Xero hint). App repo should call the same `ingestJourneySignal` after persistence is wired.
+
+**Quo verify:** `lib/sookly/quo-webhook-verify.js` — HMAC-SHA256 on raw body before enqueue.
 
 ## Next engineering slices (app repo)
 

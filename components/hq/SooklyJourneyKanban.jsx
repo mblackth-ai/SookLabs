@@ -47,6 +47,17 @@ export function SooklyJourneyKanban() {
 
   return (
     <div className="hq-sj">
+      {data.checkpoint ? (
+        <div className="hq-sj-checkpoint" role="status">
+          <strong>Journey checkpoint: {data.checkpoint.percent}%</strong>
+          <span className="hq-cc-muted">
+            Current: {data.checkpoint.currentCheckpointLabel} — next: {data.checkpoint.nextMainCheckpoint}
+          </span>
+          <div className="hq-sj-checkpoint-bar" aria-hidden="true">
+            <div className="hq-sj-checkpoint-fill" style={{ width: `${data.checkpoint.percent}%` }} />
+          </div>
+        </div>
+      ) : null}
       <p className="hq-cc-muted">{data.honest?.message}</p>
       <div className="hq-sj-board" role="region" aria-label="Journey kanban">
         {(data.columns || []).map((col) => (
