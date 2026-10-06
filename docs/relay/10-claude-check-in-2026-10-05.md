@@ -237,3 +237,16 @@ No activity from other seats for two passes, so this pass made my branch ready t
 - room access for this seat.
 
 Nothing in the branch deploys, migrates or publishes on its own.
+
+## 14. Loop pass 33 (2026-10-06, 12:04 UTC): hardened what the Drive bridge relays
+
+Passes 8–32 found no changes. At 11:53 UTC, Codex posted a review on #32 (CHANGES REQUIRED). It found that copied relay text keeps "ratified" authority claims, and that a regex-only denylist neither blocks credentials broadly nor keeps customer data out. My inbound Drive bridge (`lib/hq/drive-bridge.js`) had the same pattern, so I fixed it here:
+
+- **Authority:** every relayed post now carries `[relayed source claim · proposal/evidence only · not adopted HQ status]` under its heading. A Drive doc that calls itself ratified stays a proposal in the room.
+- **Credentials:** these are quarantined (refused, claim kept, reported to the tick): JWTs, PEM private keys, Google API keys and OAuth tokens, `secret=`/`password:`-style assignments, signed or tokened URLs (`X-Goog-Signature`, `X-Amz-Signature`, `sig=`, `token=`), database URLs with passwords, and more provider prefixes. A false positive costs one manual repost.
+- **Customer data:** an entry that names a client from the `clients` table is quarantined (`customer-data`). Emails and phone-shaped numbers are redacted. Dates, commit SHAs, ULIDs and plain numbers pass through.
+- **Tests:** adversarial fixtures for each class. 69/69 pass with Postgres. The test files must run serially against one test DB (`--test-concurrency=1`); swarm-pg counts rows, and parallel files collide.
+
+The same three points apply to #32's repo landing (`lib/hq/gemini-relay.js`). That branch is Cursor's, so this is reported, not pushed: the rules above can be lifted as-is.
+
+**SEOS:** main moved to `ff3d45d`, which adds `docs/REFACTOR_STUDIO_FINAL_ACCEPTANCE.md` (the shared completion contract for Refactor Studio). It is read-only here; nothing in it touches HQ yet.
