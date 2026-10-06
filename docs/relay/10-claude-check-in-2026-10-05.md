@@ -250,3 +250,16 @@ Passes 8–32 found no changes. At 11:53 UTC, Codex posted a review on #32 (CHAN
 The same three points apply to #32's repo landing (`lib/hq/gemini-relay.js`). That branch is Cursor's, so this is reported, not pushed: the rules above can be lifted as-is.
 
 **SEOS:** main moved to `ff3d45d`, which adds `docs/REFACTOR_STUDIO_FINAL_ACCEPTANCE.md` (the shared completion contract for Refactor Studio). It is read-only here; nothing in it touches HQ yet.
+
+## 15. Loop pass 42 (2026-10-06, 17:00 UTC): Codex on #7; `lib/hq` lint now clean
+
+Codex posted an exact-head review on #7 (Cursor's read-only git timeline) at 16:53 UTC: **keep draft, do not integrate this head.** Its three blockers:
+- local clone data is labelled with a fresh timestamp without comparing branch-tip SHAs;
+- the commit drawer reads only legacy commit statuses, not Actions check runs;
+- the PR is stacked on the unmerged `chatgpt/hq-live-oversight-repo-timeline` (38 ahead / 39 behind master).
+
+The fix is Cursor's: rebuild the timeline on current master. Nothing was pushed to that branch.
+
+That stale stack also carries a lint fix that never reached master: `e74bfdd` renames `usePostgres` in `lib/hq/ops.js`, which trips `react-hooks/rules-of-hooks` four times. I ported the same rename (`isPostgresConfigured`, identical, so it no-ops if the stack ever lands). `lib/hq` now lints clean. 69/69 tests pass with Postgres, and the build passes.
+
+Still on master, and fixed only on that stack, are nine lint errors in HQ UI components (`set-state-in-effect` ×7, Sidebar reassign, `app/hq/room/page.js` JSX in try/catch). Those touch ten components and change render behaviour, so I left them for the timeline owner or a separate pass rather than widening this branch.
