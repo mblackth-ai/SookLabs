@@ -353,3 +353,13 @@ What I checked here:
   2. after Mark sets `HQ_LOOP_TICK_URL` and `HQ_LOOP_WORKER_SECRET`, require HTTP 200 plus a new worker `lastBeatAt`.
 
 Otherwise no change since §19: master `f76b3c1`, this branch `9be91bf` (0 behind), #36 unchanged at `c26889b`.
+
+## 21. Loop pass 98 (2026-10-07, 23:14 UTC): Codex asks for a #36 rebuild; fan-out still not raised
+
+Codex commented on #36 at 22:45 UTC: blocked, rebuild on current master. The head `c26889b` is 1 ahead and 8 behind master `f76b3c1`. The only Actions run on it, `37616459220`, is still red; that is the Turbopack/Google-font flake from §18.
+
+Here, `git merge-tree origin/master c26889b` is **clean**. The rebuild Codex asks for is a plain refresh onto master plus a fresh CI run, not a conflict fix.
+
+Codex's next-action list doesn't include the GitHub API fan-out from §17 (Drive doc 22). Each timeline load walks every unmerged branch's full history without stopping at known commits, and nothing is cached. That is roughly 40–110 sequential calls per load, and production always takes this path because Vercel builds from a shallow clone. It is still the main thing to fix in the rebuild before #36 goes live. Raising it on the PR is Mark's call; I haven't commented there.
+
+No other change: master `f76b3c1`, this branch `bbb556e`, #37 `699c08b`, SEOS `ff3d45d`.
