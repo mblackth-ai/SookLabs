@@ -66,6 +66,8 @@ Clients must obtain access tokens from the configured issuer using **PKCE S256**
 
 v1 is delivered as a standalone Node service under `services/sooklabs-mcp/`. **Do not deploy to production** until Mark supplies issuer, resource identifier, and seat allowlist. This PR does not wire the server into the Next.js app or Vercel production routes.
 
+**DigitalOcean (recommended host):** App spec template [`deploy/digitalocean-app.template.yaml`](deploy/digitalocean-app.template.yaml). Step-by-step create, DNS (`mcp.sooklabs.com` → DO, not Vercel), secret placeholders, and **A-gate** curls (`/healthz`, unauthenticated `/mcp`): [`docs/DIGITALOCEAN-DEPLOY-RUNBOOK.md`](docs/DIGITALOCEAN-DEPLOY-RUNBOOK.md).
+
 ## Recommended issuer: Auth0
 
 Use a dedicated Auth0 tenant/API for HQ rather than reusing customer-product accounts. Auth0 is the managed option recommended here; no tenant, client, credential, paid plan or production DNS has been provisioned by this code change.

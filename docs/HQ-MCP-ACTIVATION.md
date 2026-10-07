@@ -46,6 +46,8 @@ Also set on the MCP host (secret store): `SOOKLABS_MCP_OAUTH_ISSUER_URL`, `SOOKL
 
 ## Activation gates (before merge/deploy)
 
+Operational runbook (create DO app, env, DNS, A-gate curls without Auth0): [`services/sooklabs-mcp/docs/DIGITALOCEAN-DEPLOY-RUNBOOK.md`](../services/sooklabs-mcp/docs/DIGITALOCEAN-DEPLOY-RUNBOOK.md).
+
 1. **DNS** — `mcp.sooklabs.com` must route to the DO MCP app, not an empty Vercel project (`x-vercel-error: DEPLOYMENT_NOT_FOUND` is a blocker).
 2. **Auth0** — API identifier `https://mcp.sooklabs.com/mcp`; permission `sooklabs:read`; six M2M clients.
 3. **Deploy** — `services/sooklabs-mcp` on DO; `GET /healthz` → 200.

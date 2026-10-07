@@ -1,4 +1,6 @@
 # DigitalOcean App Platform — SookLabs internal MCP (no secrets in git).
+# Deploy steps, DNS cutover, and A-gate curls: docs/DIGITALOCEAN-DEPLOY-RUNBOOK.md
+# Constraints: region sgp, source_dir services/sooklabs-mcp, port 3100, deploy_on_push false.
 name: sooklabs-internal-mcp
 region: sgp
 services:
