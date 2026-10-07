@@ -36,4 +36,5 @@ jobs:
             lib/hq/room-mcp-rpc.test.js \
             lib/hq/room-stream-client.test.js \
             lib/hq/cursor-mcp-config.test.js \
-            lib/hq/room-status.test.js
+            lib/hq/room-status.test.js \
+            lib/hq/room-public-status.test.js

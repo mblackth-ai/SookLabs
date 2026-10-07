@@ -21,10 +21,9 @@ import {
   boardMarkdown,
 } from "@/lib/hq/swarm-contract";
 import { dispatchOutcomeNote } from "@/lib/hq/dispatch-outcome";
-import { ROOM_MCP_URL } from "@/lib/hq/room-mcp-endpoint";
+import { ROOM_MCP_BROWSER_PATH, ROOM_MCP_URL } from "@/lib/hq/room-mcp-endpoint";
 import { probeRoomMcp } from "@/lib/hq/room-mcp-probe";
-import { fetchRoomStatus } from "@/lib/hq/room-status-client";
-import { readRoomStream } from "@/lib/hq/room-stream-client";
+import { maintainRoomStream } from "@/lib/hq/room-stream-client";
 
 // HQ Swarm Room as a command center. Live metrics are loaded from the room API
 // (messages, dispatches, seat strip, PR field) or the HQ control-plane snapshot
@@ -298,8 +297,7 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
       const reviewData = await review.json().catch(() => ({}));
       if (review.ok && reviewData.ok) setHeld(reviewData.held || []);
     }
-    await verifyMcp(connectionToken, seat);
-  }, [authHeaders, connectionToken, seat, tier, verifyMcp]);
+  }, [authHeaders, connectionToken, tier]);
 
   const loadFeed = useCallback(async () => {
     const res = await fetch("/hq/api/room/public/feed", { headers: { accept: "application/json" }, cache: "no-store" });
@@ -310,37 +308,30 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
   }, []);
 
   useEffect(() => {
-    if (tier === "spectator") return undefined;
-    let cancelled = false;
-    fetchRoomStatus()
-      .then((status) => {
-        if (!cancelled && status.strip.length) setStrip(status.strip);
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, [tier]);
+    if (!opened || tier === "spectator" || !connectionToken) return undefined;
+    verifyMcp(connectionToken, seat);
+  }, [opened, connectionToken, seat, tier, verifyMcp]);
 
   useEffect(() => {
     if (!opened || tier === "spectator" || !connectionToken) return undefined;
     const controller = new AbortController();
-    readRoomStream({
-      url: "/hq/api/room/stream?channel=room",
+    const mergeMessage = (message) => {
+      if (!message?.id) return;
+      setMessages((current) => {
+        const index = current.findIndex((item) => item.id === message.id);
+        if (index >= 0) {
+          const next = current.slice();
+          next[index] = message;
+          return next;
+        }
+        return [...current, message].sort((a, b) => String(a.createdAt).localeCompare(String(b.createdAt)));
+      });
+    };
+    maintainRoomStream({
+      channel: "room",
       headers: authHeaders(),
       signal: controller.signal,
-      onMessage: (message) => {
-        if (!message?.id) return;
-        setMessages((current) => {
-          const index = current.findIndex((item) => item.id === message.id);
-          if (index >= 0) {
-            const next = current.slice();
-            next[index] = message;
-            return next;
-          }
-          return [...current, message].sort((a, b) => String(a.createdAt).localeCompare(String(b.createdAt)));
-        });
-      },
+      onMessage: mergeMessage,
     });
     return () => controller.abort();
   }, [authHeaders, connectionToken, opened, tier]);
@@ -352,7 +343,7 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
     async function tick() {
       if (!cancelled && document.visibilityState === "visible") {
         try {
-          await loadRoom({ refreshMessages: false });
+          await loadRoom({ refreshMessages: true });
         } catch {
           if (!cancelled) setError((current) => current || "Could not refresh the room.");
         }
@@ -1050,7 +1041,7 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
           {mcpProbe ? (
             <p className={`hq-cc-muted${mcpProbe.ok ? "" : " hq-room-error"}`} role={mcpProbe.ok ? "status" : "alert"}>
               {mcpProbe.ok
-                ? `MCP endpoint OK (${mcpProbe.server || "sooklabs-hq-room"}) · authenticated as ${mcpProbe.seat || seat}. Agent tools use ${ROOM_MCP_URL}; this composer posts over REST.`
+                ? `MCP endpoint OK (${mcpProbe.server || "sooklabs-hq-room"}) · authenticated as ${mcpProbe.seat || seat}. Agent tools use ${ROOM_MCP_URL} (or ${ROOM_MCP_BROWSER_PATH} on this host); this composer posts over REST.`
                 : `MCP check failed: ${mcpProbe.error}`}
             </p>
           ) : null}
