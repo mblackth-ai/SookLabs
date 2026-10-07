@@ -27,3 +27,5 @@ jobs:
         working-directory: .
       - run: npm ci --ignore-scripts
       - run: node --test test/*.test.js
+      - run: npm run build
+        working-directory: .

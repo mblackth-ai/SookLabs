@@ -2,6 +2,15 @@
 
 Canonical architecture: [`HQ-MCP-CONTROL-PLANE.md`](./HQ-MCP-CONTROL-PLANE.md). HQ room + adapters: [`HQ-DEVELOPER.md`](./HQ-DEVELOPER.md). Service README: [`../services/sooklabs-mcp/README.md`](../services/sooklabs-mcp/README.md).
 
+**Two MCP surfaces (do not conflate):**
+
+| Surface | URL / package | Auth | Tools (v1) |
+| --- | --- | --- | --- |
+| HQ room MCP (merged on Vercel HQ) | `https://hq.sooklabs.com/hq/api/room/mcp` — see [`HQ-MCP-LAUNCH.md`](./HQ-MCP-LAUNCH.md) | Per-seat `HQ_ROOM_CONNECTION` bearer | `room_read`, `room_board`, `room_inbox`, `room_claim`, `room_post` |
+| Standalone read-only resource server (this PR) | `services/sooklabs-mcp` → `https://mcp.sooklabs.com/mcp` | OAuth access token (`sooklabs:read`) + subject→seat registry | `project_status`, `blockers`, `build_status`, `deploy_status` |
+
+Room MCP executes dispatch; the standalone service is read-only GitHub + HQ control-plane snapshot and never dispatches workers.
+
 ## Fixed production target
 
 | Item | Value |
