@@ -22,8 +22,9 @@ The ops `workstreams.executionMode` items stay the board of record. The loop tab
 | `lib/hq/loop-skills.js` | Reviewed skill catalog: id, version, owner, trigger, inputs, outputs, verification, failure mode. |
 | `lib/hq/loop-store.js` | Postgres tables and the claim/commit primitives. Plain `pg`. |
 | `lib/hq/loop-worker.js` | `tick()` and the step functions. Deterministic: there is no model call in the loop itself. |
+| `lib/hq/loop-heartbeat.js` | 30-minute heartbeat: no-rest wakes, blocker classes and revival, stall detection, completion report, improvement proposals and their measurement. |
 | `lib/hq/loop-service.js` | App side: board read model, seeding, operator controls, event wakes. |
-| `app/hq/api/room/loop/*` | `tick` (worker secret), `board` (seats and Mark), `tasks` (Mark creates, agents propose), `tasks/[id]/control` and `control` (Mark), `seed` (Mark). |
+| `app/hq/api/room/loop/*` | `tick` (worker secret), `board` and `completion` (seats and Mark), `tasks` (Mark creates, agents propose), `tasks/[id]/control` and `control` (Mark), `seed` (Mark). |
 | `components/hq/AcceptancePanel.jsx` | Acceptance & Sources panel. It sits beside the chat on desktop and is a tab on mobile. |
 | `scripts/hq-loop-migrate.mjs` | Additive table creation. Refuses any non-local database without `--approved-by`. |
 | `scripts/hq-loop-worker.mjs` | Optional long-running worker for a host that stays up. |
@@ -65,6 +66,30 @@ Only a passing smoke test with `acceptance.environment = "production"` moves a t
 | Shared resources | Two tasks with the same `resource_key` never hold live leases at the same time. |
 | Independent fronts | A blocked task never blocks a task on another front. |
 
+## Heartbeat (no rest) and the completion harness
+
+Every tick first checks the heartbeat. Once per `HQ_LOOP_HEARTBEAT_MS` window (30 minutes by default), the first worker to record the `heartbeat:<window>` event runs it. Other workers skip that window. It does not run while the loop is paused.
+
+1. **No resting tasks.** An active task scheduled beyond the window is woken now and runs in the same tick.
+2. **Revival, only when the cause has cleared.** A blocked task is reactivated (attempts reset, fence bumped) only for these blocker classes:
+   - `seat-not-connected` once the seat's adapter is ready;
+   - `dispatch-budget` / `github-budget` once today's budget has room;
+   - `transient-exhausted` (retries exhausted on GitHub 5xx, timeouts or network errors).
+   The revival matches the exact blocker text, so an operator action in between wins.
+3. **Everything else stays blocked.** It is reported as waiting on Mark, the owner seat, a budget or infrastructure. This covers smoke failed or undefined, authority and capability refusals, unreadable sources, non-transient retry exhaustion, and dispatches that went offline, failed or timed out. The heartbeat never crosses an escalation gate. A seat dispatch that ended without a reply is not re-sent; that needs Mark.
+4. **Stalls.** Each open task's state fingerprint (status, stage, skill, dispatch, blocker, refs, review) is carried between heartbeats. If it is unchanged for `HQ_LOOP_STALL_BEATS` heartbeats (2 h by default), the task is reported stalled, with what it waits on.
+5. **Self-improvement: observe → propose → approve → measure.** The heartbeat watches three patterns:
+   - one blocker class on two or more tasks;
+   - a stalled task;
+   - a task revived three or more times.
+   When a pattern is seen on two consecutive heartbeats, it becomes one loop task with `status: proposed` and `source: heartbeat` on the HQ front. Its id is derived from the pattern, so it is created once. Its acceptance test is "the heartbeat no longer observes the pattern for 4 consecutive heartbeats". Nothing runs until Mark approves it. After approval, the heartbeat counts quiet heartbeats and records `heartbeat-measured` when it passes. The heartbeat never edits policy, skills, acceptance criteria or code.
+6. **Completion report: the room's finish line.** It shows counted tasks (not cancelled, not proposed), how many are production-accepted, and per-front totals, needs-Mark, waiting-elsewhere and stalled lists. `complete` is true only when every counted task is `production_accepted`; `done` without production acceptance does not count.
+7. **Room post on change only.** The loop posts a `status` message as `hq` with id `HB-<window>` only when the report changed: percent, blockers, stalls, revivals or proposals. Idle heartbeats post nothing.
+
+Read the finish line with `GET /hq/api/room/loop/completion` (seat or HQ login), in the Acceptance & Sources panel, or with `node scripts/hq-room.mjs completion`. The command exits `3` while incomplete, so a seat can loop on it.
+
+The heartbeat state lives in `hq_loop_control` under `loop.heartbeat`. Its events are `heartbeat`, `heartbeat-summary`, `heartbeat-revive`, `heartbeat-proposal` and `heartbeat-measured` in `hq_loop_events`. No new table or migration is needed.
+
 ## Authority
 
 - **Standing authority per front** lives in `FRONTS[].allowedSkills` and `prohibited`. RDUSA has no `scoped-implementation`.
@@ -101,7 +126,7 @@ Reference only: openclaw/openclaw@28a6f71449aa5542c9fb825dcb3423dfbb7abf82. It i
 | --- | --- |
 | Standing orders: scope, triggers, approval gates, escalation → `FRONTS` + `ESCALATION_GATES` | AGENTS.md persona/bootstrap files |
 | Writer-claim fencing (`activeWriterRunId`) → `fence` + `lease_owner` | ClawHub / runtime skill installs |
-| Heartbeat "NO_REPLY" discipline → idle ticks post nothing | Agent self-modifying memory |
+| Heartbeat "NO_REPLY" discipline → idle ticks and unchanged heartbeats post nothing | Agent self-modifying memory |
 | Per-agent skill allowlists → `SEAT_CAPABILITIES` + `allowedSkills` | Gateway / channel plugins |
 
 ## Environment
@@ -119,6 +144,8 @@ Reference only: openclaw/openclaw@28a6f71449aa5542c9fb825dcb3423dfbb7abf82. It i
 | `HQ_LOOP_GITHUB_READS_PER_DAY` | 2000 | |
 | `HQ_LOOP_WAIT_WATCHDOG_MS` | 1800000 | |
 | `HQ_LOOP_BACKOFF_BASE_MS` / `HQ_LOOP_BACKOFF_MAX_MS` | 60000 / 1800000 | |
+| `HQ_LOOP_HEARTBEAT_MS` | 1800000 | Heartbeat window. |
+| `HQ_LOOP_STALL_BEATS` | 4 | Unchanged heartbeats before a task is reported stalled. |
 
 GitHub Actions repository secrets: `HQ_LOOP_TICK_URL` (`https://hq.sooklabs.com/hq/api/room/loop/tick`) and `HQ_LOOP_WORKER_SECRET`. The workflow logs only the HTTP status and step count.
 
@@ -150,6 +177,21 @@ GitHub Actions repository secrets: `HQ_LOOP_TICK_URL` (`https://hq.sooklabs.com/
 ```
 HQ_TEST_DATABASE_URL=postgres://… node --test --test-concurrency=1 lib/hq/*.test.js
 ```
+
+`lib/hq/loop-completion.test.js` is the room completion harness. It runs the control plane's immediate milestone end to end on real Postgres under heartbeats:
+
+- one objective, the owner seat implementing, a distinct reviewer seat approving, then merge, deploy, production smoke and `complete`;
+- no impersonation, a full audit trail, and no repeat room post when nothing changed.
+
+It also covers:
+
+- distant wakes;
+- revival of seat, budget and outage blockers, while gates stay blocked;
+- one heartbeat per window across workers, and pause;
+- persistent patterns turning into exactly one proposal that does not run until approved, then being measured quiet;
+- a seat that never replies being reported stalled.
+
+CI runs both loop test files on every `lib/hq/**` pull request (`hq-dispatch-recovery.yml`).
 
 `lib/hq/loop.test.js` covers:
 

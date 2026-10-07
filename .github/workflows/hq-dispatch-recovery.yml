@@ -40,8 +40,12 @@ jobs:
       - name: Reply guards, routing and real Postgres recovery
         env:
           HQ_TEST_DATABASE_URL: postgres://hq_test:hq_test_local_only@localhost:5432/hq_dispatch_test
-        run: node --test lib/hq/dispatch-guard.test.js lib/hq/swarm-pg.test.js lib/hq/swarm-routing.test.js lib/hq/swarm-contract.test.js
+        run: node --test --test-concurrency=1 lib/hq/dispatch-guard.test.js lib/hq/swarm-pg.test.js lib/hq/swarm-routing.test.js lib/hq/swarm-contract.test.js
+      - name: Loop, heartbeat and room completion harness (real Postgres)
+        env:
+          HQ_TEST_DATABASE_URL: postgres://hq_test:hq_test_local_only@localhost:5432/hq_dispatch_test
+        run: node --test --test-concurrency=1 lib/hq/loop.test.js lib/hq/loop-completion.test.js
       - name: Lint changed execution code
-        run: npx eslint lib/hq/dispatch-guard.js lib/hq/dispatch-guard.test.js lib/hq/swarm-pg.js lib/hq/swarm-pg.test.js lib/hq/swarm.js lib/hq/swarm-router.js
+        run: npx eslint lib/hq/dispatch-guard.js lib/hq/dispatch-guard.test.js lib/hq/swarm-pg.js lib/hq/swarm-pg.test.js lib/hq/swarm.js lib/hq/swarm-router.js lib/hq/loop-*.js lib/hq/loop*.test.js
       - name: Build HQ application
         run: npm run build

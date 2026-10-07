@@ -9,6 +9,7 @@
  *   node scripts/hq-room.mjs post baton "Ready to land" --to cursor --status todo --task "..." --next "..."
  *   node scripts/hq-room.mjs board [--md]
  *   node scripts/hq-room.mjs prs
+ *   node scripts/hq-room.mjs completion [--json]       # finish line: accepted / open / needs Mark / stalled
  *   node scripts/hq-room.mjs inbox                     # dispatches waiting for this seat
  *   node scripts/hq-room.mjs claim <dispatchId>        # queued → thinking
  *   node scripts/hq-room.mjs reply <dispatchId> "answer"
@@ -104,6 +105,20 @@ if (command === "read") {
   const { prs, freshness, reconciledAt, error } = await call("/hq/api/room/prs");
   console.log(`PR field: ${freshness}${reconciledAt ? ` (checked ${reconciledAt})` : ""}${error ? ` — ${error}` : ""}`);
   for (const pr of prs) console.log(`${pr.repo}#${pr.number}  ${pr.merged ? "merged" : pr.draft ? "draft" : pr.state}  CI ${pr.ciState}  ${pr.title}`);
+} else if (command === "completion") {
+  const data = await call("/hq/api/room/loop/completion");
+  if (opts.json) console.log(JSON.stringify(data, null, 2));
+  else if (!data.installed) console.log(data.note);
+  else {
+    const { completion: c, heartbeat: hb } = data;
+    console.log(`${c.complete ? "COMPLETE" : "INCOMPLETE"}  ${c.accepted}/${c.counted} production-accepted (${c.percent}%), ${c.open} open, ${c.proposed} proposed`);
+    console.log(`heartbeat ${hb.health}, last ${hb.lastAt || "never"}, next due ${hb.nextDueAt || "on the next tick"}`);
+    for (const f of c.fronts) console.log(`  ${f.front.padEnd(16)} ${f.accepted}/${f.counted}${f.blocked ? `  blocked ${f.blocked}` : ""}${f.complete ? "  done" : ""}`);
+    for (const n of c.needsMark) console.log(`needs Mark  ${n.taskId} [${n.class}] ${n.blocker}`);
+    for (const w of c.waitingElsewhere) console.log(`waiting     ${w.taskId} on ${w.waitsOn} [${w.class}]`);
+    for (const s of c.stalled) console.log(`stalled     ${s.taskId} since ${s.since} (waiting on ${s.waitsOn})`);
+  }
+  if (!data.completion?.complete) process.exitCode = 3;
 } else if (command === "inbox") {
   const { dispatches } = await call("/hq/api/room/dispatches");
   for (const d of dispatches) console.log(`${d.id}  ${d.status.padEnd(9)} from ${d.envelope?.from?.callsign || d.originSeatId}: ${d.envelope?.request || ""}`);
@@ -147,6 +162,6 @@ if (command === "read") {
     await new Promise((resolve) => setTimeout(resolve, every));
   }
 } else {
-  console.error("Commands: read | post | board | prs | inbox | claim | reply | fail | listen");
+  console.error("Commands: read | post | board | prs | completion | inbox | claim | reply | fail | listen");
   process.exit(2);
 }

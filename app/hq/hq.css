@@ -3670,7 +3670,10 @@
 .hq-ap-state--worker-never-ran { color: var(--color-warning); border-color: var(--color-warning); }
 .hq-ap-state--unavailable { color: var(--color-error); border-color: var(--color-error); }
 
-.hq-ap-health { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); margin: 0; }
+.hq-ap-health { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); margin: 0; }
+@media (min-width: 640px) { .hq-ap-health { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.hq-ap-finish { display: grid; gap: 4px; padding: var(--space-2); background: var(--bg-base); border: 1px solid var(--border-faint); border-radius: var(--radius-md); font-size: var(--text-sm); }
+.hq-ap-finish p { margin: 0; }
 .hq-ap-health div { padding: var(--space-2); background: var(--bg-base); border: 1px solid var(--border-faint); border-radius: var(--radius-md); min-width: 0; }
 .hq-ap-health dt { font-size: var(--text-xs); color: var(--text-tertiary); }
 .hq-ap-health dd { margin: 0; font-variant-numeric: tabular-nums; font-size: var(--text-sm); }

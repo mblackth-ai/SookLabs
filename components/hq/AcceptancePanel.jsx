@@ -154,6 +154,13 @@ export function AcceptancePanel({ connectionToken, opened, isOperator }) {
             <dd title={worker?.lastWorker || ""}>{ago(worker?.lastBeatAt)}</dd>
           </div>
           <div>
+            <dt>Heartbeat</dt>
+            <dd title={board.heartbeat?.nextDueAt ? `next due ${board.heartbeat.nextDueAt}` : ""}>
+              {ago(board.heartbeat?.lastAt)}
+              {board.heartbeat?.health === "stale" ? " (stale)" : ""}
+            </dd>
+          </div>
+          <div>
             <dt>Dispatches today</dt>
             <dd>
               {board.budget.dispatch.used}/{board.budget.dispatch.limit}
@@ -176,6 +183,24 @@ export function AcceptancePanel({ connectionToken, opened, isOperator }) {
           <button type="button" className="hq-cc-btn hq-cc-btn--quiet" disabled={busy} onClick={() => post("/hq/api/room/loop/seed", {})}>
             Load ops board items
           </button>
+        </div>
+      ) : null}
+
+      {board?.installed && board.completion ? (
+        <div className="hq-ap-finish" aria-label="Finish line">
+          <p>
+            <strong>{board.completion.complete ? "Complete" : `${board.completion.percent}% production-accepted`}</strong>{" "}
+            <span className="hq-cc-muted">
+              {board.completion.accepted}/{board.completion.counted} tasks · {board.completion.open} open
+              {board.completion.proposed ? ` · ${board.completion.proposed} proposed` : ""}
+            </span>
+          </p>
+          {board.completion.needsMark.length ? (
+            <p className="hq-ap-blocker">Needs Mark: {board.completion.needsMark.map((item) => item.taskId).join(", ")}</p>
+          ) : null}
+          {board.completion.stalled.length ? (
+            <p className="hq-cc-muted">Unchanged for {Math.round(board.completion.stallAfterMs / 60000)}+ min: {board.completion.stalled.map((item) => `${item.taskId} (${item.waitsOn})`).join(", ")}</p>
+          ) : null}
         </div>
       ) : null}
 
