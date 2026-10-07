@@ -1,0 +1,31 @@
+name: MCP authentication checks
+on:
+  pull_request:
+    paths:
+      - 'services/sooklabs-mcp/**'
+      - '.github/workflows/mcp-auth.yml'
+concurrency:
+  group: mcp-auth-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  auth:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: services/sooklabs-mcp
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: services/sooklabs-mcp/package-lock.json
+      - run: npm ci --ignore-scripts
+        working-directory: .
+      - run: npm ci --ignore-scripts
+      - run: node --test test/*.test.js
+      - run: npm run build
+        working-directory: .
