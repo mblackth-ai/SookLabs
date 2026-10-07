@@ -313,4 +313,4 @@ It also adds fixtures for an exact match, a moved tip and a missing branch. Read
   - Fix: stop paging a branch at the first page that contains a commit already in the map (results are newest-first, so the rest is known). Also cache the snapshot, keyed by the sorted ref-SHA set, for 30–60 seconds.
 - **CI.** The red `recovery` check is a Google Fonts fetch failure (`next/font/google`, `geist_mono`) during `next build`. It has nothing to do with this diff, as Cursor said. It needs one re-run, which is Mark's or Cursor's to trigger.
 
-Merge-order effect: #36 touches no RoomBoard or room-MCP files, so it doesn't conflict with #34 or with this branch.
+Merge-order effect: #36 touches no RoomBoard or room-MCP files, and a trial merge with #34 is clean. With this branch there is one conflict: both append rules to the end of `app/hq/hq.css` (this branch's `.hq-sj-*` seat-join rules, #36's `.hq-repo-*` timeline rules), and the fix is to keep both blocks. Whichever lands second takes it.
