@@ -286,3 +286,11 @@ Open now:
 - **#7**, the git timeline: updated 10:46 UTC.
 
 The intended merge order is unchanged: this branch, then #33, then #34.
+
+**#34 re-check (head `57a740b`, 10:47 UTC).** The fix commit addresses all four points from my review:
+- **SSE reconnect:** `maintainRoomStream` reconnects with an `after=` cursor after EOF or an error, and a test covers it.
+- **MCP probe:** it uses the same-origin `ROOM_MCP_BROWSER_PATH`.
+- **Probe cadence:** the probe moved out of `loadRoom` into its own effect, plus the Re-check button.
+- **Public `GET /hq/api/room`:** it now returns `buildPublicRoomStatus`, a redacted view with no seat strip.
+
+A trial merge of #34 onto this branch has one conflict. It's in `components/hq/RoomBoard.jsx`, two adjacent `useState` lines, and the fix is to keep both. The combined tree passes 80/80 HQ tests, including the room-MCP `tools/list` test with the `hq_*` tools. One new lint error: line 307 (`verifyMcp` inside an effect, `react-hooks/set-state-in-effect`). It is the same class as the seven already on master. Mark has set #34 to merge first (his comment on #7, 10:45 UTC). If it lands first, I take the `RoomBoard.jsx` merge on this branch.
