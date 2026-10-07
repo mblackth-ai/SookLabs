@@ -1,6 +1,7 @@
 import { TopBar } from "@/components/hq/TopBar";
 import { Card } from "@/components/hq/Card";
 import { Badge } from "@/components/hq/Badge";
+import { RepoTimeline } from "@/components/hq/RepoTimeline";
 
 import { FOUR_FRONTS, getFourFrontsOverall } from "@/lib/hq/four-fronts";
 
@@ -67,7 +68,13 @@ export default function FourFrontsPage() {
           ))}
         </div>
 
-        <Card padding="md">
+        <p className="hq-text-xs-muted" style={{ margin: "0 0 8px" }}>
+          The repo timeline below reads real Git history for the HQ / MCP Gateway front&apos;s repo
+          (mblackth-ai/SookLabs) only. It does not change the progress estimates above.
+        </p>
+        <RepoTimeline />
+
+        <Card padding="md" style={{ marginTop: 16 }}>
           <div className="hq-card-title" style={{ marginBottom: 8 }}>Approval boundary</div>
           <p className="hq-text-sm-secondary" style={{ margin: 0 }}>
             The loop continues without founder input until a real gate appears: merge to protected main,
