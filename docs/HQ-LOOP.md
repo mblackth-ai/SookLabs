@@ -61,7 +61,7 @@ Only a passing smoke test with `acceptance.environment = "production"` moves a t
 | Retries | Exponential backoff from `HQ_LOOP_BACKOFF_BASE_MS` up to `HQ_LOOP_BACKOFF_MAX_MS`. At `max_attempts` the task is blocked with "Retry exhausted after N attempts: …". |
 | GitHub rate limit | Not counted as an attempt. The task sleeps until `x-ratelimit-reset`. |
 | Timeouts | Each step is cut at `HQ_LOOP_STEP_TIMEOUT_MS`. Each tick is cut at `HQ_LOOP_TICK_BUDGET_MS` / `HQ_LOOP_STEPS_PER_TICK`. |
-| Waiting on a seat | `waiting_on` = dispatch id. A watchdog re-checks every `HQ_LOOP_WAIT_WATCHDOG_MS`. If the seat is offline, failed or timed out, the task is blocked with "No reply was invented". |
+| Waiting on a seat | `waiting_on` = dispatch id. A watchdog re-checks every `HQ_LOOP_WAIT_WATCHDOG_MS`; a wait heartbeat runs every `HQ_LOOP_WAIT_HEARTBEAT_MS` (default 30 minutes) and records `dispatch-heartbeat` evidence while no reply exists. If the seat is offline, failed or timed out, the task is blocked with "No reply was invented". |
 | Shared resources | Two tasks with the same `resource_key` never hold live leases at the same time. |
 | Independent fronts | A blocked task never blocks a task on another front. |
 
@@ -101,7 +101,7 @@ Reference only: openclaw/openclaw@28a6f71449aa5542c9fb825dcb3423dfbb7abf82. It i
 | --- | --- |
 | Standing orders: scope, triggers, approval gates, escalation → `FRONTS` + `ESCALATION_GATES` | AGENTS.md persona/bootstrap files |
 | Writer-claim fencing (`activeWriterRunId`) → `fence` + `lease_owner` | ClawHub / runtime skill installs |
-| Heartbeat "NO_REPLY" discipline → idle ticks post nothing | Agent self-modifying memory |
+| "No reply invented" discipline with explicit wait heartbeats every 30 minutes | Agent self-modifying memory |
 | Per-agent skill allowlists → `SEAT_CAPABILITIES` + `allowedSkills` | Gateway / channel plugins |
 
 ## Environment
@@ -118,6 +118,7 @@ Reference only: openclaw/openclaw@28a6f71449aa5542c9fb825dcb3423dfbb7abf82. It i
 | `HQ_LOOP_DISPATCHES_PER_DAY` | 20 | |
 | `HQ_LOOP_GITHUB_READS_PER_DAY` | 2000 | |
 | `HQ_LOOP_WAIT_WATCHDOG_MS` | 1800000 | |
+| `HQ_LOOP_WAIT_HEARTBEAT_MS` | 1800000 | |
 | `HQ_LOOP_BACKOFF_BASE_MS` / `HQ_LOOP_BACKOFF_MAX_MS` | 60000 / 1800000 | |
 
 GitHub Actions repository secrets: `HQ_LOOP_TICK_URL` (`https://hq.sooklabs.com/hq/api/room/loop/tick`) and `HQ_LOOP_WORKER_SECRET`. The workflow logs only the HTTP status and step count.
