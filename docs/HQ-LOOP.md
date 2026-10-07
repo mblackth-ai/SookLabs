@@ -28,6 +28,7 @@ The ops `workstreams.executionMode` items stay the board of record. The loop tab
 | `scripts/hq-loop-migrate.mjs` | Additive table creation. Refuses any non-local database without `--approved-by`. |
 | `scripts/hq-loop-worker.mjs` | Optional long-running worker for a host that stays up. |
 | `.github/workflows/hq-loop-wake.yml` | Free scheduled wake every 5 minutes. |
+| `.github/workflows/hq-room-completion.yml` | Disposable-Postgres completion harness on room changes and every 30 minutes. |
 
 ## Tables (created only by the migration script)
 
@@ -70,6 +71,7 @@ Only a passing smoke test with `acceptance.environment = "production"` moves a t
 - **Standing authority per front** lives in `FRONTS[].allowedSkills` and `prohibited`. RDUSA has no `scoped-implementation`.
 - **Skill checks.** `authorize()` runs before every skill. It refuses on: unknown front or skill, a skill the front doesn't allow, a seat without the required capability, a revoked task, or a policy-version change.
 - **Proposals.** Agent seats can only propose (`status: proposed`). Nothing runs until Mark approves. Agents can't approve, control, seed or pause.
+- **Self-improvement.** Reliability improvements use that same proposal state. The completion harness proves proposed work is unclaimable before Mark approves it; the loop never rewrites its own policy or skill catalog.
 - **Escalation gates.** The loop never crosses these: credentials, spend, irreversible actions, production migrations, external publishing, customer communication, business decisions, authority changes. Merges and deploys stay with Mark. The loop waits for them and reads the result.
 
 ## Skills and memory
@@ -150,6 +152,14 @@ GitHub Actions repository secrets: `HQ_LOOP_TICK_URL` (`https://hq.sooklabs.com/
 ```
 HQ_TEST_DATABASE_URL=postgres://… node --test --test-concurrency=1 lib/hq/*.test.js
 ```
+
+The non-skipping harness refuses remote databases because its tests truncate disposable tables:
+
+```
+HQ_TEST_DATABASE_URL=postgres://…@localhost:5432/hq_completion_test npm run hq:completion-harness
+```
+
+CI runs this harness for room/loop pull requests, on `master` changes, and every 30 minutes. The schedule is regression evidence, not a production worker heartbeat; `hq-loop-wake.yml` remains the mechanism that moves live tasks.
 
 `lib/hq/loop.test.js` covers:
 

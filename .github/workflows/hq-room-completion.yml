@@ -1,0 +1,59 @@
+name: HQ room completion harness
+
+on:
+  pull_request:
+    paths:
+      - "app/hq/api/room/**"
+      - "lib/hq/**"
+      - "scripts/hq-room-completion-harness.mjs"
+      - ".github/workflows/hq-room-completion.yml"
+      - "package*.json"
+  push:
+    branches: [master]
+    paths:
+      - "app/hq/api/room/**"
+      - "lib/hq/**"
+      - "scripts/hq-room-completion-harness.mjs"
+      - ".github/workflows/hq-room-completion.yml"
+      - "package*.json"
+  schedule:
+    - cron: "7,37 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hq-room-completion-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  completion:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: hq_test
+          POSTGRES_PASSWORD: hq_test_local_only
+          POSTGRES_DB: hq_completion_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U hq_test -d hq_completion_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts
+      - name: Exercise room completion, recovery, and approval gates
+        env:
+          HQ_TEST_DATABASE_URL: postgres://hq_test:hq_test_local_only@localhost:5432/hq_completion_test
+        run: npm run hq:completion-harness
