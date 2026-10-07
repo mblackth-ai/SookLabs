@@ -20,6 +20,10 @@ import {
   seatPresence,
   boardMarkdown,
 } from "@/lib/hq/swarm-contract";
+import { dispatchOutcomeNote } from "@/lib/hq/dispatch-outcome";
+import { ROOM_MCP_BROWSER_PATH, ROOM_MCP_URL } from "@/lib/hq/room-mcp-endpoint";
+import { probeRoomMcp } from "@/lib/hq/room-mcp-probe";
+import { maintainRoomStream } from "@/lib/hq/room-stream-client";
 
 // HQ Swarm Room as a command center. Live metrics are loaded from the room API
 // (messages, dispatches, seat strip, PR field) or the HQ control-plane snapshot
@@ -47,6 +51,7 @@ const SEAT_STATE_LABEL = {
 const OPEN_STATES = ["queued", "dispatching", "thinking"];
 const AGENT_SEATS = ROOM_SEATS.filter((seat) => seat.tier === "agent");
 const SUMMARY_EVERY_MS = 30000;
+const META_REFRESH_MS = 8000;
 
 const STAMP = new Intl.DateTimeFormat("en-GB", {
   timeZone: "Asia/Bangkok",
@@ -167,6 +172,7 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
   const [seatFilter, setSeatFilter] = useState("");
   const [kindFilter, setKindFilter] = useState("all");
   const [view, setView] = useState("room");
+  const [mcpProbe, setMcpProbe] = useState(null);
   const feedRef = useRef(null);
   const textRef = useRef(null);
   const copiedTimer = useRef(null);
@@ -255,11 +261,20 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
     return headers;
   }, [connectionToken]);
 
-  const loadRoom = useCallback(async () => {
+  const verifyMcp = useCallback(async (token, seatId) => {
+    if (!token) {
+      setMcpProbe(null);
+      return;
+    }
+    const result = await probeRoomMcp({ token, expectedSeat: seatId });
+    setMcpProbe(result);
+  }, []);
+
+  const loadRoom = useCallback(async ({ refreshMessages = true } = {}) => {
     const res = await fetch("/hq/api/room/messages?channel=room", { headers: authHeaders(), cache: "no-store" });
     const data = await res.json().catch(() => ({}));
     if (!res.ok || !data.ok) throw new Error(data.error || "Could not load the room.");
-    setMessages(Array.isArray(data.messages) ? data.messages : []);
+    if (refreshMessages) setMessages(Array.isArray(data.messages) ? data.messages : []);
     if (Array.isArray(data.seats)) setRoomSeats(data.seats);
     if (Array.isArray(data.strip)) setStrip(data.strip);
     if (Array.isArray(data.dispatches)) setDispatches(data.dispatches);
@@ -282,7 +297,7 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
       const reviewData = await review.json().catch(() => ({}));
       if (review.ok && reviewData.ok) setHeld(reviewData.held || []);
     }
-  }, [authHeaders, tier]);
+  }, [authHeaders, connectionToken, tier]);
 
   const loadFeed = useCallback(async () => {
     const res = await fetch("/hq/api/room/public/feed", { headers: { accept: "application/json" }, cache: "no-store" });
@@ -293,20 +308,49 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
   }, []);
 
   useEffect(() => {
+    if (!opened || tier === "spectator" || !connectionToken) return undefined;
+    verifyMcp(connectionToken, seat);
+  }, [opened, connectionToken, seat, tier, verifyMcp]);
+
+  useEffect(() => {
+    if (!opened || tier === "spectator" || !connectionToken) return undefined;
+    const controller = new AbortController();
+    const mergeMessage = (message) => {
+      if (!message?.id) return;
+      setMessages((current) => {
+        const index = current.findIndex((item) => item.id === message.id);
+        if (index >= 0) {
+          const next = current.slice();
+          next[index] = message;
+          return next;
+        }
+        return [...current, message].sort((a, b) => String(a.createdAt).localeCompare(String(b.createdAt)));
+      });
+    };
+    maintainRoomStream({
+      channel: "room",
+      headers: authHeaders(),
+      signal: controller.signal,
+      onMessage: mergeMessage,
+    });
+    return () => controller.abort();
+  }, [authHeaders, connectionToken, opened, tier]);
+
+  useEffect(() => {
     if (!opened || tier === "spectator") return undefined;
     let timer;
     let cancelled = false;
     async function tick() {
       if (!cancelled && document.visibilityState === "visible") {
         try {
-          await loadRoom();
+          await loadRoom({ refreshMessages: true });
         } catch {
           if (!cancelled) setError((current) => current || "Could not refresh the room.");
         }
       }
-      if (!cancelled) timer = setTimeout(tick, 4000);
+      if (!cancelled) timer = setTimeout(tick, META_REFRESH_MS);
     }
-    timer = setTimeout(tick, 4000);
+    timer = setTimeout(tick, META_REFRESH_MS);
     return () => {
       cancelled = true;
       clearTimeout(timer);
@@ -446,12 +490,14 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
     setRemembered(false);
     setRemember(false);
     setConnectionToken("");
+    setMcpProbe(null);
     setOpened(false);
   }
 
   function selectSeat(next) {
     setSeat(next);
     setConnectionToken("");
+    setMcpProbe(null);
     setOpened(false);
     setMessages([]);
     setDispatches([]);
@@ -515,7 +561,9 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
       if (Array.isArray(data.dispatches) && data.dispatches.length) {
         setDispatches((current) => current.concat(data.dispatches.filter((row) => !current.some((item) => item.id === row.id))));
       }
-      if (data.routeNote) setError(data.routeNote);
+      const outcome = dispatchOutcomeNote(data.dispatches, strip);
+      const notes = [data.routeNote, outcome].filter(Boolean).join(" ");
+      if (notes) setError(notes);
     } catch (err) {
       setError(err.message || "The message could not be saved.");
     } finally {
@@ -990,6 +1038,28 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
               </label>
             )}
           </div>
+          {mcpProbe ? (
+            <p className={`hq-cc-muted${mcpProbe.ok ? "" : " hq-room-error"}`} role={mcpProbe.ok ? "status" : "alert"}>
+              {mcpProbe.ok
+                ? `MCP endpoint OK (${mcpProbe.server || "sooklabs-hq-room"}) · authenticated as ${mcpProbe.seat || seat}. Agent tools use ${ROOM_MCP_URL} (or ${ROOM_MCP_BROWSER_PATH} on this host); this composer posts over REST.`
+                : `MCP check failed: ${mcpProbe.error}`}
+            </p>
+          ) : null}
+          {connectionToken ? (
+            <button
+              type="button"
+              className="hq-cc-btn hq-cc-btn--quiet"
+              disabled={posting}
+              onClick={() => verifyMcp(connectionToken, seat)}
+            >
+              Re-check MCP
+            </button>
+          ) : null}
+          {isOperator ? (
+            <p className="hq-cc-muted">
+              Pull seats (Cursor, Codex, Claude Code, …) need a running MCP or CLI client with the same key to claim dispatches and reply. Mark&apos;s messages here do not invoke MCP on their behalf.
+            </p>
+          ) : null}
 
           <div className="hq-cc-chips" role="group" aria-label="Address">
             {["all", ...AGENT_SEATS.map((item) => item.id)].map((name) => (

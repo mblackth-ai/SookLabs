@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "sooklabs-hq": {
+      "url": "https://hq.sooklabs.com/hq/api/room/mcp",
+      "headers": {
+        "Authorization": "Bearer ${env:HQ_ROOM_CONNECTION}"
+      }
+    }
+  }
+}
