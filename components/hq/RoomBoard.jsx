@@ -17,6 +17,7 @@ import {
   roomBoardRows,
   roomJsonScript,
   seatsForTier,
+  NO_REST_WINDOW_MS,
   seatPresence,
   boardMarkdown,
 } from "@/lib/hq/swarm-contract";
@@ -947,7 +948,7 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
                   className={`hq-cc-chip${seat === item.id ? " hq-cc-chip--active" : ""}`}
                   aria-pressed={seat === item.id}
                   onClick={() => selectSeat(item.id)}
-                  title={silent ? "No post in the last 15 minutes" : item.role}
+                  title={silent ? `No post in the last ${Math.round(NO_REST_WINDOW_MS / 60000)} minutes` : item.role}
                 >
                   {item.callsign}
                 </button>

@@ -10,7 +10,8 @@
     "hq:verify-deploy": "node scripts/verify-hq-deploy.mjs",
     "hq:morning": "node scripts/hq-morning-worker.mjs",
     "hq:init-db": "node scripts/hq-init-db.mjs",
-    "hq:room-seats": "node scripts/hq-room-seats.mjs"
+    "hq:room-seats": "node scripts/hq-room-seats.mjs",
+    "hq:room-completion": "node scripts/hq-room-completion.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.131.0",

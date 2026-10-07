@@ -1,4 +1,5 @@
 import { browserWriteAllowed, json, readJson, requireSeatConnection } from "@/lib/hq/room-http";
+import { touchRoomSeat } from "@/lib/hq/swarm";
 import { claimDispatch } from "@/lib/hq/swarm-router";
 
 export const dynamic = "force-dynamic";
@@ -14,6 +15,7 @@ export async function POST(request, { params }) {
   try {
     const result = await claimDispatch(id, auth.seat);
     if (result.error) return json({ ok: false, error: result.error.error }, result.error.status);
+    await touchRoomSeat(auth.seat, auth.tokenHash);
     return json({ ok: true, dispatch: result.dispatch });
   } catch {
     console.error("room dispatch claim failed");
