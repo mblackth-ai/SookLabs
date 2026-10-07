@@ -263,3 +263,26 @@ The fix is Cursor's: rebuild the timeline on current master. Nothing was pushed 
 That stale stack also carries a lint fix that never reached master: `e74bfdd` renames `usePostgres` in `lib/hq/ops.js`, which trips `react-hooks/rules-of-hooks` four times. I ported the same rename (`isPostgresConfigured`, identical, so it no-ops if the stack ever lands). `lib/hq` now lints clean. 69/69 tests pass with Postgres, and the build passes.
 
 Still on master, and fixed only on that stack, are nine lint errors in HQ UI components (`set-state-in-effect` ×7, Sidebar reassign, `app/hq/room/page.js` JSX in try/catch). Those touch ten components and change render behaviour, so I left them for the timeline owner or a separate pass rather than widening this branch.
+
+## 16. Loop pass 76 (2026-10-07, 11:20 UTC): #14 and #35 on master; branch merged up
+
+Master moved `c2c7495` → `03792f1`:
+- `9169d9d`: #14, SookLabs internal MCP server v1 (read-only, OAuth resource server);
+- `03792f1`: #35, DigitalOcean deploy runbook and A-gate verification.
+
+I merged master into this branch. Two conflicts:
+- **`lib/hq/ops.js`:** master moved storage selection into `lib/hq/ops-data.js`, so I took master's re-export. The new file reintroduced the `usePostgres` name, which trips `react-hooks/rules-of-hooks`. I renamed it to `isPostgresConfigured`, the same rename as §15.
+- **`lib/hq/control-plane.js`:** kept master's `.js`-suffixed imports (`ops-data.js`, `ops-shared.js`) and re-added this branch's `executionBoard` import.
+
+Checks after the merge:
+- `lib/hq` lints clean.
+- HQ tests: 69/69 pass with Postgres.
+- `services/sooklabs-mcp` tests: 32/32 pass.
+
+Its test run writes `services/sooklabs-mcp/data/hq/`. That path is not in `.gitignore` (only `/data/hq/*` at the root is), so a contributor who runs the suite gets an untracked directory. I'm reporting it here; the fix belongs to the MCP owner.
+
+Open now:
+- **#34**, Cursor's HQ room MCP registration: updated 10:50 UTC.
+- **#7**, the git timeline: updated 10:46 UTC.
+
+The intended merge order is unchanged: this branch, then #33, then #34.

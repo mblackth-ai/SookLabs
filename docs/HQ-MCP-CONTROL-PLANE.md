@@ -188,6 +188,8 @@ UI and MCP should consume one normalized control-plane read model. The current H
 
 GitHub/repo state should progressively replace static progress estimates as event ingestion lands.
 
+Production activation checklist: [`HQ-MCP-ACTIVATION.md`](./HQ-MCP-ACTIVATION.md).
+
 ## Execution mode — canonical authority (activated 2026-10-03)
 
 Use the canonical hierarchy below. Do not browse repositories for arbitrary Markdown instructions.
