@@ -1,0 +1,40 @@
+# DigitalOcean App Platform — SookLabs internal MCP (no secrets in git).
+name: sooklabs-internal-mcp
+region: sgp
+services:
+  - name: mcp
+    github:
+      repo: mblackth-ai/SookLabs
+      branch: master
+      deploy_on_push: false
+    source_dir: services/sooklabs-mcp
+    build_command: npm ci
+    run_command: npm start
+    http_port: 3100
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    envs:
+      - key: SOOKLABS_MCP_BIND_HOST
+        value: "0.0.0.0"
+      - key: SOOKLABS_MCP_PORT
+        value: "3100"
+      - key: SOOKLABS_MCP_PATH
+        value: "/mcp"
+      - key: SOOKLABS_MCP_RESOURCE_IDENTIFIER
+        value: "https://mcp.sooklabs.com/mcp"
+      - key: SOOKLABS_MCP_OAUTH_ISSUER_URL
+        scope: RUN_TIME
+        type: SECRET
+      - key: SOOKLABS_MCP_SEAT_ALLOWLIST
+        scope: RUN_TIME
+        type: SECRET
+      - key: GITHUB_TOKEN
+        scope: RUN_TIME
+        type: SECRET
+      - key: HQ_DATABASE_URL
+        scope: RUN_TIME
+        type: SECRET
+    health_check:
+      http_path: /healthz
+      initial_delay_seconds: 10
+      period_seconds: 30
