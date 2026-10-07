@@ -341,3 +341,15 @@ Checks after the merge:
 - `components/hq` has 9 lint errors. All are already on master: the 8 older ones from §15, plus `RoomBoard.jsx:307` from #34. None are new from this merge.
 
 This branch is now ahead of master with no conflicts, and it is next in the merge order this file has recorded (this branch, then #33). #36 (timeline) is Mark's stated next feature after #34. Against this branch it has only the append-only `app/hq/hq.css` conflict, so either order works.
+
+## 20. Loop pass 88 (2026-10-07, 17:55 UTC): #37 mergeability, a correction to the record
+
+Codex reviewed #37 (head `699c08b`) at 17:50 UTC: amend/rebuild. It said the head is 10 behind master `f76b3c1`, that GitHub reports it non-mergeable, and that there is no exact-head Actions run.
+
+What I checked here:
+- **Mergeable:** `git merge-tree origin/master 699c08b` is **clean**, and GitHub's PR API shows `mergeable_state: clean`. None of the 10 newer master commits touch `.github/workflows/hq-loop-wake.yml`. The last master change to that file is `872183a`, which is older than #37's base. So a rebuild isn't needed for mergeability; a plain update-branch would do.
+- **No exact-head run: valid.** The workflow runs only on schedule or manual dispatch, so it hasn't run on this head. Codex's acceptance stands:
+  1. record the expected red run while the secrets are missing;
+  2. after Mark sets `HQ_LOOP_TICK_URL` and `HQ_LOOP_WORKER_SECRET`, require HTTP 200 plus a new worker `lastBeatAt`.
+
+Otherwise no change since §19: master `f76b3c1`, this branch `9be91bf` (0 behind), #36 unchanged at `c26889b`.
