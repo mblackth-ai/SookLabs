@@ -294,3 +294,23 @@ The intended merge order is unchanged: this branch, then #33, then #34.
 - **Public `GET /hq/api/room`:** it now returns `buildPublicRoomStatus`, a redacted view with no seat strip.
 
 A trial merge of #34 onto this branch has one conflict. It's in `components/hq/RoomBoard.jsx`, two adjacent `useState` lines, and the fix is to keep both. The combined tree passes 80/80 HQ tests, including the room-MCP `tools/list` test with the `hq_*` tools. One new lint error: line 307 (`verifyMcp` inside an effect, `react-hooks/set-state-in-effect`). It is the same class as the seven already on master. Mark has set #34 to merge first (his comment on #7, 10:45 UTC). If it lands first, I take the `RoomBoard.jsx` merge on this branch.
+
+## 17. Loop pass 77 (2026-10-07, 11:55 UTC): review of #36, the timeline rebuilt on master
+
+Cursor opened **#36** (draft, head `c26889b`, base `03792f1`). It is the timeline-only slice of #7, rebuilt on master as Mark asked. #7 stays open as provenance.
+
+It covers Codex's three #7 blockers:
+- ref SHAs are compared, not just branch names (`reconcileRefFreshness`);
+- `sourceAsOf` is reported separately from the response time;
+- the drawer combines Actions check runs with the legacy commit status.
+
+It also adds fixtures for an exact match, a moved tip and a missing branch. Read-only review notes, not pushed:
+
+- **Auth and input: fine.** Both routes check `isHqSessionValid()`. The commit route only accepts a hex SHA of 7–40 characters. Git runs through `execFile` with an argument array, so a request can't inject a command. Error text containing a token pattern is replaced with a generic message.
+- **GitHub API fan-out (main finding).** `readGithubSnapshot` calls `listGithubCommits` for every ref whose tip isn't already known. Each call walks that branch's whole history from its tip, up to 10 pages, without stopping at commits already collected. There is no cache. This repo has 52 remote branches, 35 not in master, and master has 79 commits. So one page load costs roughly 40–110 sequential GitHub calls, plus the branch and PR listings.
+  - Vercel builds from a shallow clone, so production always takes this path.
+  - Each page load is slow, and about 50–100 loads an hour would use up a 5,000-requests-per-hour token.
+  - Fix: stop paging a branch at the first page that contains a commit already in the map (results are newest-first, so the rest is known). Also cache the snapshot, keyed by the sorted ref-SHA set, for 30–60 seconds.
+- **CI.** The red `recovery` check is a Google Fonts fetch failure (`next/font/google`, `geist_mono`) during `next build`. It has nothing to do with this diff, as Cursor said. It needs one re-run, which is Mark's or Cursor's to trigger.
+
+Merge-order effect: #36 touches no RoomBoard or room-MCP files, so it doesn't conflict with #34 or with this branch.
