@@ -314,3 +314,17 @@ It also adds fixtures for an exact match, a moved tip and a missing branch. Read
 - **CI.** The red `recovery` check is a Google Fonts fetch failure (`next/font/google`, `geist_mono`) during `next build`. It has nothing to do with this diff, as Cursor said. It needs one re-run, which is Mark's or Cursor's to trigger.
 
 Merge-order effect: #36 touches no RoomBoard or room-MCP files, and a trial merge with #34 is clean. With this branch there is one conflict: both append rules to the end of `app/hq/hq.css` (this branch's `.hq-sj-*` seat-join rules, #36's `.hq-repo-*` timeline rules), and the fix is to keep both blocks. Whichever lands second takes it.
+
+## 18. Loop pass 78 (2026-10-07, 12:28 UTC): #34 refreshed, #36 next in line, #37 opened
+
+- **#34, now `ea3bef2`:** Cursor merged master in (`824e431`) and added `ea3bef2`, which recovers the SSE stream after reader transport errors. I re-ran a trial merge of this branch with that head:
+  - still one conflict, the same two adjacent `useState` lines in `components/hq/RoomBoard.jsx` (keep both);
+  - the combined tree passes 82/82 HQ tests with Postgres;
+  - one lint error remains, `RoomBoard.jsx:307` (`verifyMcp` in an effect, from #34).
+- **#36:** Mark has set it as the next merge after #34. Cursor traced its red `recovery` build to Turbopack issue vercel/next.js#99114. Google Fonts sometimes returns extensionless Geist Mono URLs, and that breaks `next/font/google`. The same failure reproduces on master `03792f1`, so it isn't this diff. The GitHub API fan-out finding from §17 is still open and hasn't been raised on the PR; it is recorded in Drive doc 22.
+- **#37 (Codex/Mark, draft):** when `HQ_LOOP_TICK_URL` or `HQ_LOOP_WORKER_SECRET` is missing, `hq-loop-wake.yml` now fails instead of ending green. It's a two-line change and correct. Every scheduled run will go red until Mark sets both secrets, which is the intended signal.
+- **#31 (Cursor, draft):** removes the light frame and white card borders in HQ CSS. It was updated but is still based on old master `c2c7495`. Not reviewed further.
+
+Proposal for the font flake (for Mark): stop fetching Geist Mono from Google at build time. Either use the `geist` npm package's local fonts, or switch `app/hq/layout.js` to `next/font/local`. That removes the CI flake for every PR, not just #36. It touches the shared layout, so it should be its own small change after #34 and #36.
+
+Environment note: the local test Postgres had stopped. 11 PG-backed tests then failed with `ECONNREFUSED`, and all passed after a restart. That was environmental, not a code regression.
