@@ -239,3 +239,4 @@ Subordinate document manifest:
 | --- | --- | --- |
 | `docs/HQ-LOOP.md` | Loop tables, wakes, budgets, skills, runbook, rollback, env | Mechanics only; this section wins on conflict |
 | `docs/HQ-DEVELOPER.md` | Code layout, run commands, room routing | Supporting |
+| `docs/relay/README.md` | Gemini Spark ↔ repo markdown loop, Drive sync, baton/report protocol | Coordination only; canonical acceptance files win on conflict |

@@ -24,6 +24,26 @@ const PROJECT_LINKS = [
     href: "/hq/seos/social-gtm",
     badge: "Board",
   },
+  {
+    title: "Two clients — RDUSA",
+    subtitle: "Client room. Same seats as HQ. Load with your key after you switch rooms.",
+    href: "/hq/room?as=operator&channel=rdusa",
+    badge: "Room",
+  },
+  {
+    title: "Two clients — JAKA",
+    subtitle: "Client room. Work stays on the jaka channel, separate from the HQ swarm log.",
+    href: "/hq/room?as=operator&channel=jaka",
+    badge: "Room",
+  },
+  {
+    title: "Refactoring Studio",
+    subtitle: "Content refactor lives in the SEOS app. HQ does not copy that editor.",
+    href: null,
+    external: true,
+    studio: true,
+    badge: "SEOS",
+  },
 ];
 
 export default function SeosHubPage() {
