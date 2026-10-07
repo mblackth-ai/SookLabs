@@ -129,7 +129,13 @@ export function SeatSetup({ strip, messages, dispatches, onConnect, onLink, busy
                   </span>
                 ) : null}
                 {s.next === "provider" ? <span className="hq-cc-muted">{row.missing} is not set in Vercel.</span> : null}
-                {s.next === "checkin" ? <span className="hq-cc-muted">Key is set. Send it the invite so it checks in.</span> : null}
+                {s.next === "checkin" ? (
+                  <span className="hq-cc-muted">
+                    Key is set. Send it the invite so it checks in.
+                    {row.seatId === "cursor" ? " In Cursor: open this repo (`.cursor/mcp.json`), set HQ_ROOM_CONNECTION, then use MCP tools room_inbox / room_post or run scripts/hq-mcp-check.mjs." : null}
+                    {row.seatId === "codex" ? " Codex: ~/.codex/config.toml → sooklabs_hq URL + HQ_ROOM_CONNECTION." : null}
+                  </span>
+                ) : null}
                 {s.next === "rollcall" ? <span className="hq-cc-muted">Ready. Post a roll call in the Room tab.</span> : null}
                 {s.next === "answer" ? <span className="hq-cc-muted">Roll call is {call?.status || "pending"}. Ask it to check its inbox.</span> : null}
                 {s.next && s.next !== "connect" && s.next !== "provider" ? (

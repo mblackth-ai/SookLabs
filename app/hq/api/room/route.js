@@ -1,23 +1,17 @@
 import { isRoomDraft, listRoomConnections } from "@/lib/hq/room-connection";
 import { json } from "@/lib/hq/room-http";
-import { ROOM_PACT, ROOM_SHARE_URL } from "@/lib/hq/swarm-contract";
+import { buildPublicRoomStatus } from "@/lib/hq/room-public-status";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export async function GET() {
-  return json({
-    ok: true,
-    draft: isRoomDraft(),
-    room: "hq",
-    shareUrl: ROOM_SHARE_URL,
-    pact: ROOM_PACT,
-    connections: listRoomConnections(),
-    messages: "/hq/api/room/messages",
-    stream: "/hq/api/room/stream",
-    board: "/hq/api/room/board",
-    publicFeed: "/hq/api/room/public/feed",
-  });
+  return json(
+    buildPublicRoomStatus({
+      draft: isRoomDraft(),
+      connections: listRoomConnections(),
+    }),
+  );
 }
 
 export async function POST() {

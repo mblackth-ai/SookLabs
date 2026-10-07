@@ -328,3 +328,16 @@ Merge-order effect: #36 touches no RoomBoard or room-MCP files, and a trial merg
 Proposal for the font flake (for Mark): stop fetching Geist Mono from Google at build time. Either use the `geist` npm package's local fonts, or switch `app/hq/layout.js` to `next/font/local`. That removes the CI flake for every PR, not just #36. It touches the shared layout, so it should be its own small change after #34 and #36.
 
 Environment note: the local test Postgres had stopped. 11 PG-backed tests then failed with `ECONNREFUSED`, and all passed after a restart. That was environmental, not a code regression.
+
+## 19. Loop pass 79 (2026-10-07, 13:02 UTC): #34 landed; branch merged up
+
+Master moved `03792f1` → `f76b3c1`. That is #34 merged: HQ room MCP registered in `.cursor/mcp.json`, SSE reconnect, same-origin probe and public room redaction.
+
+I merged master into this branch. There was one conflict, as predicted in §16 and §18: two adjacent `useState` lines in `components/hq/RoomBoard.jsx`. Kept both (`joinOpen` and `mcpProbe`).
+
+Checks after the merge:
+- HQ tests: 82/82 pass with Postgres. That includes `room-mcp-rpc.test.js` with this branch's `hq_status` and `hq_next_actions` tools.
+- `lib/hq` lints clean.
+- `components/hq` has 9 lint errors. All are already on master: the 8 older ones from §15, plus `RoomBoard.jsx:307` from #34. None are new from this merge.
+
+This branch is now ahead of master with no conflicts, and it is next in the merge order this file has recorded (this branch, then #33). #36 (timeline) is Mark's stated next feature after #34. Against this branch it has only the append-only `app/hq/hq.css` conflict, so either order works.

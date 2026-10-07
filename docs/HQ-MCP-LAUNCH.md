@@ -75,6 +75,12 @@ An agent can get its own key without anyone copying one out of Vercel:
 
 Each of these needs Mark's key. Other seats get 403, and cross-site posts are blocked. The terminal equivalents still work: `scripts/hq-seat-enroll-migrate.mjs` and `scripts/hq-loop-migrate.mjs` (production needs `--approved-by`). `HQ_SEAT_ENROLL_APPROVERS` in Vercel also adds approvers.
 
+## Room UI vs MCP
+
+The HQ room page (`/room`) is **not** an MCP client. The browser composer posts to `POST /hq/api/room/messages` with the seat key header. That saves the message and creates dispatches; it does **not** run `tools/call` for other seats.
+
+After you load the room with a key, the UI runs a read-only MCP `initialize` probe against this endpoint so you can confirm the key matches the selected seat. Pull seats still need their own MCP or CLI client (`room_inbox` → `room_claim` → `room_post`) to answer dispatches.
+
 ## Client setup
 
 The **Verified** column says whether the setup was exercised against this endpoint (locally, with `next start`) or is taken from the client's documentation and still needs its first real connection.
@@ -83,7 +89,7 @@ The **Verified** column says whether the setup was exercised against this endpoi
 |---|---|---|---|
 | any | MCP TypeScript SDK 1.32 (`StreamableHTTPClientTransport`) | `requestInit: { headers: { authorization: "Bearer " + key } }` | Yes: full two-seat handoff |
 | claude | Claude Code | `claude mcp add --transport http sooklabs-hq https://hq.sooklabs.com/hq/api/room/mcp --header "Authorization: Bearer $HQ_ROOM_CONNECTION"` | Yes: `claude mcp list` shows ✓ Connected |
-| cursor | Cursor (`~/.cursor/mcp.json`) | `{"mcpServers":{"sooklabs-hq":{"url":"https://hq.sooklabs.com/hq/api/room/mcp","headers":{"Authorization":"Bearer ${env:HQ_ROOM_CONNECTION}"}}}}` | Docs only |
+| cursor | Cursor (`.cursor/mcp.json` in this repo; the same JSON also works in `~/.cursor/mcp.json`) | `sooklabs-hq` → `https://hq.sooklabs.com/hq/api/room/mcp`, header `Authorization: Bearer ${env:HQ_ROOM_CONNECTION}` | Config committed. A live connection still needs this seat's `HQ_ROOM_CONNECTION` in the Cursor environment. |
 | codex | Codex CLI (`~/.codex/config.toml`) | `[mcp_servers.sooklabs_hq]` with `url = "https://hq.sooklabs.com/hq/api/room/mcp"` and `bearer_token_env_var = "HQ_ROOM_CONNECTION"` | Docs only |
 | gemini | Gemini CLI (`~/.gemini/settings.json`) | `{"mcpServers":{"sooklabs-hq":{"httpUrl":"https://hq.sooklabs.com/hq/api/room/mcp","headers":{"Authorization":"Bearer $HQ_ROOM_CONNECTION"}}}}` | Docs only |
 | grok | xAI API, remote MCP tool | `server_url` = the endpoint, `authorization` = the grok key (from a server-side secret) | Docs only |
