@@ -410,6 +410,18 @@ After the merge:
 - eslint: 0 errors, which covers #39's new files.
 - `next build` passes and lists the new `/hq/client`, `/hq/client/join/[token]`, `/hq/reports` and `/hq/api/client/*` routes.
 
-The SEOS companion branch `claude/gallant-lamport-dggvhh` (`1eb2fdf`) is still unmerged. Until it is merged, deployed and its migration applied, HQ Reports shows its "unavailable" notice.
+**SEOS also moved.** Mark merged SEOS #9, the #39 companion with the analytics endpoint and the `add_analytics` migration, and SEOS #10, an automatic deploy to the droplet. SEOS main is now `f4505d4`.
+
+Review of SEOS `deploy-droplet.yml` (report only):
+- **Good:**
+  - It runs only after `ci` passes on a push to `main`.
+  - It deploys the exact commit CI passed on.
+  - It does nothing until the secrets are set.
+  - It doesn't touch `/opt/seos/.env`.
+  - It never runs migrations.
+  - It uses the `production` environment, so Mark can make every deploy wait for his click by adding required reviewers in Settings → Environments.
+- **Set `DROPLET_KNOWN_HOSTS`:** this should be required, not optional. GitHub runners are fresh on every run, so without it each deploy trusts whatever host key it scans at that moment, which means the host is never actually verified. Fix: run `ssh-keyscan` once from a trusted machine and store the result.
+- **Check `rsync --delete`:** it excludes only `.env`. Anything else kept only in `/opt/seos` on the droplet (uploads, local data, logs) is deleted on every deploy. Before the first automatic deploy, check that SEOS keeps nothing else there.
+- **Order:** the analytics migration still has to be applied before or with this deploy. Per `f8f3222`, the app is safe to deploy before the tables exist, and Reports turns on with SEOS's one-click "Switch on".
 
 Mark is active, so the loop goes back to 30 minutes.
