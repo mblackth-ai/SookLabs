@@ -11,6 +11,8 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     "_tmp_*/**",
+    // Vendored design-system handoffs, not shipped code.
+    "_reference/**",
   ]),
 ]);
 

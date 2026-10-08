@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import "./tools-nav.css";
@@ -49,6 +49,8 @@ export const TOOLS = [
     href: null,
   },
 ];
+
+const subscribeNoop = () => () => {};
 
 function Chevron() {
   return (
@@ -127,7 +129,7 @@ function ToolsList({ onNavigate }) {
 /** @param {{ className?: string, variant?: "grid" | "coverflow" }} props */
 export function ToolsNavDropdown({ className = "", variant = "coverflow" }) {
   const [open, setOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(subscribeNoop, () => true, () => false);
   const rootRef = useRef(null);
   const panelRef = useRef(null);
   const closeTimer = useRef(null);
@@ -145,10 +147,6 @@ export function ToolsNavDropdown({ className = "", variant = "coverflow" }) {
 
   const scheduleClose = useCallback(() => {
     closeTimer.current = setTimeout(() => setOpen(false), 140);
-  }, []);
-
-  useEffect(() => {
-    setMounted(true);
   }, []);
 
   useEffect(() => {

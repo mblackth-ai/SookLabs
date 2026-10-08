@@ -53,7 +53,14 @@ export function Sidebar({ mobileOpen = false, onMobileClose }) {
     router.refresh();
   }
 
-  let lastParentHref = null;
+  // Subitems belong to the nearest preceding item; a divider ends the group.
+  const parentHrefs = [];
+  let parentHref = null;
+  for (const row of nav) {
+    if (row.kind === "divider") parentHref = null;
+    else if (row.kind === "item") parentHref = row.href;
+    parentHrefs.push(parentHref);
+  }
 
   return (
     <aside className={`hq-sidebar${mobileOpen ? " hq-sidebar--open" : ""}`}>
@@ -89,6 +96,7 @@ export function Sidebar({ mobileOpen = false, onMobileClose }) {
         </div>
 
         {nav.map((row, idx) => {
+          const lastParentHref = parentHrefs[idx];
           if (row.kind === "section") {
             return (
               <div key={"sec-" + row.label} className="hq-sidebar-section-label">
@@ -97,11 +105,9 @@ export function Sidebar({ mobileOpen = false, onMobileClose }) {
             );
           }
           if (row.kind === "divider") {
-            lastParentHref = null;
             return <div key={"div-" + idx} className="hq-sidebar-divider" />;
           }
           if (row.kind === "item") {
-            lastParentHref = row.href;
             return (
               <NavRow
                 key={row.id}

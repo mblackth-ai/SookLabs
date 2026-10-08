@@ -52,13 +52,16 @@ export function BriefingNotesEditor({ initialData }) {
   const [savedSection, setSavedSection] = useState(null);
   const savedTimer = useRef(null);
 
-  useEffect(() => {
+  const draftsKey = `${data.updatedAt}|${data.briefingNotes?.lastGeneratedAt}`;
+  const [syncedKey, setSyncedKey] = useState(draftsKey);
+  if (draftsKey !== syncedKey) {
+    setSyncedKey(draftsKey);
     setDrafts({
       priorities: data.briefingNotes?.sections?.priorities || "",
       risks: data.briefingNotes?.sections?.risks || "",
       decisions: data.briefingNotes?.sections?.decisions || "",
     });
-  }, [data.updatedAt, data.briefingNotes?.lastGeneratedAt]);
+  }
 
   useEffect(
     () => () => {

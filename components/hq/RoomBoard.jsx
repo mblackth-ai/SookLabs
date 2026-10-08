@@ -304,8 +304,14 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
 
   useEffect(() => {
     if (!opened || tier === "spectator" || !connectionToken) return undefined;
-    verifyMcp(connectionToken, seat);
-  }, [opened, connectionToken, seat, tier, verifyMcp]);
+    let cancelled = false;
+    probeRoomMcp({ token: connectionToken, expectedSeat: seat }).then((result) => {
+      if (!cancelled) setMcpProbe(result);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [opened, connectionToken, seat, tier]);
 
   useEffect(() => {
     if (!opened || tier === "spectator" || !connectionToken) return undefined;

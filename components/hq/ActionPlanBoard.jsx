@@ -286,6 +286,7 @@ export function ActionPlanBoard({ initialData, streamKeys, columns = 2 }) {
   useEffect(() => {
     try {
       const saved = localStorage.getItem(HIDE_DONE_KEY);
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- browser storage is only readable after hydration
       if (saved === "0") setHideDone(false);
       else if (saved === "1") setHideDone(true);
     } catch {
