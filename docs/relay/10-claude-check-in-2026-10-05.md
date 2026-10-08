@@ -425,3 +425,25 @@ Review of SEOS `deploy-droplet.yml` (report only):
 - **Order:** the analytics migration still has to be applied before or with this deploy. Per `f8f3222`, the app is safe to deploy before the tables exist, and Reports turns on with SEOS's one-click "Switch on".
 
 Mark is active, so the loop goes back to 30 minutes.
+
+## 25. Loop pass 122 (2026-10-08, 18:02 UTC): #40 fixes the #39 findings; Growth OS PRD
+
+**#40 (Cursor, `cursor/phase1-owner-room-guards-7966`, head `5ef3f4c`): report only.** It fixes §23 findings 1–3 as proposed:
+- The button now reads **"Create owner tables on the live database"** and says this is a production database change.
+- `middleware.js` opens only `/hq/client`, `/hq/client/*`, `/hq/api/client/redeem` and `/hq/api/client/logout`, through a new `isOwnerPublicPath` helper with a test. Any future route under `/hq/api/client` stays behind Mark's session.
+- The join page shows only fixed text, chosen by an error code (`used`, `expired`, `cancelled`, `unknown`, `unavailable`). An unrecognised code shows nothing, and the lookup uses `hasOwnProperty`, so names like `__proto__` can't slip through.
+
+Looks correct to me. It merges cleanly into master.
+
+Against #38 there is a single conflict: the two new import lines at the top of `middleware.js` (`mcp-discovery` from #38, `owner-open-paths` from #40). Keep both. Whichever PR merges second needs that one-line fix; if #40 lands first, I'll do it on #38.
+
+**Drive: "SookLabs Growth OS — PRD (phased)"**, Mark, 15:59 UTC.
+- Phase 1 is a monthly search report for RDUSA, built from real Google data and opened by both Mark and the owner.
+- It lists nine capability areas and their gaps.
+- My lane's gaps in that list:
+  - Room MCP read tools: "from draft PR #14". #14 is now closed; #38 delivers `hq_status` and `hq_next_actions` instead.
+  - The execution loop isn't switched on yet; that's the #37 secrets.
+
+#39 shows as closed on GitHub, but its merge commit `6b985a7` is on master, so the code has landed.
+
+State: master `6b985a7`; #38 `200e1af` (all green, clean against master); SEOS main `f4505d4`; hq.sooklabs.com still returns `000`.
