@@ -3746,3 +3746,17 @@
 .hq-sj-status { display: grid; grid-template-columns: max-content 1fr; gap: 4px var(--space-2); margin: 0; font-size: var(--text-xs); }
 .hq-sj-status dt { color: var(--text-tertiary); }
 .hq-sj-status dd { margin: 0; overflow-wrap: anywhere; min-width: 0; }
+
+/* Owner rooms (/hq/client): standalone pages outside the dashboard shell. */
+body:has(.hq-owner-page) {
+  margin: 0;
+  background: var(--color-gray-950, #080808);
+}
+.hq-owner-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(43, 210, 224, 0.06), transparent 55%),
+    var(--bg-base);
+  color: var(--text-primary);
+}
