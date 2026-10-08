@@ -1,5 +1,6 @@
 import { TopBar } from "@/components/hq/TopBar";
 import { ReportsBoard } from "@/components/hq/ReportsBoard";
+import { OwnerAccessPanel } from "@/components/hq/OwnerAccessPanel";
 import { readAnalyticsSummary } from "@/lib/hq/analytics-client";
 import { getSeosAppUrl } from "@/lib/hq/paths";
 
@@ -16,7 +17,12 @@ export default async function ReportsPage({ searchParams }) {
         subtitle="Rankings and traffic for each business we manage, read from SEOS. Outriggers and Slatwall first for RDUSA."
       />
       <div className="hq-page-content">
-        <ReportsBoard result={result} seosUrl={getSeosAppUrl()} selected={selected} />
+        <div style={{ display: "grid", gap: 24 }}>
+          <ReportsBoard result={result} seosUrl={getSeosAppUrl()} selected={selected} />
+          {result.ok && result.data.workspaces.length > 0 && (
+            <OwnerAccessPanel businesses={result.data.workspaces.map((w) => ({ slug: w.slug, name: w.name }))} />
+          )}
+        </div>
       </div>
     </div>
   );

@@ -3735,3 +3735,17 @@
 .hq-cc-joinbanner--live { animation: hq-door 1.6s ease-in-out infinite; }
 @keyframes hq-door { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-warning) 45%, transparent); } 50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-warning) 0%, transparent); } }
 @media (prefers-reduced-motion: reduce) { .hq-cc-joinbanner--live { animation: none; } }
+
+/* Owner rooms (/hq/client): standalone pages outside the dashboard shell. */
+body:has(.hq-owner-page) {
+  margin: 0;
+  background: var(--color-gray-950, #080808);
+}
+.hq-owner-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(43, 210, 224, 0.06), transparent 55%),
+    var(--bg-base);
+  color: var(--text-primary);
+}

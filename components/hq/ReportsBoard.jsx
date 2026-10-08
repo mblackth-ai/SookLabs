@@ -83,7 +83,37 @@ function GroupCard({ group }) {
   );
 }
 
-function BusinessSection({ business, seosUrl }) {
+function WorkList({ work }) {
+  if (!work || (work.done.length === 0 && work.inProgress.length === 0)) return null;
+  const col = (title, items, render) => (
+    <div>
+      <div style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)", marginBottom: 4 }}>{title}</div>
+      {items.length === 0 ? (
+        <div style={{ fontSize: "var(--text-sm)", color: "var(--text-tertiary)" }}>—</div>
+      ) : (
+        <ul style={{ margin: 0, paddingLeft: 18, display: "grid", gap: 2, fontSize: "var(--text-sm)", color: "var(--text-secondary)" }}>
+          {items.map((item, i) => (
+            <li key={`${item.title}-${i}`}>{render(item)}</li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+  return (
+    <Card padding="sm">
+      <div style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))" }}>
+        {col("Done in the last 30 days", work.done, (w) => (
+          <>
+            {w.title} <span style={{ color: "var(--text-tertiary)" }}>· {new Date(w.at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
+          </>
+        ))}
+        {col("In progress", work.inProgress, (w) => w.title)}
+      </div>
+    </Card>
+  );
+}
+
+export function BusinessSection({ business, seosUrl, ownerView = false }) {
   const sessions = business.traffic.filter((t) => typeof t.sessions === "number");
   const lastSessions = sessions[sessions.length - 1];
   const prevSessions = sessions[sessions.length - 2];
@@ -95,27 +125,35 @@ function BusinessSection({ business, seosUrl }) {
             {business.name}
           </h2>
           <div style={{ fontSize: "var(--text-sm)", color: "var(--text-tertiary)" }}>
-            {business.domain} · {business.organisation?.name} · rankings for {formatMonth(business.latestMonth)}
+            {business.domain}
+            {ownerView ? "" : ` · ${business.organisation?.name}`} · rankings for {formatMonth(business.latestMonth)}
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>
-            <Badge variant={business.sources.lastSucceeded.gsc ? "accent" : "outline"} size="sm">
-              {sourceLabel("Search Console", business.sources.gsc, business.sources.lastSucceeded.gsc)}
-            </Badge>
-            <Badge variant={business.sources.lastSucceeded.ga4 ? "accent" : "outline"} size="sm">
-              {sourceLabel("GA4", business.sources.ga4, business.sources.lastSucceeded.ga4)}
-            </Badge>
+            {(!ownerView || business.sources.lastSucceeded.gsc) && (
+              <Badge variant={business.sources.lastSucceeded.gsc ? "accent" : "outline"} size="sm">
+                {sourceLabel("Search Console", business.sources.gsc, business.sources.lastSucceeded.gsc)}
+              </Badge>
+            )}
+            {(!ownerView || business.sources.lastSucceeded.ga4) && (
+              <Badge variant={business.sources.lastSucceeded.ga4 ? "accent" : "outline"} size="sm">
+                {sourceLabel("GA4", business.sources.ga4, business.sources.lastSucceeded.ga4)}
+              </Badge>
+            )}
           </div>
         </div>
-        <Button href={`${seosUrl}/`} external variant="secondary" size="sm">
-          Open in SEOS
-        </Button>
+        {!ownerView && (
+          <Button href={`${seosUrl}/`} external variant="secondary" size="sm">
+            Open in SEOS
+          </Button>
+        )}
       </div>
 
       {!business.hasData ? (
         <Card padding="sm">
           <p style={{ margin: 0, fontSize: "var(--text-sm)", color: "var(--text-secondary)" }}>
-            No ranking or traffic data yet. {business.groups.length ? `${business.totals.trackedCount} keywords tracked; ` : "No keywords tracked yet; "}
-            connect Search Console / GA4 or import a file in SEOS → Analytics.
+            {ownerView
+              ? "Your first rankings report is being prepared. It will appear here once the data is in."
+              : `No ranking or traffic data yet. ${business.groups.length ? `${business.totals.trackedCount} keywords tracked; ` : "No keywords tracked yet; "}connect Search Console / GA4 or import a file in SEOS → Analytics.`}
           </p>
         </Card>
       ) : (
@@ -141,6 +179,7 @@ function BusinessSection({ business, seosUrl }) {
           </div>
         </>
       )}
+      <WorkList work={business.work} />
     </section>
   );
 }
