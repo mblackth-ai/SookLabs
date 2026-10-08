@@ -89,10 +89,10 @@ export function OwnerAccessPanel({ businesses }) {
         {!state.installed ? (
           <div>
             <Button size="sm" loading={busy === "install"} onClick={() => post({ action: "install" })}>
-              Switch on owner rooms
+              Create owner tables on the live database
             </Button>
             <p style={{ margin: "6px 0 0", fontSize: "var(--text-xs)", color: "var(--text-tertiary)" }}>
-              Adds two tables to the HQ database (invites, owner access). Changes nothing else.
+              Runs CREATE TABLE on the live HQ database. Adds hq_owner_invites and hq_owner_access only. Existing tables stay as they are. This is a production database change.
             </p>
           </div>
         ) : (

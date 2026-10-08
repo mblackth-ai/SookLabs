@@ -28,11 +28,11 @@ export async function POST(request) {
   try {
     result = await redeemOwnerInvite({ token });
   } catch {
-    result = { error: { status: 503, error: "Owner access is unavailable right now." } };
+    result = { error: { status: 503, error: "Owner access is unavailable right now.", code: "unavailable" } };
   }
   if (result.error) {
     const url = back(request, `/client/join/${encodeURIComponent(token)}`);
-    url.searchParams.set("error", result.error.error);
+    url.searchParams.set("error", result.error.code || "unknown");
     return NextResponse.redirect(url, 303);
   }
   const res = NextResponse.redirect(back(request, "/client"), 303);
