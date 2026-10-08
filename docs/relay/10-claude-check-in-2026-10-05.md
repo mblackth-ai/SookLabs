@@ -400,3 +400,16 @@ Worth fixing before production:
 4. **It depends on the SEOS companion branch.** That is `claude/gallant-lamport-dggvhh` in SEOS (head `1eb2fdf`; I missed it at first because my local SEOS clone tracks only `main`). It adds `GET /api/analytics/hq-summary` and a Prisma migration, `20261005170000_add_analytics`. That migration is a production schema change, so it goes through Mark's gate and must be applied before or with the SEOS deploy, as the PR says. Until then, HQ Reports shows its "unavailable" notice, which is safe.
 
 Against #38, #39 conflicts only in `app/hq/hq.css`. Both add lines at the end of the file, so either merge order works with a two-minute fix.
+
+## 24. Loop pass 121 (2026-10-08, 17:30 UTC): Mark merged #39; #38 rebuilt on it
+
+Mark merged #39 into master (`6b985a7`) at about 17:20 UTC. That left #38 with the conflict predicted in §23, in the append-only `app/hq/hq.css`. I merged master into this branch (`432c4b8`) and kept both blocks: the seat join panel styles and the owner room styles. Nothing else conflicted, and the two `middleware.js` changes merged automatically.
+
+After the merge:
+- HQ tests pass, 88/88. That includes #39's `owner-portal` and `analytics-summary` tests, run against the local Postgres.
+- eslint: 0 errors, which covers #39's new files.
+- `next build` passes and lists the new `/hq/client`, `/hq/client/join/[token]`, `/hq/reports` and `/hq/api/client/*` routes.
+
+The SEOS companion branch `claude/gallant-lamport-dggvhh` (`1eb2fdf`) is still unmerged. Until it is merged, deployed and its migration applied, HQ Reports shows its "unavailable" notice.
+
+Mark is active, so the loop goes back to 30 minutes.
