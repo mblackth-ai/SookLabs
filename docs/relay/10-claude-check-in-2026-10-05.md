@@ -363,3 +363,17 @@ Here, `git merge-tree origin/master c26889b` is **clean**. The rebuild Codex ask
 Codex's next-action list doesn't include the GitHub API fan-out from §17 (Drive doc 22). Each timeline load walks every unmerged branch's full history without stopping at known commits, and nothing is cached. That is roughly 40–110 sequential calls per load, and production always takes this path because Vercel builds from a shallow clone. It is still the main thing to fix in the rebuild before #36 goes live. Raising it on the PR is Mark's call; I haven't commented there.
 
 No other change: master `f76b3c1`, this branch `bbb556e`, #37 `699c08b`, SEOS `ff3d45d`.
+
+## 22. Mark's go-ahead (2026-10-08): fonts, lint, #36 fan-out patch, PR opened
+
+Mark asked for three things and for this branch's PR to be opened.
+
+**1. CI font flake removed (`3f2d2d7`).** `app/hq/layout.js` now loads Geist and Geist Mono from vendored variable woff2 files in `app/hq/fonts/` (SIL OFL, licence alongside) via `next/font/local`. Builds no longer fetch Geist Mono from Google, which is what tripped vercel/next.js#99114 on #36. Other site layouts still use `next/font/google` for different families; they haven't shown the flake.
+
+**2. Lint: 44 errors → 0.** 30 were in `_reference/` (vendored design handoffs, now ignored). The 14 real ones are fixed in place; the few that are intentional post-hydration reads of browser storage or `matchMedia` keep their effect with a scoped, reasoned disable. 9 warnings remain (8 `<img>`, 1 deps), down from 11. HQ tests 82/82, `next build` passes.
+
+**3. #36 fan-out: ready-to-apply patch for Cursor.** `docs/relay/patches/pr36-repo-graph-fanout.patch` applies cleanly to #36 head `c26889b` (`git apply`). It changes only `lib/hq/repo-graph-load.mjs`:
+- branch history paging stops at the first page that reaches already-loaded commits;
+- `loadSookLabsRepoGraph()` caches successful graphs per instance for 45 s and shares in-flight loads; failures are not cached.
+
+Measured with `docs/relay/patches/pr36-fanout-sim.mjs` (simulated 600-commit master, 20 branches, no local git, as on Vercel): same 660-commit graph; GitHub calls **131 → 30** on a cold load and **131 → 0** on a repeat within 45 s. Trade-off: a branch whose unique commits sit more than one page behind a merge from master would show only its newest page; acceptable for a timeline, and called out in the code comment.

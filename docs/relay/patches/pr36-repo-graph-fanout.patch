@@ -1,0 +1,70 @@
+diff --git a/lib/hq/repo-graph-load.mjs b/lib/hq/repo-graph-load.mjs
+index 471ac25..fc18166 100644
+--- a/lib/hq/repo-graph-load.mjs
++++ b/lib/hq/repo-graph-load.mjs
+@@ -185,14 +185,23 @@ function normalizeGithubCommit(item) {
+   };
+ }
+ 
+-async function listGithubCommits(sha, warnings, token) {
++/**
++ * @param {Set<string>} [seen] SHAs already loaded. Paging stops after the first page that
++ *   reaches known history, so a branch costs ~1 call instead of re-reading the default
++ *   branch's whole ancestry (up to 10 calls per branch).
++ */
++async function listGithubCommits(sha, warnings, token, seen = new Set()) {
+   const commits = [];
+   for (let page = 1; page <= 10; page += 1) {
+     const path = `/repos/${SOOKLABS_REPO}/commits?sha=${encodeURIComponent(sha)}&per_page=100&page=${page}`;
+     const data = await unwrapGh(gh(path, { token }), path);
+     if (!Array.isArray(data) || data.length === 0) break;
+-    for (const item of data) commits.push(normalizeGithubCommit(item));
+-    if (data.length < 100) break;
++    let reachedSeen = false;
++    for (const item of data) {
++      if (seen.has(item.sha)) reachedSeen = true;
++      else commits.push(normalizeGithubCommit(item));
++    }
++    if (reachedSeen || data.length < 100) break;
+     if (page === 10) {
+       warnings.push(`Commit history for ${String(sha).slice(0, 7)} was capped at 1000 commits.`);
+     }
+@@ -215,7 +224,8 @@ async function readGithubSnapshot(token, prefetchedRefs) {
+   for (const ref of refs) {
+     if (defaultRef && ref.name === defaultRef.name) continue;
+     if (commits.has(ref.sha)) continue;
+-    for (const commit of await listGithubCommits(ref.sha, warnings, token)) {
++    const known = new Set(commits.keys());
++    for (const commit of await listGithubCommits(ref.sha, warnings, token, known)) {
+       if (!commits.has(commit.sha)) commits.set(commit.sha, commit);
+     }
+   }
+@@ -269,7 +279,27 @@ export async function readPullRequests(token) {
+   }
+ }
+ 
+-export async function loadSookLabsRepoGraph() {
++// Per-instance cache: every page load otherwise fans out to 40-110 GitHub calls
++// (production always takes the GitHub path because Vercel clones shallow).
++const GRAPH_TTL_MS = 45_000;
++let graphCache = { at: 0, value: null, pending: null };
++
++export async function loadSookLabsRepoGraph({ fresh = false } = {}) {
++  if (!fresh && graphCache.value && Date.now() - graphCache.at < GRAPH_TTL_MS) return graphCache.value;
++  if (graphCache.pending) return graphCache.pending;
++  graphCache.pending = loadSookLabsRepoGraphUncached()
++    .then((value) => {
++      // Only cache successes so a GitHub outage is retried on the next request.
++      if (value?.ok !== false) graphCache = { at: Date.now(), value, pending: null };
++      return value;
++    })
++    .finally(() => {
++      graphCache.pending = null;
++    });
++  return graphCache.pending;
++}
++
++async function loadSookLabsRepoGraphUncached() {
+   const fetchedAt = new Date().toISOString();
+   const token = resolveToken();
+   const warnings = [];
