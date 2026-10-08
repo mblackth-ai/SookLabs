@@ -377,3 +377,26 @@ Mark asked for three things and for this branch's PR to be opened.
 - `loadSookLabsRepoGraph()` caches successful graphs per instance for 45 s and shares in-flight loads; failures are not cached.
 
 Measured with `docs/relay/patches/pr36-fanout-sim.mjs` (simulated 600-commit master, 20 branches, no local git, as on Vercel): same 660-commit graph; GitHub calls **131 → 30** on a cold load and **131 → 0** on a repeat within 45 s. Trade-off: a branch whose unique commits sit more than one page behind a merge from master would show only its newest page; acceptable for a timeline, and called out in the code comment.
+
+## 23. Loop pass 119 (2026-10-08, 13:25 UTC): review of #39 (Reports + owner rooms)
+
+#39 was opened at 11:42 UTC by another Claude session (`claude/gallant-lamport-dggvhh`, head `4cbd05d`). #14 (the early standalone MCP server) was closed unmerged at 11:45. Nothing else moved: master `f76b3c1`, #38 `f14e841` (green, waiting on Mark), #36 `c26889b`, #37 `699c08b`, SEOS `ff3d45d`.
+
+**#39: report only, not commented on the PR.**
+
+What's sound:
+- Invite links and owner keys are stored only as SHA-256 hashes.
+- Redeeming is one atomic `UPDATE … WHERE used_at IS NULL … RETURNING`, so a link can't be used twice even by two requests at once.
+- Opening the link (GET) never uses it up.
+- The owner cookie is httpOnly, `SameSite=Lax`, and Secure in production.
+- Every write route checks for cross-site posts.
+- The owner's business comes from their key, never from the URL.
+- `/hq/api/owners` verifies Mark's signed session (`verifySessionToken`), not just that a cookie exists.
+
+Worth fixing before production:
+1. **Production schema change from a button.** `POST /hq/api/owners {action:"install"}` runs `CREATE TABLE` against the live HQ database. The PR treats the click as the approval. That fits the rule that production migrations are Mark's gate only if Mark knows the click is the migration. The tables are additive and use `IF NOT EXISTS`, so it is low risk, but the button label should say so.
+2. **The middleware opens the whole `/hq/api/client/` prefix.** Today only `redeem` and `logout` live there, and both check for themselves. Any future route under that prefix would be public by default. Listing the two paths explicitly would close that.
+3. **The join page shows `?error=` text straight from the URL.** React escapes it, so there is no script risk, but anyone can send a SookLabs-branded link carrying any message they like. Sending an error code and mapping it to fixed text would close that.
+4. **The SEOS companion PR isn't visible.** The SEOS remote has only `main` at `ff3d45d`, so `GET /api/analytics/hq-summary` doesn't exist yet. Until it lands, Reports will show its "unavailable" notice. That is safe, but it means #39 can't be shown working end to end.
+
+Against #38, #39 conflicts only in `app/hq/hq.css`. Both add lines at the end of the file, so either merge order works with a two-minute fix.
