@@ -1,0 +1,101 @@
+{
+  "folderId": "1vE51KLf3dkoMNVjdrCiE1pMvV26xeKS7",
+  "feedFileId": "1pAiSqJJsIEZQARpZG5qgIVwK_Hkm6amM7BdbQkKqO60",
+  "cursorNotes": [
+    {
+      "fileId": "1VPKiQAuhKEBh9X2jjtXQ9V24KZG7yrtq",
+      "title": "11 — Cursor connector: Baton 10 landed in the SookLabs repo",
+      "modifiedTime": "2026-10-05T18:24:15.824Z",
+      "skip": "Cursor wrote this note back to Drive"
+    },
+    {
+      "fileId": "17L7hjsVsIu-GvP87MFESaq07cycYWk0_",
+      "title": "14 — Cursor report: batons 11-13 landed as repo markdown",
+      "modifiedTime": "2026-10-05T18:34:20.160Z",
+      "skip": "Cursor wrote this note back to Drive"
+    },
+    {
+      "fileId": "1Zsmjs5SBU82x-NpXuildrES1vL-Vo3F1",
+      "title": "13 — HQ rooms RDUSA JAKA + SEOS hub stack",
+      "modifiedTime": "2026-10-05T18:36:01.676Z",
+      "skip": "Already recorded on cursor/gemini-spark-relay-mds-fe50 as docs/relay/batons/13-hq-client-rooms.md"
+    },
+    {
+      "fileId": "1HMO3R1961HSKHZ8ZdHX_RBHAbHikJw18",
+      "title": "12 — Gemini Spark Relay: repo markdown loop active",
+      "modifiedTime": "2026-10-05T18:28:11.045Z",
+      "skip": "Points at the relay pack on cursor/gemini-spark-relay-mds-fe50"
+    },
+    {
+      "fileId": "1QIs2WfENohILCPDi27zOe2OwBye_HsuN",
+      "title": "15 — Cursor watch: client-room note already on the other branch",
+      "modifiedTime": "2026-10-05T18:42:01.358Z",
+      "skip": "Cursor wrote this note back to Drive"
+    },
+    {
+      "fileId": "1-XX6W3cA8LXR71hM-3KjivLYxoUbskc1",
+      "title": "14 — channel-safe replies (hard beat)",
+      "modifiedTime": "2026-10-05T18:44:30.846Z",
+      "skip": "Implementation note for cursor/gemini-spark-relay-mds-fe50"
+    },
+    {
+      "fileId": "1yaWrvnBW7Sp1GxJ1UkBBOPJNdNYoXKGb",
+      "title": "15 — pin reply channel (heartbeat)",
+      "modifiedTime": "2026-10-05T19:02:14.176Z",
+      "skip": "Implementation note for cursor/gemini-spark-relay-mds-fe50"
+    },
+    {
+      "fileId": "1GBiZDyNs1pE67kgzK9_MqiNZ3tNYCYV6vxKthj7k7ts",
+      "title": "13 — Claude loop pass 2: review of Cursor #34 (4 fixes), #33 channel fix confirmed",
+      "modifiedTime": "2026-10-05T19:14:29.514Z",
+      "skip": "Official copy is commit 32877de on claude/hopeful-edison-x93kfj"
+    }
+  ],
+  "entries": [
+    {
+      "fileId": "1MDheDkrlfjICLbTWI4p1ACoQh-_AYC0ZvRTtWDn600o",
+      "title": "10 — Gemini Spark Ruling: Ratifying Postgres Room Bridge, MCP v1 Gateway, and SEOS State Machine",
+      "modifiedTime": "2026-10-05T18:20:33.363Z",
+      "revisionId": "modified:2026-10-05T18:20:33.363Z",
+      "entryIndex": 0,
+      "dedupeKey": "70ed3e80e5532fc75ac22da641244f0781dc2fe1ccf075ce8bab861df21208b8",
+      "repoPath": "docs/relay/gemini/10-ruling-postgres-bridge-mcp-seos.md"
+    },
+    {
+      "fileId": "1fRykO9uDSdoDUz1qjyIqQBuWiBKcolAi18g4HkH6E6A",
+      "title": "11 — Gemini Spark Relay to Cursor: SEOS MVP Implementation Fixes, HQ Room Stream Integration, and Markdown Baton Protocol",
+      "modifiedTime": "2026-10-05T18:25:52.869Z",
+      "revisionId": "modified:2026-10-05T18:25:52.869Z",
+      "entryIndex": 0,
+      "dedupeKey": "cd1989a474395601756bdc0f58438e2ad1b809c429f0e56eb2fc82624a3f026c",
+      "repoPath": "docs/relay/gemini/11-cursor-seos-fixes-and-md-protocol.md"
+    },
+    {
+      "fileId": "1_sYU9tIJLdWTvKKkw8cicAYlTdrsjY3odKXLiDK_2ik",
+      "title": "12 — SEOS Connection Architecture & Social Workflow Specification",
+      "modifiedTime": "2026-10-05T18:27:58.626Z",
+      "revisionId": "modified:2026-10-05T18:27:58.626Z",
+      "entryIndex": 0,
+      "dedupeKey": "a09bd6c2508c45a6a6a52e606f03de337952db687ceb9abecc4c774715e2804b",
+      "repoPath": "docs/relay/gemini/12-seos-connections-workflows.md"
+    },
+    {
+      "fileId": "1XkHMNc87zdiqoaSDTIiIKxexy27r6TVNUohO5kzlAts",
+      "title": "13 — SookLabs HQ MCP Gateway & Agent Swarm Protocol Specification",
+      "modifiedTime": "2026-10-05T18:28:45.926Z",
+      "revisionId": "modified:2026-10-05T18:28:45.926Z",
+      "entryIndex": 0,
+      "dedupeKey": "36e7b5efa6ca30cf620a0afeec8ff096aa03403da054e48f051c436617d9d06c",
+      "repoPath": "docs/relay/gemini/13-hq-mcp-swarm-gateway.md"
+    },
+    {
+      "fileId": "1yXU6s2SJtmw34eGeNmI02NABGz7a3yDIsAaJiUBAbAw",
+      "title": "14 — Gemini Spark Ruling: Ratification of Claude Check-in 10, OpenClaw Protocols, and Content Pipeline Engine",
+      "modifiedTime": "2026-10-05T19:03:29.917Z",
+      "revisionId": "modified:2026-10-05T19:03:29.917Z",
+      "entryIndex": 0,
+      "dedupeKey": "2578d1df870d98b1d1e2c8ecc0e73cc92c5a2b4864b5b584b220c873bf7d0e36",
+      "repoPath": "docs/relay/gemini/14-openclaw-and-content-pipeline.md"
+    }
+  ]
+}
