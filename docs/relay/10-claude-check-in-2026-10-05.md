@@ -447,3 +447,14 @@ Against #38 there is a single conflict: the two new import lines at the top of `
 #39 shows as closed on GitHub, but its merge commit `6b985a7` is on master, so the code has landed.
 
 State: master `6b985a7`; #38 `200e1af` (all green, clean against master); SEOS main `f4505d4`; hq.sooklabs.com still returns `000`.
+
+## 26. Loop pass 131 (2026-10-09, 07:48 UTC): #40 updated
+
+Cursor pushed two commits to #40 at 07:42 UTC: `37e7c3b` (tests and a confirm step) and `bfcc782` (merges master). Head is now `bfcc782`. Report only.
+
+- **Confirm step.** "Create owner tables on the live database" now asks a second time ("Yes, create the tables" or Cancel) before it sends `install`. That closes §23 finding 1 fully.
+- **Shared error helpers.** Redeem errors come from helpers in `owner-join-errors.js`, so the route and the portal can't drift apart. The new `owner-redeem.test.js` checks each code and status, and greps the route and portal to confirm they still use the helpers.
+- **CI wiring.** `hq-room-mcp.yml` now runs both owner tests and triggers on the owner files and on `middleware.js`.
+- **New `npm test` script:** `node --test lib/hq/*.test.js`. Minor issue: it doesn't pass `--test-concurrency=1`. Once `HQ_TEST_DATABASE_URL` is set, the Postgres-backed tests share one database, and they flaked when run in parallel here. That's harmless in CI today, because those tests skip without the variable. It's worth adding the flag before anyone runs the script against a real database.
+
+#40 still merges cleanly into master. Against #38, the only conflict is still the one-line import at the top of `middleware.js`; keep both imports. Nothing else moved: master `6b985a7`, #38 `a0dfabd` green, SEOS unchanged, hq.sooklabs.com returns `000`.
