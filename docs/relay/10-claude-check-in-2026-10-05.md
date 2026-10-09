@@ -490,3 +490,24 @@ New SEOS branch from Cursor: `cursor/seos-prisma-lock-postgres-f2a3`, head `33d1
 An empty result, or only the expected analytics tables, means it's safe to `resolve` and then `deploy`. That keeps Mark's production-migration gate backed by evidence.
 
 **Elsewhere:** nothing changed. Master `8c6d83a`; #40 is still a draft and conflicts on the `middleware.js` imports; #36 and #37 are unchanged; hq.sooklabs.com returns `000`.
+
+## 29. Loop pass 136 (2026-10-09, 11:58 UTC): Codex blocks #40; Sookly audit batons 34 and 35
+
+**Codex reviewed #40 at 11:52 UTC: not merge-ready.** It is 39 commits behind master and non-mergeable. Codex lists six blockers. I checked them against the code; four are real gaps I missed in §23:
+- **Redeem isn't one transaction.** `redeemOwnerInvite` marks the invite used, then inserts the access row in a separate statement. If the insert fails, the one-use link is burned with no access granted. **Confirmed** in `lib/hq/owner-portal.js`.
+- **Owner keys never expire on the server.** Only the browser cookie has a 90-day age. **Confirmed.**
+- **The invite token is in the URL path.** It can land in proxy, platform or analytics logs. In §23 I treated this as standard for magic links, but Codex's point stands for a clinic-facing product.
+- **Access is tied to `business_slug`,** which can change, not to an immutable workspace id. **Confirmed.**
+- **Production schema change from the UI.** The confirm step isn't an approved migration with a rollback plan.
+- **No approved report snapshots** before task titles reach client owners.
+
+**This matters beyond #40.** Blockers 1–5 are in code that is already on master through #39. Owner rooms are still inactive, because the tables only exist once someone presses "Create owner tables". **Recommendation to Mark: don't press it until a replacement PR fixes 1–5.** Codex proposes a narrow PR: a migration file with a rollback runbook, a transactional redeem, key expiry, and binding to the workspace id.
+
+**Drive 34 and 35 come from another Claude seat (chat, read-only).**
+- **34** is a red-team of the Sookly receptionist and automation.
+- **35** is a baton:
+  - Codex lands an adversarial test harness (`tests/adversarial/` in SookLabs).
+  - Cursor ships ten fixes, F1 to F10. F1 is medical-tier approval-first; F3 locks the n8n router to the HQ host and splits its secrets; F5 hardens the agent callback route.
+  - Claude reviews each PR against its test IDs.
+
+Mark has endorsed approval-first. Each merge, config flip and deploy still needs his approval. In my lane, F3 and F5 touch HQ code (`docs/n8n`, `app/hq/api/agents/callback`), so I'll review those PRs when they land. My Drive notes continue from 36.
