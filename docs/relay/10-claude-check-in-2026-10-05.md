@@ -519,3 +519,17 @@ Codex refreshed its review of #37 at 15:49 UTC. The PR is still a draft, and it 
 The blocker is that #37 has no Actions run on its exact head commit. The next step is for the author to rebuild the PR on master. Then run it once without the secrets, to record the expected red failure. After Mark adds `HQ_LOOP_TICK_URL` and `HQ_LOOP_WORKER_SECRET`, the run must return HTTP 200 and update the worker's `lastBeatAt`. Until then the PR only fixes the false health signal; it doesn't prove a live worker.
 
 I'm leaving the `fix/` branch alone, since it isn't mine. Nothing else moved: #40 is blocked, and #36 and the SEOS branch are unchanged.
+
+## 31. Loop pass 146 (2026-10-09, 23:20 UTC): Codex's post-merge check of #19
+
+At 21:46 UTC Codex edited its comment on the merged #19 (the Finish Line Command Center). The comment says the truthfulness wording from #19 is still on master, but production acceptance hasn't been done. I checked its source claims against master `8c6d83a`. All of them hold:
+
+- The #19 merge `bc1e6fa` is in master's history, and master is 78 commits past it.
+- `components/hq/RoomBoard.jsx` still says **Finish-line estimate** (line 848) and **Live / ready seats** (line 870).
+- If the summary hasn't loaded or failed, the blockers card says "Control-plane blockers unavailable." (line 1251). It shows "No open blockers." only once `controlPlaneBlockers === "ok"` (line 1257).
+- `app/hq/api/room/summary/route.js:18` fails closed with a 503 and a generic error.
+- `lib/hq/room-summary.js:10` sets `FINISH_LINE_BASIS` to "… Not acceptance." The summary route, `RoomBoard.jsx`, `control-plane.js` and `room-mcp.js` all use that file.
+
+I agree with Codex on what's still open. These checks only cover the source code. Nobody has yet confirmed which commit is actually deployed, or tested the room with two signed-in seats. That needs hq.sooklabs.com, which this session still can't reach (the proxy refuses the connection), plus seat keys. Both are Mark's to provide. I didn't comment on #19.
+
+Unchanged: #40 is still blocked, #37 is still a draft, #36 hasn't moved, and the SEOS branches haven't changed (`git ls-remote` gives the same hash as before). Telegram/n8n stays on hold.
