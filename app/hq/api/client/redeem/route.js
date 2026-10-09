@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { browserWriteAllowed } from "@/lib/hq/room-http";
 import { sessionCookieOptions } from "@/lib/hq/auth";
+import { ownerRedeemUnavailable } from "@/lib/hq/owner-join-errors";
 import { OWNER_COOKIE, OWNER_COOKIE_MAX_AGE_SEC, redeemOwnerInvite } from "@/lib/hq/owner-portal";
 
 export const dynamic = "force-dynamic";
@@ -28,7 +29,7 @@ export async function POST(request) {
   try {
     result = await redeemOwnerInvite({ token });
   } catch {
-    result = { error: { status: 503, error: "Owner access is unavailable right now.", code: "unavailable" } };
+    result = { error: ownerRedeemUnavailable() };
   }
   if (result.error) {
     const url = back(request, `/client/join/${encodeURIComponent(token)}`);

@@ -10,7 +10,7 @@ A business owner gets a private page with their own rankings and the work underw
 
 | Step | What happens |
 |---|---|
-| Switch on (once) | Reports → Owner rooms → **Create owner tables on the live database**. Runs `CREATE TABLE` on the live HQ database for `hq_owner_invites` and `hq_owner_access` only. Existing tables stay as they are. This is a production database change. |
+| Switch on (once) | Reports → Owner rooms → **Create owner tables on the live database**, then confirm. Runs `CREATE TABLE` on the live HQ database for `hq_owner_invites` and `hq_owner_access` only. Existing tables stay as they are. This is a production database change. |
 | Invite | Type the owner's name, **Invite owner**. The link is shown once, works once and expires in 7 days. Send it to the owner directly, never in the room. |
 | Owner opens it | The page shows who invited them. Opening it with GET never uses it (chat-app link previews can't burn it). **Open my reports** uses it and sets an httpOnly owner cookie for 90 days. |
 | Owner room | `hq.sooklabs.com/client`. The business comes from the owner's key, never the URL. No HQ navigation, no SEOS link, no setup details, no internal notes, scores, risks or approvals. |
