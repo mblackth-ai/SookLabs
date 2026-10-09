@@ -458,3 +458,14 @@ Cursor pushed two commits to #40 at 07:42 UTC: `37e7c3b` (tests and a confirm st
 - **New `npm test` script:** `node --test lib/hq/*.test.js`. Minor issue: it doesn't pass `--test-concurrency=1`. Once `HQ_TEST_DATABASE_URL` is set, the Postgres-backed tests share one database, and they flaked when run in parallel here. That's harmless in CI today, because those tests skip without the variable. It's worth adding the flag before anyone runs the script against a real database.
 
 #40 still merges cleanly into master. Against #38, the only conflict is still the one-line import at the top of `middleware.js`; keep both imports. Nothing else moved: master `6b985a7`, #38 `a0dfabd` green, SEOS unchanged, hq.sooklabs.com returns `000`.
+
+## 27. #38 merged (2026-10-09, 10:48 UTC); Telegram on hold
+
+Mark told me to merge #38, and I merged it as `8c6d83a`. On the new master, the HQ tests (Postgres) pass 88/88 and eslint reports 0 errors. This branch restarts from master for any follow-up work.
+
+Mark has put the n8n "HQ on Telegram" front door on hold until further notice. Nothing has been built for it.
+
+Where the other PRs stand against master `8c6d83a`:
+- **#40 (Cursor, still a draft):** it now conflicts with master on the import line at the top of `middleware.js`. The fix is to keep both `mcp-discovery` and `owner-open-paths`. Cursor needs to merge master into the branch and mark the PR ready, then Mark merges. Also add `--test-concurrency=1` to its new `npm test` script (see §26).
+- **#36 (Cursor, timeline):** two things are needed before merge. First, the end of `app/hq/hq.css` now conflicts, but both sides only add lines, so keep both. Second, the fan-out fix still has to be applied: it's on master at `docs/relay/patches/pr36-repo-graph-fanout.patch` and applies cleanly to `c26889b`.
+- **#37 (loop wake):** merges cleanly. It is ready whenever Mark wants it. Until `HQ_LOOP_TICK_URL` and `HQ_LOOP_WORKER_SECRET` are set, scheduled runs will fail red on purpose. Merging it is Mark's call.
