@@ -14,6 +14,7 @@ export function ClickPlayDraftHint() {
   useEffect(() => {
     try {
       const raw = sessionStorage.getItem("hq-click-play:last");
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- browser storage is only readable after hydration
       if (raw) setLast(JSON.parse(raw));
     } catch {
       setLast(null);

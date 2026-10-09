@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { HQ_COOKIE, resolveSessionSecret, verifySessionToken } from "@/lib/hq/auth";
+import { OAUTH_DISCOVERY_NOT_FOUND, isOauthDiscoveryPath } from "@/lib/hq/mcp-discovery";
 
 function isHqHost(host) {
   return host === "hq.sooklabs.com" || host === "hq.localhost";
@@ -38,6 +39,13 @@ export async function middleware(request) {
 
   let pathname = request.nextUrl.pathname;
   const url = request.nextUrl.clone();
+
+  // OAuth/OIDC discovery on the HQ host: JSON 404, never the login page (see lib/hq/mcp-discovery.js).
+  if (isHqSubdomain && isOauthDiscoveryPath(pathname)) {
+    return withSecurityHeaders(
+      NextResponse.json(OAUTH_DISCOVERY_NOT_FOUND, { status: 404, headers: { "cache-control": "no-store" } }),
+    );
+  }
   let rewroteHost = false;
 
   // On the HQ subdomain, lift root-level paths into the /hq subtree.

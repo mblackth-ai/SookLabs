@@ -24,25 +24,19 @@ export default async function RoomPage({ searchParams }) {
   const tier = normalizeTier(params?.as);
   const draft = isRoomDraft();
   const connections = listRoomConnections();
+  let initialFeed = [];
+  let loadError = "";
   if (tier === "spectator") {
     try {
       const names = await readClientNames();
       const feed = await readPublicFeed({ clientNames: names });
-      return (
-        <RoomBoard tier={tier} draft={draft} connections={connections} initialFeed={feed.feed} loadError="" />
-      );
+      initialFeed = feed.feed;
     } catch {
       console.error("room public feed failed");
-      return (
-        <RoomBoard
-          tier={tier}
-          draft={draft}
-          connections={connections}
-          initialFeed={[]}
-          loadError="The public feed could not be loaded."
-        />
-      );
+      loadError = "The public feed could not be loaded.";
     }
   }
-  return <RoomBoard tier={tier} draft={draft} connections={connections} initialFeed={[]} loadError="" />;
+  return (
+    <RoomBoard tier={tier} draft={draft} connections={connections} initialFeed={initialFeed} loadError={loadError} />
+  );
 }

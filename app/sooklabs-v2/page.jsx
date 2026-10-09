@@ -441,10 +441,7 @@ function usePrefersReducedMotion() {
 function useHeroPinProgress(pinRef, reduce) {
   const [p, setP] = useState(0);
   useEffect(() => {
-    if (reduce) {
-      setP(0);
-      return;
-    }
+    if (reduce) return;
     let raf = 0;
     const read = () => {
       raf = 0;
@@ -470,7 +467,7 @@ function useHeroPinProgress(pinRef, reduce) {
       if (raf) cancelAnimationFrame(raf);
     };
   }, [pinRef, reduce]);
-  return p;
+  return reduce ? 0 : p;
 }
 
 /** Viewport heights of scroll consumed while hero is pinned (animation plays). */
@@ -817,6 +814,7 @@ function useReveal() {
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reduced-motion is only known on the client
       setProg(1);
       return;
     }

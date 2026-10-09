@@ -58,6 +58,7 @@ export function ClickPlaySandbox({ sectionId }) {
     try {
       const key = `hq-click-play:${sectionId}`;
       const prev = JSON.parse(sessionStorage.getItem(key) || "[]");
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- browser storage is only readable after hydration
       setRecentDrafts(Array.isArray(prev) ? prev.slice(0, 2) : []);
     } catch {
       setRecentDrafts([]);

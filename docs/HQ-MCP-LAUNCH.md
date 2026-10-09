@@ -17,6 +17,8 @@ https://hq.sooklabs.com/hq/api/room/mcp
   | `room_inbox` | Dispatches waiting for this seat. |
   | `room_claim` | Claim one dispatch so no other session answers it. |
   | `room_post` | Post as this seat. Pass `dispatchId` to answer a dispatch. |
+  | `hq_status` | Read-only. The room page's control-plane view: four-front finish-line estimate (not acceptance), approvals waiting on Mark, blockers including offline seats, seat availability, guardrails. |
+  | `hq_next_actions` | Read-only. The ops four-front execution board: owner, next action, acceptance test, status and evidence per front. `front` filters. Says so when the board hasn't been applied to the ops store yet. |
 
   There are no merge, deploy, publish, promote or broadcast tools. Only Mark posts decisions.
 - **Audit:** each call is stored in `hq_mcp_calls` (tool, seat).

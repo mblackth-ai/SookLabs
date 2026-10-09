@@ -119,6 +119,8 @@ Reference only: openclaw/openclaw@28a6f71449aa5542c9fb825dcb3423dfbb7abf82. It i
 | `HQ_LOOP_GITHUB_READS_PER_DAY` | 2000 | |
 | `HQ_LOOP_WAIT_WATCHDOG_MS` | 1800000 | |
 | `HQ_LOOP_BACKOFF_BASE_MS` / `HQ_LOOP_BACKOFF_MAX_MS` | 60000 / 1800000 | |
+| `HQ_DRIVE_SERVICE_ACCOUNT_JSON` | — | Google service-account key (JSON) for the Drive ↔ room bridge, `drive.readonly`. **Mark's gate** (credential). Share only the relay folder with that service account. Unset = the bridge is skipped. |
+| `HQ_DRIVE_RELAY_FOLDER` | — | Drive folder id the bridge reads (the relay outbox). Unset = skipped. |
 
 GitHub Actions repository secrets: `HQ_LOOP_TICK_URL` (`https://hq.sooklabs.com/hq/api/room/loop/tick`) and `HQ_LOOP_WORKER_SECRET`. The workflow logs only the HTTP status and step count.
 

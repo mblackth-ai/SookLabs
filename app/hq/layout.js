@@ -1,17 +1,19 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./hq.css";
 
-const geist = Geist({
-  subsets: ["latin"],
+// Self-hosted (SIL OFL, see ./fonts/OFL.txt) so builds never fetch Google Fonts;
+// that fetch intermittently breaks Turbopack (vercel/next.js#99114).
+const geist = localFont({
+  src: "./fonts/Geist-Variable.woff2",
   variable: "--font-geist",
-  weight: ["300", "400", "500", "600", "700"],
+  weight: "100 900",
   display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  subsets: ["latin"],
+const geistMono = localFont({
+  src: "./fonts/GeistMono-Variable.woff2",
   variable: "--font-geist-mono",
-  weight: ["400", "500"],
+  weight: "100 900",
   display: "swap",
 });
 

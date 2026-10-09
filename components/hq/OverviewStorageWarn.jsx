@@ -12,6 +12,7 @@ export function OverviewStorageWarn() {
 
   useEffect(() => {
     try {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- browser storage is only readable after hydration
       setDismissed(sessionStorage.getItem(DISMISS_KEY) === "1");
     } catch {
       setDismissed(false);

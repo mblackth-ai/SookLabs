@@ -3,7 +3,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AcceptancePanel } from "@/components/hq/AcceptancePanel";
 import { SeatRequests } from "@/components/hq/SeatRequests";
+import { SeatJoin } from "@/components/hq/SeatJoin";
 import { SeatSetup } from "@/components/hq/SeatSetup";
+import { seatBlockerRows } from "@/lib/hq/room-summary";
 import { Button } from "@/components/hq/Button";
 import {
   BROADCAST_DELAY_MS,
@@ -172,6 +174,7 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
   const [seatFilter, setSeatFilter] = useState("");
   const [kindFilter, setKindFilter] = useState("all");
   const [view, setView] = useState("room");
+  const [joinOpen, setJoinOpen] = useState("");
   const [mcpProbe, setMcpProbe] = useState(null);
   const feedRef = useRef(null);
   const textRef = useRef(null);
@@ -237,20 +240,12 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
   const readySeats = strip.filter((row) => row.ready);
   const liveSeats = strip.filter((row) => row.ready && (row.adapter !== "pull" || row.online));
   const offlineSeats = strip.filter((row) => !row.ready);
-  const seatBlockers = offlineSeats.map((row) => {
-    const noAdapter = String(row.missing || "").startsWith("HQ_SEAT_ADAPTER_");
-    const awaitingKey = row.adapter === "pull" && String(row.missing || "").startsWith("HQ_ROOM_CONNECTION_");
-    return {
-      id: `seat-${row.seatId}`,
-      seatId: row.seatId,
-      title: awaitingKey ? `${row.callsign} connected, waiting for its key` : `${row.callsign} offline`,
-      detail: awaitingKey
-        ? `Ask ${row.callsign} to run the pairing step, then approve its code in Seat key requests.`
-        : `${row.missing} is not set, so this seat gets no dispatches.`,
-      action: noAdapter ? "connect" : awaitingKey ? "disconnect" : "",
-      href: "",
-    };
-  });
+  const seatBlockers = seatBlockerRows(strip);
+  // A seat whose join panel is open stays listed after it comes online, so Mark can watch it arrive.
+  const joinedRow = joinOpen && !seatBlockers.some((item) => item.seatId === joinOpen) ? strip.find((row) => row.seatId === joinOpen) : null;
+  if (joinedRow) {
+    seatBlockers.push({ id: `seat-${joinedRow.seatId}`, seatId: joinedRow.seatId, title: `${joinedRow.callsign} is in`, detail: "No longer blocked.", action: "", href: "" });
+  }
   const blockers = [...(summary?.blockers || []), ...seatBlockers];
   // Never claim "no blockers" while the control-plane half is missing.
   const controlPlaneBlockers = !summary ? "loading" : summary.error ? "unavailable" : "ok";
@@ -309,8 +304,14 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
 
   useEffect(() => {
     if (!opened || tier === "spectator" || !connectionToken) return undefined;
-    verifyMcp(connectionToken, seat);
-  }, [opened, connectionToken, seat, tier, verifyMcp]);
+    let cancelled = false;
+    probeRoomMcp({ token: connectionToken, expectedSeat: seat }).then((result) => {
+      if (!cancelled) setMcpProbe(result);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [opened, connectionToken, seat, tier]);
 
   useEffect(() => {
     if (!opened || tier === "spectator" || !connectionToken) return undefined;
@@ -1258,8 +1259,25 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
               <ul className="hq-cc-list">
                 {blockers.map((item) => (
                   <li key={item.id}>
-                    <strong>{item.href ? <a href={item.href}>{item.title}</a> : item.title}</strong>
+                    <strong>
+                      {item.href ? (
+                        <a href={item.href}>{item.title}</a>
+                      ) : item.seatId ? (
+                        <button
+                          type="button"
+                          className="hq-sj-toggle"
+                          aria-expanded={joinOpen === item.seatId}
+                          onClick={() => setJoinOpen((current) => (current === item.seatId ? "" : item.seatId))}
+                        >
+                          {item.title}
+                          <span aria-hidden="true">{joinOpen === item.seatId ? " ▾" : " ▸"}</span>
+                        </button>
+                      ) : (
+                        item.title
+                      )}
+                    </strong>
                     {item.detail ? <span className="hq-cc-muted">{item.detail}</span> : null}
+                    {item.seatId && joinOpen !== item.seatId ? <span className="hq-cc-muted">Tap for its join link and prompt.</span> : null}
                     {isOperator && item.action === "connect" ? (
                       <button type="button" className="hq-cc-btn" disabled={posting} onClick={() => connectSeat(item.seatId, true)}>
                         Connect
@@ -1269,6 +1287,19 @@ export function RoomBoard({ tier, draft = true, connections = [], initialFeed = 
                       <button type="button" className="hq-cc-btn hq-cc-btn--quiet" disabled={posting} onClick={() => connectSeat(item.seatId, false)}>
                         Disconnect
                       </button>
+                    ) : null}
+                    {item.seatId && joinOpen === item.seatId ? (
+                      <SeatJoin
+                        key={item.seatId}
+                        row={strip.find((row) => row.seatId === item.seatId)}
+                        callsign={seatName(item.seatId)}
+                        stateLabel={SEAT_STATE_LABEL[seatState(item.seatId)] || seatState(item.seatId)}
+                        latestDispatch={latestDispatchBySeat.get(item.seatId)}
+                        lastPost={messages.reduce((last, message) => (message.seatId === item.seatId && (!last || message.createdAt > last.createdAt) ? message : last), null)}
+                        onRefresh={loadRoom}
+                        onLink={isOperator ? makeJoinLink : null}
+                        busy={posting}
+                      />
                     ) : null}
                   </li>
                 ))}

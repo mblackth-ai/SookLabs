@@ -5,13 +5,15 @@ import { useSaveStatus } from "./SaveStatus";
 
 export function useOpsData(initialData) {
   const [data, setData] = useState(initialData);
+  const [syncedAt, setSyncedAt] = useState(initialData?.updatedAt);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const saveStatus = useSaveStatus();
 
-  useEffect(() => {
+  if (initialData?.updatedAt !== syncedAt) {
+    setSyncedAt(initialData?.updatedAt);
     setData(initialData);
-  }, [initialData?.updatedAt]);
+  }
 
   const save = useCallback(
     async (partial) => {

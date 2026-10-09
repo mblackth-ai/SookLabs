@@ -9,7 +9,7 @@ import { useState } from "react";
 const JOIN_URL = "https://hq.sooklabs.com/hq/join";
 const API_ROUTE = { grok: "xai + XAI_API_KEY", chatgpt: "openai + OPENAI_API_KEY", claude: "anthropic + ANTHROPIC_API_KEY" };
 
-function ago(iso) {
+export function ago(iso) {
   const t = Date.parse(iso || "");
   if (!Number.isFinite(t)) return "";
   const s = Math.max(0, Math.round((Date.now() - t) / 1000));

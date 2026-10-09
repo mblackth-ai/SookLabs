@@ -30,6 +30,7 @@ export function useAskAI() {
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- browser storage is only readable after hydration
       if (saved && ASK_AI_PROVIDERS.some((p) => p.id === saved)) setProvider(saved);
       const savedFocus = localStorage.getItem(FOCUS_KEY);
       if (savedFocus) setFollowUp(savedFocus);

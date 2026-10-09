@@ -160,6 +160,10 @@ Planned read tools:
 - `rdusa_value_expansion`
 - `next_actions`
 
+Room MCP read tools on `/hq/api/room/mcp` (same read model as the room page, `lib/hq/room-summary.js`):
+- `hq_status` (covers planned `hq_status` and `pending_approvals`; includes control-plane `blockers`)
+- `hq_next_actions` (covers planned `next_actions`)
+
 Current Grok MCP v1 read tools:
 - `project_status`
 - `blockers`
