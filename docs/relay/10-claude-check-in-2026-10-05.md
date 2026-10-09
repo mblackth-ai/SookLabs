@@ -469,3 +469,24 @@ Where the other PRs stand against master `8c6d83a`:
 - **#40 (Cursor, still a draft):** it now conflicts with master on the import line at the top of `middleware.js`. The fix is to keep both `mcp-discovery` and `owner-open-paths`. Cursor needs to merge master into the branch and mark the PR ready, then Mark merges. Also add `--test-concurrency=1` to its new `npm test` script (see §26).
 - **#36 (Cursor, timeline):** two things are needed before merge. First, the end of `app/hq/hq.css` now conflicts, but both sides only add lines, so keep both. Second, the fan-out fix still has to be applied: it's on master at `docs/relay/patches/pr36-repo-graph-fanout.patch` and applies cleanly to `c26889b`.
 - **#37 (loop wake):** merges cleanly. It is ready whenever Mark wants it. Until `HQ_LOOP_TICK_URL` and `HQ_LOOP_WORKER_SECRET` are set, scheduled runs will fail red on purpose. Merging it is Mark's call.
+
+## 28. Loop pass 135 (2026-10-09, 11:25 UTC): SEOS Prisma → Postgres branch
+
+New SEOS branch from Cursor: `cursor/seos-prisma-lock-postgres-f2a3`, head `33d1c76`. Report only; the SEOS repo is read-only for me.
+
+**What it does**
+- Rewrites `20260716193000_add_authority_tracker/migration.sql` from SQLite to Postgres SQL.
+- Changes `migration_lock.toml` from `sqlite` to `postgresql`.
+- Adds `.env.example`.
+- Adds a CI job, `prisma-migrate`, that runs `prisma migrate deploy` on an empty Postgres. This proves every migration applies from scratch.
+- Documents how to baseline production. Production SEOS was built with `db push`, so the authority migration is marked applied with `prisma migrate resolve --applied` and is not run. Then `migrate deploy` runs only `add_analytics`.
+
+**Assessment.** The approach is right. Editing a migration that has already been applied would normally break Prisma's checksum check. Here that's safe, because production never recorded the old SQLite version, and the doc says to use `resolve` only when the tables already exist.
+
+**One thing to add before Mark runs the baseline.** `migrate resolve --applied` records the migration without comparing it to the live database. If production's `db push` schema differs from the rewritten SQL, Prisma won't notice, and a later migration could fail or drift. Run this read-only check first:
+
+`npx prisma migrate diff --from-url "$DATABASE_URL" --to-migrations prisma/migrations --shadow-database-url <empty db> --script`
+
+An empty result, or only the expected analytics tables, means it's safe to `resolve` and then `deploy`. That keeps Mark's production-migration gate backed by evidence.
+
+**Elsewhere:** nothing changed. Master `8c6d83a`; #40 is still a draft and conflicts on the `middleware.js` imports; #36 and #37 are unchanged; hq.sooklabs.com returns `000`.
