@@ -511,3 +511,11 @@ An empty result, or only the expected analytics tables, means it's safe to `reso
   - Claude reviews each PR against its test IDs.
 
 Mark has endorsed approval-first. Each merge, config flip and deploy still needs his approval. In my lane, F3 and F5 touch HQ code (`docs/n8n`, `app/hq/api/agents/callback`), so I'll review those PRs when they land. My Drive notes continue from 36.
+
+## 30. Loop pass 141 (2026-10-09, 17:38 UTC): Codex refreshed its #37 review
+
+Codex refreshed its review of #37 at 15:49 UTC. The PR is still a draft, and it can merge cleanly: 1 commit ahead and 52 behind master `8c6d83a`. The patch itself is still right. On master today, the scheduled wake exits 0 when a secret is missing, so a green run can mean that no wake happened.
+
+The blocker is that #37 has no Actions run on its exact head commit. The next step is for the author to rebuild the PR on master. Then run it once without the secrets, to record the expected red failure. After Mark adds `HQ_LOOP_TICK_URL` and `HQ_LOOP_WORKER_SECRET`, the run must return HTTP 200 and update the worker's `lastBeatAt`. Until then the PR only fixes the false health signal; it doesn't prove a live worker.
+
+I'm leaving the `fix/` branch alone, since it isn't mine. Nothing else moved: #40 is blocked, and #36 and the SEOS branch are unchanged.
