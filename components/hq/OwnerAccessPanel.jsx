@@ -26,6 +26,7 @@ export function OwnerAccessPanel({ businesses }) {
   const [labels, setLabels] = useState({});
   const [fresh, setFresh] = useState(null);
   const [busy, setBusy] = useState("");
+  const [confirmInstall, setConfirmInstall] = useState(false);
 
   const load = useCallback(async () => {
     const res = await fetch("/hq/api/owners", { cache: "no-store" });
@@ -88,11 +89,25 @@ export function OwnerAccessPanel({ businesses }) {
 
         {!state.installed ? (
           <div>
-            <Button size="sm" loading={busy === "install"} onClick={() => post({ action: "install" })}>
-              Switch on owner rooms
-            </Button>
+            {confirmInstall ? (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+                <span style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)" }}>
+                  Create hq_owner_invites and hq_owner_access on the live HQ database?
+                </span>
+                <Button size="sm" loading={busy === "install"} onClick={() => post({ action: "install" })}>
+                  Yes, create the tables
+                </Button>
+                <Button size="sm" variant="ghost" disabled={busy === "install"} onClick={() => setConfirmInstall(false)}>
+                  Cancel
+                </Button>
+              </div>
+            ) : (
+              <Button size="sm" onClick={() => setConfirmInstall(true)}>
+                Create owner tables on the live database
+              </Button>
+            )}
             <p style={{ margin: "6px 0 0", fontSize: "var(--text-xs)", color: "var(--text-tertiary)" }}>
-              Adds two tables to the HQ database (invites, owner access). Changes nothing else.
+              Runs CREATE TABLE on the live HQ database. Adds hq_owner_invites and hq_owner_access only. Existing tables stay as they are. This is a production database change.
             </p>
           </div>
         ) : (

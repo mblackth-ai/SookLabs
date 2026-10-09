@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { HQ_COOKIE, resolveSessionSecret, verifySessionToken } from "@/lib/hq/auth";
+import { isOwnerPublicPath } from "@/lib/hq/owner-open-paths";
 
 function isHqHost(host) {
   return host === "hq.sooklabs.com" || host === "hq.localhost";
@@ -83,10 +84,7 @@ export async function middleware(request) {
     pathname.startsWith("/hq/join/") ||
     pathname === "/hq/api/room" ||
     pathname.startsWith("/hq/api/room/") ||
-    // Owner rooms: the pages and routes check the owner cookie / one-time link themselves.
-    pathname === "/hq/client" ||
-    pathname.startsWith("/hq/client/") ||
-    pathname.startsWith("/hq/api/client/");
+    isOwnerPublicPath(pathname);
   if (isOpenPath) {
     const res = rewroteHost ? NextResponse.rewrite(url) : NextResponse.next();
     return withSecurityHeaders(res);

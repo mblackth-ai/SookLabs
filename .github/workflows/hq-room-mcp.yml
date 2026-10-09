@@ -9,6 +9,13 @@ on:
       - "lib/hq/dispatch-outcome.js"
       - "lib/hq/join-guide.js"
       - "app/hq/api/room/**"
+      - "app/hq/api/client/redeem/**"
+      - "middleware.js"
+      - "lib/hq/owner-open-paths.js"
+      - "lib/hq/owner-open-paths.test.js"
+      - "lib/hq/owner-join-errors.js"
+      - "lib/hq/owner-redeem.test.js"
+      - "lib/hq/owner-portal.js"
       - ".cursor/mcp.json"
       - ".github/workflows/hq-room-mcp.yml"
   pull_request:
@@ -18,6 +25,13 @@ on:
       - "lib/hq/dispatch-outcome.js"
       - "lib/hq/join-guide.js"
       - "app/hq/api/room/**"
+      - "app/hq/api/client/redeem/**"
+      - "middleware.js"
+      - "lib/hq/owner-open-paths.js"
+      - "lib/hq/owner-open-paths.test.js"
+      - "lib/hq/owner-join-errors.js"
+      - "lib/hq/owner-redeem.test.js"
+      - "lib/hq/owner-portal.js"
       - ".cursor/mcp.json"
       - ".github/workflows/hq-room-mcp.yml"
 
@@ -37,4 +51,6 @@ jobs:
             lib/hq/room-stream-client.test.js \
             lib/hq/cursor-mcp-config.test.js \
             lib/hq/room-status.test.js \
-            lib/hq/room-public-status.test.js
+            lib/hq/room-public-status.test.js \
+            lib/hq/owner-open-paths.test.js \
+            lib/hq/owner-redeem.test.js

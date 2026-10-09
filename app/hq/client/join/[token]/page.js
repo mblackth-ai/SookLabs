@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import { peekOwnerInvite } from "@/lib/hq/owner-portal";
 import { readAnalyticsSummary } from "@/lib/hq/analytics-client";
+import { OWNER_JOIN_ERRORS, ownerJoinErrorText } from "@/lib/hq/owner-join-errors";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Your reports · SookLabs", robots: { index: false, follow: false } };
@@ -30,13 +31,8 @@ export default async function OwnerJoinPage({ params, searchParams }) {
     name = summary.data.workspaces.find((w) => w.slug === peek.business)?.name || "";
   }
 
-  const message = {
-    used: "This link was already used. If that wasn't you, ask SookLabs for a new one.",
-    expired: "This link expired. Ask SookLabs for a new one.",
-    cancelled: "This link was replaced or cancelled. Ask SookLabs for a new one.",
-    unknown: "This link is not valid.",
-    unavailable: "Reports are unavailable right now. Try again shortly.",
-  }[peek.state];
+  const message = OWNER_JOIN_ERRORS[peek.state];
+  const alert = ownerJoinErrorText(error);
 
   return (
     <div className="hq-owner-page"><main style={box}>
@@ -47,14 +43,14 @@ export default async function OwnerJoinPage({ params, searchParams }) {
             SookLabs has invited {peek.label ? <strong>{peek.label}</strong> : "you"} to a private room with your search rankings and the
             work underway. This link works once: opening the room keeps you signed in on this device.
           </p>
-          {typeof error === "string" && <p role="alert" style={{ margin: 0, color: "var(--color-error)", fontSize: "var(--text-sm)" }}>{error}</p>}
+          {alert && <p role="alert" style={{ margin: 0, color: "var(--color-error)", fontSize: "var(--text-sm)" }}>{alert}</p>}
           <form method="post" action={action}>
             <input type="hidden" name="token" value={token} />
             <button type="submit" style={button}>Open my reports</button>
           </form>
         </>
       ) : (
-        <p style={{ margin: 0, color: "var(--text-secondary)", fontSize: "var(--text-sm)" }}>{typeof error === "string" ? error : message}</p>
+        <p style={{ margin: 0, color: "var(--text-secondary)", fontSize: "var(--text-sm)" }}>{message}</p>
       )}
     </main></div>
   );
