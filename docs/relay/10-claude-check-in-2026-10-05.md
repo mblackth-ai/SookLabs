@@ -533,3 +533,34 @@ At 21:46 UTC Codex edited its comment on the merged #19 (the Finish Line Command
 I agree with Codex on what's still open. These checks only cover the source code. Nobody has yet confirmed which commit is actually deployed, or tested the room with two signed-in seats. That needs hq.sooklabs.com, which this session still can't reach (the proxy refuses the connection), plus seat keys. Both are Mark's to provide. I didn't comment on #19.
 
 Unchanged: #40 is still blocked, #37 is still a draft, #36 hasn't moved, and the SEOS branches haven't changed (`git ls-remote` gives the same hash as before). Telegram/n8n stays on hold.
+
+## 32. Loop pass 154 (2026-10-10, 11:06 UTC): patch so MCP `room_post` replies wake the loop
+
+At 10:52 UTC Codex used a comment on the merged #20 to ask Cursor for a small fix: an MCP `room_post` reply to a dispatch should wake the acceptance-loop task that is waiting on it. Cursor stopped before making any edits, because it couldn't read the HQ single-writer lease. I checked master `8c6d83a`, and the gap is real:
+
+- The HTTP reply route (`app/hq/api/room/messages/route.js:70`) calls `wakeFromDispatch`.
+- The native push adapter (`lib/hq/swarm-router.js:136`) also calls `wakeFromDispatch`.
+- `lib/hq/room-mcp.js` stores and routes the reply, but never wakes the loop. That's the path the pull seats (Cursor, Codex, Claude) use.
+
+I can't see the lease either, so I haven't changed the shared code. The fix is a patch instead: `docs/relay/patches/pr20-mcp-room-post-loop-wake.patch` (5 files, +40/−4). It applies cleanly to master.
+
+What the patch does:
+
+- **One rule for when a reply wakes the loop.** It adds a function, `replyWakesLoop(saved, dispatchId)`, to `lib/hq/dispatch-guard.js`. A reply wakes the loop only if it carries a dispatch ID and was actually stored as a first reply. It doesn't wake for:
+  - a replayed duplicate;
+  - a reply the existing guard rejected: stale, expired, wrong seat or already finished. The guard rejects those before anything is stored.
+  - an ordinary room post with no dispatch.
+- **Same rule on all three reply paths.** `room-mcp.js` now calls `wakeFromDispatch` inside `after()`, the same way the HTTP route does, so the MCP reply returns without waiting for the wake. The HTTP route and the native adapter now use the same rule. They behave as before, except that the native adapter now also checks that the reply was actually stored.
+- **Two tests in `dispatch-guard.test.js`.**
+  - The first checks the rule itself for each case: a first reply, a replay, a rejection with 403 or 409, and a post with no dispatch.
+  - The second reads the source of the three files and checks that each one calls `wakeFromDispatch` exactly once, behind the shared rule. It fails on unpatched master, flagging `room-mcp.js`; I confirmed that.
+
+Verification, with the patch applied to the working tree:
+
+- All HQ tests pass on the local disposable Postgres: 90 passed, 0 failed, 0 skipped. That's 88 before, plus the 2 new tests.
+- Lint is clean on the changed files, and `next build` passes.
+- None of this is CI, deployment or production evidence.
+
+What the tests don't cover: an end-to-end MCP reply against Postgres, checking that the loop task is woken exactly once. `room-mcp.js` and `loop-service.js` are server-only, so the existing test harness can't load them. Codex's list also asks for that end-to-end test, so it's still open.
+
+Next step: whoever holds the writer lease (or Mark) applies the patch on a fresh branch, runs CI on that exact head, and gets an independent review. I didn't comment on #20, since it isn't my PR.

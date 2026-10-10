@@ -1,0 +1,134 @@
+diff --git a/app/hq/api/room/messages/route.js b/app/hq/api/room/messages/route.js
+index bfbb5c6..49ddbd8 100644
+--- a/app/hq/api/room/messages/route.js
++++ b/app/hq/api/room/messages/route.js
+@@ -5,6 +5,7 @@ import { clampRoomLimit, normalizeChannel, roomBoardRows } from "@/lib/hq/swarm-
+ import { processQueued, routeMessage, seatStrip } from "@/lib/hq/swarm-router";
+ import { seatEnv } from "@/lib/hq/seat-auth";
+ import { wakeFromDispatch } from "@/lib/hq/loop-service";
++import { replyWakesLoop } from "@/lib/hq/dispatch-guard";
+ 
+ export const dynamic = "force-dynamic";
+ export const runtime = "nodejs";
+@@ -67,7 +68,7 @@ export async function POST(request) {
+   }
+   if (saved.error) return json({ ok: false, error: saved.error.error }, saved.error.status);
+   // A reply to a dispatch may be what an execution-loop task is waiting on.
+-  if (dispatchId && !saved.deduped) after(() => wakeFromDispatch(dispatchId));
++  if (replyWakesLoop(saved, dispatchId)) after(() => wakeFromDispatch(dispatchId));
+ 
+   // The message is committed. Routing is separate: if it fails, the post still stands.
+   let dispatches = [];
+diff --git a/lib/hq/dispatch-guard.js b/lib/hq/dispatch-guard.js
+index 513803e..12ffe97 100644
+--- a/lib/hq/dispatch-guard.js
++++ b/lib/hq/dispatch-guard.js
+@@ -19,3 +19,9 @@ export function dispatchReplyError(dispatch, { seatId, expectedAttempt = null, n
+   }
+   return null;
+ }
++
++// A stored first reply to a dispatch may be what an execution-loop task is waiting on.
++// Rejected (stale, expired, wrong-seat, terminal) and replayed replies wake nothing.
++export function replyWakesLoop(saved, dispatchId) {
++  return Boolean(dispatchId) && Boolean(saved?.message) && !saved.error && !saved.deduped;
++}
+diff --git a/lib/hq/dispatch-guard.test.js b/lib/hq/dispatch-guard.test.js
+index ed08e04..32a96fc 100644
+--- a/lib/hq/dispatch-guard.test.js
++++ b/lib/hq/dispatch-guard.test.js
+@@ -1,6 +1,7 @@
+ import assert from "node:assert/strict";
+ import test from "node:test";
+-import { dispatchReplyError } from "./dispatch-guard.js";
++import { readFileSync } from "node:fs";
++import { dispatchReplyError, replyWakesLoop } from "./dispatch-guard.js";
+ 
+ const now = Date.parse("2026-10-03T12:00:00Z");
+ const row = (extra = {}) => ({
+@@ -36,3 +37,24 @@ test("native attempts are fenced; unversioned external reply contract is retaine
+ test("an owning-seat duplicate may replay its prior reply but cannot replace it", () => {
+   assert.equal(gate(row({ status: "responded", replyMessageId: "old", leaseUntil: "" }), { expectedAttempt: 1 }), null);
+ });
++
++test("only a stored first reply to a dispatch wakes the loop", () => {
++  const message = { id: "m1" };
++  assert.equal(replyWakesLoop({ message, deduped: false }, "d1"), true);
++  // Replay returns the stored reply and wakes nothing again.
++  assert.equal(replyWakesLoop({ message, deduped: true }, "d1"), false);
++  // Stale, expired, wrong-seat and terminal replies are rejected before anything is stored.
++  for (const status of [403, 409]) {
++    assert.equal(replyWakesLoop({ error: { status, error: "rejected" } }, "d1"), false);
++  }
++  // Ordinary room posts carry no dispatch.
++  assert.equal(replyWakesLoop({ message, deduped: false }, null), false);
++  assert.equal(replyWakesLoop({ message, deduped: false }, ""), false);
++});
++test("HTTP, MCP and native reply paths all wake through the same gate", () => {
++  for (const file of ["../../app/hq/api/room/messages/route.js", "./room-mcp.js", "./swarm-router.js"]) {
++    const src = readFileSync(new URL(file, import.meta.url), "utf8");
++    assert.match(src, /if \(replyWakesLoop\([^)]*\)\)[^\n]*wakeFromDispatch\(/, file);
++    assert.equal((src.match(/wakeFromDispatch\(/g) || []).length, 1, file);
++  }
++});
+diff --git a/lib/hq/room-mcp.js b/lib/hq/room-mcp.js
+index 3c013b0..5869c33 100644
+--- a/lib/hq/room-mcp.js
++++ b/lib/hq/room-mcp.js
+@@ -1,4 +1,5 @@
+ import "server-only";
++import { after } from "next/server";
+ import { gateRoomKind, normalizeBaton, normalizeBody, normalizeChannel, normalizeKind, normalizeRefs, roomBoardRows, boardMarkdown } from "./swarm-contract";
+ import { listRoomMessages, postRoomRecord, recordMcpCall, touchRoomSeat } from "./swarm";
+ import { claimDispatch, inboxFor, routeAndProcess, seatStrip } from "./swarm-router";
+@@ -8,6 +9,8 @@ import { seatBlockerRows, seatRows, summarizeSnapshot } from "./room-summary.js"
+ import { seatEnv } from "./seat-auth.js";
+ import { currentApprovers, decideEnrollment, listEnrollments } from "./seat-enroll.js";
+ import { enrollUnavailable } from "./seat-enroll-http.js";
++import { replyWakesLoop } from "./dispatch-guard.js";
++import { wakeFromDispatch } from "./loop-service";
+ 
+ const ROOM_TOOLS = ["room_read", "room_post", "room_board", "room_inbox", "room_claim", "room_enroll_pending", "room_enroll_decide", "hq_status", "hq_next_actions"];
+ const BLOCKED_TOOLS = ["promote", "broadcast", "room_promote", "room_broadcast"];
+@@ -90,6 +93,7 @@ export async function callRoomMcp({ name, args, seat, tokenHash, authError }) {
+   if (!refs.ok) return refs;
+   const baton = normalizeBaton(args?.baton, kind.kind);
+   if (!baton.ok) return baton;
++  const dispatchId = String(args?.dispatchId || "").trim() || null;
+   const saved = await postRoomRecord({
+     seatId: seat,
+     tokenHash,
+@@ -98,9 +102,11 @@ export async function callRoomMcp({ name, args, seat, tokenHash, authError }) {
+     body: text.body,
+     refs: refs.refs,
+     baton: baton.baton,
+-    dispatchId: String(args?.dispatchId || "").trim() || null,
++    dispatchId,
+   });
+   if (saved.error) return { ok: false, ...saved.error };
++  // Same wake as the HTTP post: the pull-seat reply may be what a loop task is waiting on.
++  if (replyWakesLoop(saved, dispatchId)) after(() => wakeFromDispatch(dispatchId));
+   // Same rules as the HTTP post: an agent message reaches others only by @mention or baton.
+   if (!saved.deduped) await routeAndProcess(saved.message);
+   return { ok: true, message: saved.message, deduped: saved.deduped };
+diff --git a/lib/hq/swarm-router.js b/lib/hq/swarm-router.js
+index f470164..6ec87d5 100644
+--- a/lib/hq/swarm-router.js
++++ b/lib/hq/swarm-router.js
+@@ -13,6 +13,7 @@ import {
+   seatPresenceFor,
+ } from "./swarm-routing";
+ import { seatEnv } from "./seat-auth";
++import { replyWakesLoop } from "./dispatch-guard.js";
+ import {
+   findDispatch,
+   findRoomMessage,
+@@ -133,7 +134,7 @@ export async function processDispatch(id) {
+     // The reply is an agent post: it only reaches others by explicit @mention or baton.
+     if (!reply.deduped) await routeAndProcess(reply.message);
+     // An execution-loop task may be waiting on this dispatch (dynamic import avoids a cycle).
+-    if (!reply.deduped) await import("./loop-service").then((m) => m.wakeFromDispatch(claimed.id)).catch(() => {});
++    if (replyWakesLoop(reply, claimed.id)) await import("./loop-service").then((m) => m.wakeFromDispatch(claimed.id)).catch(() => {});
+     return reply.message;
+   } catch (error) {
+     console.error("room dispatch failed", claimed.seatId, claimed.adapter, error?.status || "");
