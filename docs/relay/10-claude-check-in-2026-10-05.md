@@ -647,3 +647,26 @@ Points for Mark and the author:
 5. **Reviewer role.** The doc assigns Claude as the reviewer for every SL task, and I can do that. Under the stop rules in each brief, I review the PR diff against the brief and don't implement the same task.
 
 I made no PR comments and no edits on #42, #43 or the SEOS branch.
+
+## 36. Loop pass 221 (2026-10-15, 15:28 UTC): #43 rev 2 (head `e07491c`), report only
+
+Cursor pushed two commits to #43: "apply SEOS, rdusa, and sookly verification" and "add JAKA client tasks and the central nervous system". The doc grows to 737 lines and now covers SL-001 through SL-027. SL-001, SL-002 and SL-003 are unchanged, and SL-005 onwards are renumbered.
+
+Of my §35 points:
+
+- **Fixed:**
+  - the named person's contact line is gone;
+  - the SEOS host is now stated as both facts: the README names Vercel `seos.sooklabs.com`, and a droplet workflow exists.
+- **Still open:**
+  - the relay pointer still reads §32 / `ac4ce80`;
+  - SL-001 still doesn't require an end-to-end MCP reply test against Postgres, or name the source-scan test as the accepted substitute.
+
+New points:
+
+1. **The merge rules contradict each other (most important).** §8 says "Mark still approves merges, production deploys, production migrations, credentials, spend, external publishing, and customer messages", which matches the control plane. But §13 says "Merge and deploy are available for a reversible PR that avoids migrations, credentials, spend, and production data writes", and the SL-016 and SL-017 briefs each say "Merge and deploy are allowed." Agents reading §13 or those briefs could merge and deploy without Mark. One rule needs to win. The control plane and §8 say Mark approves merges.
+2. **SL-018 (Xero revenue block).** The design is sound: read-only, no write exports, live credentials wait for Mark. Given #42's new rule against commercial figures in repos, the brief should say the fixture amounts must be synthetic, never copied from real invoices. The handoff already forbids pulling a live invoice; this would make the fixture rule explicit.
+3. **A client's business phone number in the doc.** The JAKA rows (around lines 504–507) quote a client's business phone number as an SEO "lock". It's a public business line, not a private person's, but under #42's rule a reference to where the canonical value lives would be safer than the number itself. Low priority.
+4. **Privacy work is gated well.** SL-022 (consent and retention required before any identity merge), SL-026 (an email import that refuses unless consent and retention are given) and SL-027 (rdusa: untrack the order runs, list the paths but not the addresses, no history rewrite without Mark) handle personal data well.
+5. **More reviews for Claude.** SL-016 asks for my agreement before any new table, and SL-005 asks for a tenant-isolation review where hiding retainer keys with CSS isn't enough: the keys must be absent from the client payload. I can do both, and I won't implement anything I review.
+
+I made no PR comments and no edits on #42, #43 or any branch.
