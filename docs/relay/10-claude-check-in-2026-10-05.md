@@ -682,3 +682,42 @@ So the conflict is with HQ's canonical sources, not inside the doc:
 - `lib/hq/loop-policy.js` line 69 prohibits "bypassing merge/deploy/migration gates".
 
 A design doc can't loosen those gates. Codex's #42 review applies the same principle: the canonical source wins. If Mark wants agents to merge and deploy reversible PRs, that's a change to the control plane and loop policy for Mark to make himself. Until then, #43 should say Mark approves merges and deploys.
+
+## 37. Loop pass 222 (2026-10-15, 16:03 UTC): Claude architecture and security review of #44 (SL-001), report only
+
+#44, "Record an SL handoff on the existing room seats". Branch `cursor/sl-001-room-handoff-7ae3`, head `1acd5c8`, 15 files, +682/−12. It's marked ready for review, not draft. #43 names Claude as SL-001's architecture and security reviewer, and this is that review against the SL-001 brief. I haven't posted it on the PR.
+
+**How the work was split.** The brief says Codex implements, Claude reviews, a fresh Cursor session validates, and Mark approves. On #44:
+
+- both commits (`7262689`, `1acd5c8`) are authored by "Cursor Agent";
+- the "Independent review — PASS" comment comes from `cursor[bot]`, and that review's fixes are commit `1acd5c8` on the same branch.
+
+So no review by a seat that didn't write code on the branch existed before this one. The brief also says "Stop after the draft PR", and #44 isn't a draft.
+
+**What holds. I reproduced these on a disposable Postgres, using an exported copy of the head with no checkout of the branch:**
+
+- **Tests:** 102 passed, 0 failed, 0 skipped with `node --test --test-concurrency=1 lib/hq/*.test.js`. That matches the PR.
+- **Wake rule:** `replyWakesLoop` is identical to my §32 patch. HTTP, MCP and the native adapter each call `wakeFromDispatch` once, behind that rule, and `room-mcp.js` uses `after()` the same way the HTTP route does. The new PG tests run the rule on real stored results (first reply true, rejected and replayed false). There's still no test that drives an MCP `room_post` end to end and sees the loop task woken, so the gap §32 lists is narrowed but not closed.
+- **SL fields survive.** `slId` and `reviewer` come through `normalizeBaton`, `reviewer === to` is rejected (including callsign variants), and the promotion YAML includes the two fields.
+- **Who sets which status:**
+  - The assignee can't post `reviewed` or a decision.
+  - `reviewed` needs the reviewer seat and a `doc` or `pr` ref.
+  - Only `mark` can set `approved`.
+  - Authors are stamped from the seat key on both HTTP and MCP.
+- **Each SL id is bound to its first baton.** Later posts can't change the assignee or reviewer. On Postgres this check runs inside the advisory lock, and in the file store inside the write.
+- **No new table or tool.** No MCP tool was added, and promote and broadcast stay blocked.
+
+**Findings:**
+
+1. **Medium: any seat can claim a new SL id first.** Nothing restricts who posts the *first* baton for an `slId`. I tested `gateStoredSlPost` directly:
+   - Seat `codex` posting the first `SL-002` baton with `to: gemini, reviewer: codex, status: dispatched` is accepted.
+   - Grok's real dispatch afterwards (`to: codex, reviewer: claude`) is then refused with 403 "already has an assignee and a reviewer".
+
+   So a seat can name itself reviewer of a task it shouldn't review, and block the real handoff. That's the self-approval risk this review is meant to catch. Suggested fix: only the dispatching seats (`grok`, `mark`) may create the binding, meaning the first `dispatched` baton for an id.
+2. **Low: an uninvolved seat can change a bound card's status.** In the same test, an uninvolved seat posting `blocked` on a bound card is accepted, so any seat can make a handoff look blocked or claimed. Suggest limiting `claimed`, `in_review` and `blocked` to the assignee and reviewer, plus `grok` or `mark`.
+3. **Low: the binding can be lost when history is trimmed.** The binding lives only in room history. The PR notes this for the file store's 500-message cap, and the Postgres path's rejection query depends on the rows staying. Once the first baton is pruned, the id can be bound again. That's acceptable for now if it's written down as a known limit.
+4. **Note: statuses can come in any order.** For example, `reviewed` can be posted before any `pr` ref from the assignee, and `approved` before `reviewed`. The brief doesn't require an order, so this is Mark's call, not a defect.
+
+**Verdict.** Approve once finding 1 is fixed and the work split above is acknowledged. Findings 2–4 can follow later. Merging is Mark's call.
+
+I made no PR comment, no review submission and no edits on the branch.
