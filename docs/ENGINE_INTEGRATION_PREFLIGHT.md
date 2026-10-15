@@ -10,9 +10,9 @@ Draft governance PRs are **guidance only**. Do not merge them and do not cite th
 | PR | Head observed this run | Role |
 | --- | --- | --- |
 | [SookLabs #42](https://github.com/mblackth-ai/SookLabs/pull/42) | `d493ec47e6037df4815e1f365dbc65f7d9d0c506` on `docs/ecosystem-alignment-20261015`, draft, mergeable | Proposed cross-repo contract. Read via the GitHub API. |
-| [SEOS #12](https://github.com/mblackth-ai/SEOS/pull/12) | **UNVERIFIED** | Named by Mark. This run's GitHub credential cannot see the private SEOS repo. |
-| [rdusa #6](https://github.com/mblackth-ai/rdusa/pull/6) | **UNVERIFIED** | Same credential limit. |
-| [sookly-omnichat #93](https://github.com/mblackth-ai/sookly-omnichat/pull/93) | **UNVERIFIED** | Same credential limit. |
+| [SEOS #12](https://github.com/mblackth-ai/SEOS/pull/12) | Open draft, checks green. SEOS main `f4505d4` (pass `bc-ccf9eeca`) | Governance only. Do not merge from this preflight. |
+| [rdusa #6](https://github.com/mblackth-ai/rdusa/pull/6) | One of six open drafts on rdusa main `839532a` (pass `bc-d0a012b4`). No CI on the repo | Governance only. Do not merge. |
+| [sookly-omnichat #93](https://github.com/mblackth-ai/sookly-omnichat/pull/93) | Repo verified at main `777ce576` (pass `bc-79f72035`). The pass did not quote #93's diff. 36 open PRs, including stale #3 and red or stale drafts #14, #16, #18–#25, #58 | Leave the governance draft unmerged. Do not treat it as the kanban, which is already on main. |
 
 No production code, migrations, deploys, or external writes were made while writing this file.
 
@@ -23,28 +23,30 @@ No production code, migrations, deploys, or external writes were made while writ
 | PRESENT | Read in SookLabs `master` at `8c6d83a` this run. |
 | RECORDED | Written in a SookLabs file about another repo or a live system. The file exists. The remote claim was not re-checked against that system this run. |
 | PROPOSED | A design in this document or in unmerged guidance. Not built. |
-| UNVERIFIED | Not observed. Do not treat as fact. |
+| UNKNOWN | Looked for in a verification pass and not identified. |
 
 Agent reports are claims. A green CI URL stored in `data/hq/ops.json` is RECORDED evidence of a past run, not a fresh production PASS.
 
 ## 1. What this run could and could not see
 
-The GitHub credential in this environment can read `mblackth-ai/SookLabs` and the public user repos `learnseo`, `Conversation-Automator`, and `dogecoin-uk`. Clones and raw URLs for `mblackth-ai/SEOS`, `mblackth-ai/rdusa`, and `mblackth-ai/sookly-omnichat` returned "repository not found" / HTTP 404. Those trees were not opened. Canonical files named by `lib/hq/loop-policy.js` were not read:
+This environment's GitHub credential cannot clone the private sibling repos. Three later read-only passes did:
 
-- `sookly-control/release-matrix.md`, `current-state.md`, `active-tracks.md`
-- `docs/SEOS-MVP-1.md`, `docs/mvp-smoke-checklist.md`, `docs/agent/DECISIONS.md`
-- `rdusa-retainer-growth-system-v2/00_INDEX/RDUSA_RETAINER_GROWTH_SYSTEM_INDEX.md` and the promise-map, next-actions, and 2026-10-01 governance paths
+| Repo | Pass | Main |
+| --- | --- | --- |
+| SEOS | `bc-ccf9eeca` | `f4505d4` |
+| rdusa | `bc-d0a012b4` | `839532a` |
+| sookly-omnichat | `bc-79f72035` | `777ce576` |
 
-Vercel MCP on team `mblackth-ai's projects` (`team_yps0YDzhZHS17S0sjE0Q8rG0`) returned zero projects. DigitalOcean Apps list returned an empty list. Deployed git SHAs are **UNVERIFIED**. Quo MCP is unauthenticated; no Quo tool was called.
+Vercel MCP on team `mblackth-ai's projects` returned zero projects. DigitalOcean Apps list was empty. Live deploy SHAs were not in those passes. Quo MCP is unauthenticated. Quo and Xero have no application code in SookLabs, SEOS, rdusa, or sookly-omnichat (rdusa has docs only). Sookly has no migration pending in git. Whether production applied the 3 Oct migrations is unconfirmed; PR #62 claims they were applied.
 
 Public HTTP this run (no login, no mutation):
 
 | Host | Observed | Deployed SHA |
 | --- | --- | --- |
-| `https://hq.sooklabs.com` | HTTP 200, `server: Vercel`, title "SookLabs HQ" | UNVERIFIED |
-| `https://seos.sooklabs.com` | HTTP 200, `server: Vercel`, title "SookLabs Expansion OS" | UNVERIFIED |
-| `https://www.sookly.co/en` | HTTP 200 after redirects from `sookly.co`, `server: Vercel` | UNVERIFIED |
-| `https://retaildisplayusa.com/` | HTTP 202 from nginx, HTML refresh to `/.well-known/sgcaptcha/` (SiteGround captcha) | CMS, Joomla version, and article API UNVERIFIED |
+| `https://hq.sooklabs.com` | HTTP 200, `server: Vercel`, title "SookLabs HQ" | Live SHA not in the passes |
+| `https://seos.sooklabs.com` | HTTP 200, `server: Vercel`, title "SookLabs Expansion OS". SEOS README names this Vercel host. A droplet workflow also exists | Live SHA not in the passes. Repo main is `f4505d4` |
+| `https://www.sookly.co/en` | HTTP 200 after redirects from `sookly.co`, `server: Vercel` | Live SHA not in the passes. Repo main is `777ce576` |
+| `https://retaildisplayusa.com/` | HTTP 202 from nginx, SiteGround captcha (`sgcaptcha`) | Joomla client is `rdusa/scripts/joomla-publisher.mjs` (API v1). Live article id was not fetched |
 
 `lib/hq/control-plane.js` still contains a retainer amount field (`currentRetainerUsd`). This preflight does not copy that number. New docs, PRs, and room posts must not copy commercial figures. SookLabs #42 already proposes that rule; it is not merged.
 
@@ -60,7 +62,7 @@ Mark (HQ session or seat "mark")
   → evidence refs checked only when HQ_GITHUB_TOKEN is set (docs/HQ-DEVELOPER.md)
   → promote (Mark, HTTP only) writes room/log, never master
 
-SEOS (other repo, UNVERIFIED source)
+SEOS (main `f4505d4`, pass `bc-ccf9eeca`)
   ← HQ server reads GET /api/authority/hq-summary     lib/hq/authority-client.js
   ← HQ server reads GET /api/analytics/hq-summary     lib/hq/analytics-summary.js
   ← HQ server can PATCH authority approvals           lib/hq/authority-client.js decideAuthorityApproval
@@ -121,13 +123,13 @@ Postgres tables are created from JavaScript, not Prisma. `data/hq/schema.sql` on
 | New SL task database | Defer / do not build | — | `docs/HQ-MCP-CONTROL-PLANE.md` forbids a parallel checklist store. |
 | MCP write tools for merge, deploy, publish | Defer | Room MCP blocked list | Human gates stay outside MCP. |
 | Internal MCP GitHub reads | Reuse | `services/sooklabs-mcp` | SookLabs repo only. Do not point it at SEOS. |
-| Joomla draft → publish | Extend later, read-only first | `lib/hq/content-draft.js` is the approval rule | No CMS client PRESENT. Publication source of truth stays Joomla once identified. |
+| Joomla draft → publish | Extend later, read-only first | Approval rule is `lib/hq/content-draft.js`. The API client is `rdusa/scripts/joomla-publisher.mjs` (Joomla API v1). SEOS has no Joomla code | SL-011 wraps a read on the rdusa client. Do not add a second client in SEOS. |
 | GSC / GA4 numbers inside HQ | Reuse the SEOS summary | `lib/hq/analytics-summary.js`, `/hq/reports` | HQ must not add a second Google pull. |
 | Shared metric definitions | Extend | New pure checker beside the analytics client | Reject attribution claims. Do not invent a warehouse. |
-| SEOS Knowledge Base, Refactor Studio, social connectors | Reuse in SEOS | Paths only RECORDED (`src/lib/social-connectors.ts` in ops links) | Source UNVERIFIED this run. |
-| Sookly receptionist, inbox, contacts | Reuse in sookly-omnichat | Release matrix is the acceptance authority | Source UNVERIFIED. Do not rebuild CRM in HQ. |
-| Andolw CRM | Defer | Discovery only | Identity UNVERIFIED. Do not replace or fork. |
-| Quo call content | Defer | Quo MCP needs auth | No private call content by default. |
+| SEOS Knowledge Base, Refactor Studio, social connectors | Reuse | Present on SEOS main. Connectors registry is on main. Lifecycle tests are only on `cursor/seos-social-control-plane-mvp1` @ `a256ad2`. Nothing writes knowledge-kind state | Do not rebuild them in HQ. |
+| Sookly receptionist, inbox, contacts, kanban | Reuse | `ContactsKanbanBoard.tsx` (`cac0648`) and `contact-crm-lifecycle.ts` are on sookly main. Roles `admin` / `agent` / `viewer`. API keys are per workspace. Human approval gate is present | SL-021 extends the board. Do not build a second one. |
+| Andrew's CRM | Defer | Product name, URL, and API are UNKNOWN after the rdusa pass. Discovery is SL-013 and needs Andrew | Do not replace or fork. |
+| Quo and Xero | Defer | No application code in SookLabs, SEOS, rdusa, or sookly-omnichat. rdusa has docs only. Quo MCP is unauthenticated | Do not invent a connector. No private call content by default. |
 | RDUSA client page | Extend with care | Owner rooms on master, guards on #40 | Channel `rdusa` is not the tenant boundary. |
 | JAKA client profile | Extend in SL-005 | Owner slug `jaka-transportation` already used in `lib/hq/owner-portal.test.js`; room channel `jaka` stays internal | Project room events per tenant. Tim's client role is read-only until SL-006. |
 | Owner-room install button | Defer | `migrateOwnerPortal` | Do not press it. See SL-002. |
@@ -148,16 +150,18 @@ Do this before opening SL implementation PRs. "Merge into a task" means the surv
 | `docs/relay/10-claude-check-in-2026-10-05.md` on master | PRESENT through §26 | Keep as history. Later passes §27–§32 exist only on `origin/claude/hopeful-edison-x93kfj` @ `ac4ce80` (2026-10-10), which is **not** an ancestor of master. |
 | Unmerged wake patch described on that branch (`docs/relay/patches/pr20-mcp-room-post-loop-wake.patch`) | **Not on master.** Gap re-checked in source: `app/hq/api/room/messages/route.js` calls `wakeFromDispatch`; `lib/hq/room-mcp.js` does not. | **Merge into SL-001.** Do not open a separate wake PR. |
 
-### SEOS MVP smoke and analytics (SEOS repo — RECORDED, not re-read)
+### SEOS MVP smoke and analytics (pass `bc-ccf9eeca`, main `f4505d4`)
 
 | Item | What the relay records | Disposition |
 | --- | --- | --- |
-| SEOS #8, Cursor smoke run, against main `38d0777` on 2026-10-05 | 12 pass, 5 not met, 2 not run. The five misses are checklist wording (`auth.restricted`, `auth.command-center`, `kb.badge`, `cc.scores`, `cc.feed`), not product bugs. `hq.local` fetches HQ without a session, so it can false-fail. `hq.prod` was not run. | **Keep the evidence. Do not close the finding.** Checklist edits are an authority change (Mark). False-fail fix is SL-008, and only after the SEOS file is actually opened. |
-| Lockfile fix `fbf0170` (relay calls it SEOS #2) | On 2026-10-05 it was on `cursor/seos-social-control-plane-mvp1`, not `main`. Later ops.json records a PASS at that SHA. Whether it is inside SEOS main `f4505d4` is UNVERIFIED. | **Do not close the MVP branch** until someone with SEOS access runs `git merge-base --is-ancestor fbf0170 <main>`. If it is an ancestor, close the branch. If not, one PR ports the lockfile only. No second lockfile branch. |
-| SEOS #9 | Relay §24: Mark merged it. Analytics `GET /api/analytics/hq-summary` and Prisma migration `20261005170000_add_analytics`. Companion to SookLabs #39. Head at the time `1eb2fdf` on `claude/gallant-lamport-dggvhh`, then main `f4505d4`. | **Already merged. Do not reopen.** Production application of the migration is UNVERIFIED. HQ Reports is built to show "unavailable" until the token and tables work. |
-| SEOS #10 | Relay §24: merged automatic droplet deploy. Workflow does not run migrations and does not touch `/opt/seos/.env`. Review notes: require `DROPLET_KNOWN_HOSTS`; check `rsync --delete`. | **Keep the merged workflow.** Host-key and rsync follow-ups are SL-009, after the workflow file is read. This run also saw `seos.sooklabs.com` answering from Vercel. Which host is production is **UNVERIFIED**. Do not add a third deploy path. |
-| `cursor/seos-prisma-lock-postgres-f2a3` @ `33d1c76` | Relay §28 on the unmerged hopeful-edison tip, 2026-10-09. Rewrites the authority migration from SQLite to Postgres, CI job `prisma-migrate`, baseline via `migrate resolve` because production used `db push`. | **Keep. Merge into SL-010.** Do not open another Prisma-lock branch. Do not run `migrate resolve` or `migrate deploy` against production in that PR. |
-| `cursor/seos-social-control-plane-mvp1` | Named in `four-fronts.js`. Tip not fetched. | **Keep** until the ancestor check above. Do not start a replacement MVP branch. |
+| SEOS #8, open draft, no checks | Relay (2026-10-05, against main `38d0777`): 12 pass, 5 not met, 2 not run. The five misses are checklist wording (`auth.restricted`, `auth.command-center`, `kb.badge`, `cc.scores`, `cc.feed`). `hq.local` fetches HQ without a session, so it can false-fail. `hq.prod` was not run. The 2026-10-15 pass confirms the draft is still open and has no checks. | **Keep the evidence. Do not close the finding.** Checklist edits are an authority change (Mark). False-fail fix is SL-008. |
+| Lockfile `@swc/helpers` | Already on SEOS main `f4505d4`. `fbf0170` is the head of PR #2, which was based on the social branch | **Do not port the lockfile again.** Keep `cursor/seos-social-control-plane-mvp1` @ `a256ad2` only for the lifecycle tests that are still absent from main. |
+| SEOS #9 | Merged at `f9a4275` (not `1eb2fdf`). Analytics endpoint and `add_analytics`. Main is now `f4505d4` | **Already merged. Do not reopen.** GSC/GA4 read-only clients are on main. Property ids live in the DB and are not committed. Live freshness was not re-run. |
+| SEOS #10 | Droplet workflow is present, has no migrate step, and falls back to `ssh-keyscan` when `known_hosts` is empty. README still names Vercel `seos.sooklabs.com` | **Keep both facts.** SL-009 makes `known_hosts` required. Do not add a third deploy path. |
+| SEOS #11 | Open Prisma-lock draft, checks green, mergeable. On main the Prisma lock is still `sqlite` and the authority migration SQL is still SQLite | **Keep. Finish as SL-010.** Do not open a second Prisma-lock branch. Do not `migrate resolve` or `migrate deploy` against production in that PR. |
+| `cursor/seos-social-control-plane-mvp1` @ `a256ad2` | Lifecycle tests are on this branch and not on main. Connectors registry is already on main. | **Keep** for those tests only. Do not port the lockfile again. Do not start a replacement MVP branch. |
+| SEOS #7, #6, #1 | Open drafts: relay doc, operating model, dev env | **Keep as drafts.** Do not merge from this preflight. |
+| SEOS #5, #4 | Open and CONFLICTING: connect stepper, and the RDUSA n8n / Refactor golden path | **Do not merge.** Rebase only if a later SL task needs that diff. Do not start a second golden-path branch. |
 | SookLabs branch `SEOSCLAUDEMV1` @ `2d5fbc0` (2026-06-26) | SookLabs history, "Promote SookLabs v2 to production routes". Not the SEOS repo. | **Close** when Mark is closing stale branches. Do not build on it. |
 | SookLabs branch `cursor/seos-command-center-a03e` @ `5a58e1a` (2026-09-04) | Not an ancestor of master. Master already has `app/hq/(dash)/seos/*`. | **Close** after a diff confirms no unique page is still required. Do not revive it for the RDUSA pilot. |
 | SookLabs #42 and SEOS #12 | Guidance drafts. | **Keep open as drafts. Do not merge** from this preflight. |
@@ -170,9 +174,10 @@ Do this before opening SL implementation PRs. "Merge into a task" means the surv
 | SookLabs #33 channel work | Superseded on master for the registry and reply path | Covered above: do not merge the PR. |
 | SookLabs #39 owner rooms and reports | Merged (`6b985a7` in history, relay §24) | **Keep the feature. Do not press "Switch on owner rooms".** Redeem is two statements (`lib/hq/owner-portal.js` `redeemOwnerInvite`): the invite is marked used, then the access row is inserted. A failed insert burns the link. Keys do not expire in the database. Access is `business_slug`, not an immutable workspace id. |
 | SookLabs #40, draft, `cursor/phase1-owner-room-guards-7966` @ `bfcc782` | Open. Relay §27 says it conflicts with master on the `middleware.js` import. Codex review RECORDED 2026-10-09: not merge-ready; six blockers, four of them already on master via #39. | **Keep open. Do not merge** until it is rebased and SL-002 has landed, or until SL-002's transaction is included in that rebase. Do not close it: the allow-list, fixed error codes, and confirm step are still wanted. |
-| rdusa #6 and `cursor/rdusa-internal-retainer-control-v1` | PR contents UNVERIFIED. Branch name is only in `four-fronts.js`. | **Keep #6 as draft guidance. Do not merge.** Do not open a new RDUSA governance doc. Confirm the retainer branch still exists before any commit on it. |
-| `lib/hq/content-draft.js` RDUSA article rules | PRESENT, tested, not wired to Joomla | **Keep.** SL-011 may call it. Do not rewrite the state machine. |
-| Public site `retaildisplayusa.com` | Captcha wall this run. Joomla UNVERIFIED. | No workflow PR until a read-only article id and revision are observed. |
+| rdusa #6 | Open draft among #1–#6. Repo has no CI. Main `839532a` | **Keep as draft guidance. Do not merge.** |
+| Joomla publisher | PRESENT: `scripts/joomla-publisher.mjs`, Joomla API v1, `JOOMLA_API_TOKEN`. SEOS has no Joomla code | **Reuse this client for reads (SL-011).** Do not add a second client in SEOS. The script can publish; the read task must not call that path. |
+| `lib/hq/content-draft.js` | PRESENT in SookLabs, tested, not wired to the publisher | **Keep** as the approval rule. SL-011 may call it. Do not rewrite the state machine. |
+| rdusa hygiene | `codex_order_runs/` is tracked because `.gitignore` says `.codex_order_runs/`. Customer emails sit in about 50 tracked files. Other prospect lists are in the repo. No acceptance test suite | **SL-027.** Untrack the order runs and fix the ignore rule. History rewrite waits for Mark. |
 
 ### JAKA client view
 
@@ -182,7 +187,7 @@ Do this before opening SL implementation PRs. "Merge into a task" means the surv
 | Owner slug `jaka-transportation` | PRESENT as the fixture business in `lib/hq/owner-portal.test.js` | **Reuse** for Tim's invite. Do not add a second identity table in SL-005. |
 | `/hq/client` | PRESENT. Renders one SEOS workspace matched to `owner.business` (`app/hq/client/page.js`) | **Extend** with the JAKA lane projection. Do not replace the reports view with a second client app. |
 | `/hq/retainers` and a retainer-contract module | **Absent.** No route, file, or nav entry on this SHA | Mark's retainer lane shows "not on file" until a real module exists. Do not invent score, fee, AR, or billing notes. Tim's role never receives that lane (SL-005). |
-| Branch `cursor/blog-posts-drafts-b3a7` | Not in this SookLabs clone | **UNVERIFIED.** The site lane displays a head SHA only when an event carries one. |
+| Branch `cursor/blog-posts-drafts-b3a7` | Not in the SookLabs, SEOS, rdusa, or sookly passes | The site lane displays a SHA only when an event carries one. |
 
 ### Sookly, left out of the three streams above but in the way
 
@@ -202,15 +207,15 @@ Do this before opening SL implementation PRs. "Merge into a task" means the surv
 ### Article: Joomla draft → approved publication
 
 ```
-UNVERIFIED Joomla unpublished article (id + revision)
-  → SEOS preview in the RDUSA tenant          PROPOSED, source UNVERIFIED
-  → comment / proposed edit without publish   PROPOSED
-  → Mark approves the exact body hash         PRESENT as checkTransition in content-draft.js
-  → a later edit clears that approval         PRESENT (hash mismatch denies publish)
-  → Codex records joomla_id                   PRESENT as a field rule only
-  → Joomla write / public URL                 ABSENT
-  → GSC/GA4 read-only pull in SEOS            RECORDED as SEOS #9 summary, freshness UNVERIFIED
-  → HQ client report for that business only   PRESENT as /hq/reports and /hq/client projection
+Joomla API v1 via rdusa/scripts/joomla-publisher.mjs (token env; publish path exists, read task must not use it)
+  → SEOS preview                                  PROPOSED. SEOS has no Joomla code. Refactor Studio and Knowledge Base are on SEOS main and do not write knowledge-kind state
+  → comment / proposed edit without publish       PROPOSED
+  → Mark approves the exact body hash             PRESENT as checkTransition in content-draft.js
+  → a later edit clears that approval             PRESENT (hash mismatch denies publish)
+  → Codex records joomla_id                       PRESENT as a field rule only
+  → Joomla write / public URL                     Present only inside the publisher script. Not authorized for v1
+  → GSC/GA4 read-only clients                     PRESENT on SEOS main. Property ids are per workspace in the DB, not in git. Live freshness was not re-run
+  → HQ client report for that business only       PRESENT as /hq/reports and /hq/client projection
 ```
 
 Human gates: Mark approves the exact revision; a stale Joomla revision must fail closed; no seat self-approves; no autonomous publish. SEOS Refactor Studio acceptance stays a separate gate (RECORDED in #42 and the control plane). This pilot does not redefine it.
@@ -218,11 +223,11 @@ Human gates: Mark approves the exact revision; a stale Joomla revision must fail
 ### Enquiry → CRM quote
 
 ```
-Site or Sookly inbox enquiry                  Sookly source UNVERIFIED
-  → human review / quarantine                  RECORDED as Sookly's rule in #42; preserve it
-  → Sookly contact                              Sookly owns this CRM once the release matrix says so
-  → Andolw's existing CRM quote / order         UNVERIFIED system
-  → HQ shows status                             PROPOSED read-only projection
+Sookly enquiry                                Human approval gate is PRESENT. Contact staging is contact-crm-lifecycle.ts on main 777ce576
+  → human review / quarantine                  PRESENT as that gate. PR #3 is stale. Do not revive it for this
+  → Sookly contact                              ContactsKanbanBoard.tsx (cac0648) is the board. Columns follow contact SOP stages
+  → Andrew's CRM quote / order                  UNKNOWN product, URL, and API. Do not replace it
+  → HQ shows status                             PROPOSED read-only projection (SL-019)
 ```
 
 HQ does not become the CRM. Sookly does not become the CMS. No bidirectional sync until the CRM's API, auth, consent, and record of truth are written down and Mark approves the scope.
@@ -268,7 +273,7 @@ SEOS Prisma migrations `20260716193000_add_authority_tracker` (SQLite history, P
 
 | Risk | Evidence | Gate |
 | --- | --- | --- |
-| Sibling repos invisible to this credential | Clone 404 | Do not invent SEOS, Sookly, or RDUSA file contents. SL-008, SL-009, SL-010, SL-011 stop until the tree is opened. |
+| Sibling repos | Verified by passes `bc-ccf9eeca`, `bc-d0a012b4`, `bc-79f72035` | Use those SHAs. Do not invent files the passes did not name. |
 | Deployed SHA unknown while homepages return 200 | Header probe | No production PASS. `hq:verify-deploy` was not run; it needs the deploy script's expected inputs and was out of scope. |
 | Two SEOS hosts possible (Vercel response vs RECORDED droplet workflow) | Both observations | Mark names the production host before any deploy change. |
 | Owner link can be burned | `redeemOwnerInvite` lines 123–141 | Do not install owner tables. SL-002 first. |
@@ -278,8 +283,8 @@ SEOS Prisma migrations `20260716193000_add_authority_tracker` (SQLite history, P
 | Commercial figure in `control-plane.js` | Field present | Do not copy it into docs, prompts, or reports. Removing it is a separate Mark decision, not this PR. |
 | Analytics could be read as sales proof | Client has positions and, on the reports page, sessions/clicks RECORDED in `docs/HQ-OWNER-ROOMS.md` | SL-003 refuses attribution language. Work completed is not a business outcome. |
 | Joomla write without revision check | No client yet | Publish stays behind `content-draft.js` plus a stale-revision check that does not exist yet. |
-| Andrew's RDUSA CRM still unnamed as a product | Mark has identified the owner as Andrew. A public profile for Andrew Abrecht, president of Retail Display USA, matches that given name. No CRM product, login, API, or webhook was found in SookLabs. QuickBooks is not this CRM. Xero is a separate accounts system. | SL-013 records the gap. SL-019 may relay notes only after the product is named. Do not replace or fork it. |
-| Xero write tools | This agent session has a Xero MCP with list tools and with `create-contact`, `create-invoice`, `update-contact`, and `update-invoice`. The SookLabs repo has no Xero module. No Xero call was made. | SL-018 is read-only and fixture-tested. Live Xero credentials and any production read still wait for Mark. Never copy the write tools into HQ. |
+| Andrew's RDUSA CRM | The rdusa pass left the product name, URL, and API UNKNOWN. Docs mention it. There is no client | SL-013 asks Andrew. SL-019 stays fail-closed until he names it. Do not replace or fork it. |
+| Xero and Quo | No application code in any of the four repos. rdusa has docs only. This agent session still has a Xero MCP with list and write tools. No Xero call was made. Quo MCP needs auth | SL-014, SL-018, SL-023, and SL-024 are new clients, not extensions. Never copy Xero write tools into HQ. |
 | Twelve years of mail and a deduped contact graph | Named by Mark as the desired graph. Not ingested. | SL-022 defines consent and retention. SL-026 refuses to import without that record. |
 | Quo | MCP `needsAuth` | No call content. No connector until consent and scopes are written down. |
 | MCP `room_post` does not wake the loop | Source comparison | Pull seats (Cursor, Codex, Claude) would look idle to the loop. Fixed only inside SL-001. |
@@ -306,7 +311,7 @@ Every task is one independently testable PR. No agent reviews its own work. Stop
 
 ## 10. First three PRs
 
-Do these in order. SL-001 is the only way later tasks should be handed off. SL-002 removes a data-loss bug before any client workspace work. SL-003 freezes metric language before any new Google use.
+Do these in order. The SEOS, rdusa, and sookly passes do not change it. SL-001 is still the handoff path. SL-002 is still the redeem fix before Tim's invite. SL-003 is still the metric language before any new number is shown. Joomla, the existing kanban, and the ops-command state machine land in later tasks.
 
 SL-005 (JAKA client view) is not in this three. It starts only after SL-001 and SL-002 are merged: it reads the room event path from SL-001, and Tim's invite uses the redeem path SL-002 makes atomic. SL-006 starts only after SL-005. SL-005 stays read-only.
 
@@ -589,19 +594,19 @@ Read the SL-005 projector and `redeemOwnerInvite` after SL-002. The client sessi
 
 **WHAT.** One change: SEOS `deploy-droplet.yml` fails closed when `DROPLET_KNOWN_HOSTS` is empty. Expected outcome: a job cannot ssh-keyscan an unknown host and then deploy. Acceptance: a workflow test or a documented dry review plus a unit/shell check if the repo already has one; the workflow does not gain a migrate step. **HOW.** SEOS. Read the workflow at the current main SHA before editing. **WHO.** Codex edits the workflow. Claude reviews the SSH trust change. Cursor validates it still deploys only the CI SHA and still does not touch `.env`. Mark approves, and Mark is the one who stores the known_hosts secret.
 
-**Handoff.** Source of the finding: relay §24, not a fresh file read. If the workflow already requires the secret, stop and record the line. Do not change `rsync --delete` in this PR. Do not deploy. Rollback: revert the workflow.
+**Handoff.** Pass `bc-ccf9eeca` confirmed the `ssh-keyscan` fallback and the missing migrate step on main `f4505d4`. SEOS has no Joomla code; do not add any. If the workflow already requires the secret, stop and record the line. Do not change `rsync --delete` in this PR. Do not deploy. Rollback: revert the workflow.
 
 ### SL-010 — Finish the SEOS Prisma lock branch
 
-**WHAT.** One change on the existing branch `cursor/seos-prisma-lock-postgres-f2a3`: add a read-only diff step that runs `prisma migrate diff` from a scratch database to the migrations directory and fails if unexpected SQL appears. Expected outcome: CI proves the rewritten migrations apply on empty Postgres, and the PR description tells Mark to run the production diff himself before any `migrate resolve`. Acceptance: CI job green on an empty Postgres service; the PR does not call production `DATABASE_URL`. **HOW.** Stay on that branch. Rebase onto current SEOS main. Do not open a second migration rewrite. **WHO.** Codex adds the CI step and tests. Claude reviews the SQLite-to-Postgres rewrite and the checksum warning in relay §28. Cursor validates no `migrate deploy` against a live URL. Mark runs any production baseline later, outside this PR.
+**WHAT.** One change on open SEOS #11 (the Prisma-lock draft, checks green, mergeable): keep that PR's Postgres rewrite and add a read-only `prisma migrate diff` against an empty database if #11 does not already fail on unexpected SQL. Expected outcome: CI proves the rewritten migrations apply from scratch. Main `f4505d4` still has a sqlite lock and SQLite authority SQL, so this PR is still needed. Acceptance: the #11 checks stay green and the diff step does not use a production `DATABASE_URL`. **HOW.** Push to the existing #11 branch. Do not open `cursor/seos-prisma-lock-postgres-f2a3` or any second rewrite. **WHO.** Codex adds the diff step only if it is missing. Claude reviews the SQLite-to-Postgres edit already on #11. Cursor validates no `migrate deploy` against a live URL. Mark runs any production baseline later.
 
-**Handoff.** Relay §28 at hopeful-edison `ac4ce80` is the brief of record until the branch is opened. If the branch is gone, stop. Do not `resolve --applied` anything. Rollback: reset the added CI commit; leave the rewrite for Mark to reject separately.
+**Handoff.** Verified 2026-10-15: #11 is the Prisma-lock draft. SEOS has no Joomla code; do not add any. If #11 already contains the empty-database diff, stop and say so. Do not `resolve --applied`. Rollback: revert the added commit only.
 
 ### SL-011 — Joomla unpublished read (no publish)
 
-**WHAT.** One change: a SEOS read function returns `{ id, revision, title, body, state }` for one unpublished article, with a fixture transport. Expected outcome: tests pass without a network. A `state` other than unpublished is an error. There is no publish method in the diff. **HOW.** SEOS, new branch, calling `content-draft` rules only by copying the hash/status idea or by a documented HTTP later. Do not import SookLabs code across repos. Joomla base URL and token stay in env examples, empty. **WHO.** Codex implements against fixtures. Claude reviews that no write verb exists. Cursor validates the DTO matches §7. Mark approves before any real token is used.
+**WHAT.** One change: a read function, copied in behavior from `rdusa/scripts/joomla-publisher.mjs` (Joomla API v1), returns `{ id, revision, title, body, state }` for one unpublished article using a fixture transport. Expected outcome: tests pass without a network. A `state` other than unpublished is an error. The diff contains no publish method and does not call the publisher's write path. **HOW.** rdusa, not SEOS. SEOS has no Joomla code; do not add any. Token stays `JOOMLA_API_TOKEN` and empty in examples. **WHO.** Codex implements against fixtures. Claude reviews that the publish function is not invoked. Cursor validates the DTO. Mark approves before any real token is used.
 
-**Handoff.** Joomla on `retaildisplayusa.com` was **UNVERIFIED** this run (SiteGround captcha). Stop immediately if the repo has no existing Joomla client and no Mark-supplied API note: do not guess the vendor's REST shape. Prefer an existing client in SEOS if one is found. No autonomous publish. No production article fetch in CI. Rollback: revert.
+**Handoff.** The reference client is already on rdusa main `839532a`. Read it and wrap a read. Do not guess a second REST shape. No production article fetch in CI. The public site returned a SiteGround captcha, so do not scrape it. Rollback: revert.
 
 ### SL-012 — Owner key expiry and stable business id
 
@@ -609,21 +614,21 @@ Read the SL-005 projector and `redeemOwnerInvite` after SL-002. The client sessi
 
 **Handoff.** Depends on SL-002 already merged so the redeem path is transactional before new columns are added. Read `OWNER_SCHEMA` in `owner-portal.js`. Stop if anyone asks to press the install button as part of the test. Rollback SQL is part of the PR body.
 
-### SL-013 — Andolw CRM discovery note (still no integration)
+### SL-013 — Andrew CRM discovery (still no integration)
 
-**WHAT.** One change: a short doc in the RDUSA repo, or in SookLabs if RDUSA is still inaccessible, that records only observed facts: product name, URL, vendor, owner, auth, entities, webhooks or polling, and which system is record of truth. Expected outcome: every unknown field says UNVERIFIED. Acceptance: the doc contains no credentials and no copied customer records, and it does not propose a replacement CRM. **HOW.** Read-only discovery. Browser or vendor docs. No API write, no account creation. **WHO.** Cursor or Codex may draft from evidence Mark supplies. Claude reviews for secret leakage. Mark confirms the identity. Grok does not guess a vendor.
+**WHAT.** One change: a short note that the rdusa pass found no product name, URL, or API for Andrew's CRM. Expected outcome: those three fields stay UNKNOWN until Andrew answers. Acceptance: the note contains no credentials, no customer emails, and no replacement CRM. **HOW.** Ask Andrew. Do not scan the tracked order-run or prospect files for a vendor name (SL-027). No API write. **WHO.** Grok asks Andrew. Codex records only what Andrew confirms. Claude reviews for secrets. Mark confirms before SL-019 starts.
 
-**Handoff.** Start from §8 of this file. The public name Andrew Abrecht is a lead, not a conclusion. Stop when the CRM is still unnamed; ship the UNVERIFIED page rather than a connector. Rollback: revert the doc.
+**Handoff.** The rdusa pass (`bc-d0a012b4`, main `839532a`) is the evidence. Docs mention the CRM. That is not identification. Stop when Andrew has not answered; do not ship a connector. Rollback: revert the note.
 
 ### SL-014 — Quo metadata map
 
-**WHAT.** One change: a contract test for a Quo event reduced to `{ id, at, direction, disposition }` with an explicit deny-list for transcript, recording URL, and audio. Expected outcome: a fixture with a transcript fails the reducer. **HOW.** SookLabs or Sookly, wherever the inbox boundary already lives. If that code is only in sookly-omnichat, do the work there and do not fork it into HQ. Quo MCP stays unused until Mark completes auth for a read-only scope. **WHO.** Codex writes the reducer and tests. Claude reviews the deny-list. Cursor validates it is not wired to a live webhook. Mark approves any later subscription.
+**WHAT.** One change: a contract test for a Quo event reduced to `{ id, at, direction, disposition }` with an explicit deny-list for transcript, recording URL, and audio. Expected outcome: a fixture with a transcript fails the reducer. **HOW.** New pure module in SookLabs. Quo has no code in SEOS, rdusa, or sookly (rdusa docs only). Do not extend a connector that is not there. Quo MCP stays unused. **WHO.** Codex writes the reducer and tests. Claude reviews the deny-list. Cursor validates it is not wired to a live webhook. Mark approves any later subscription.
 
-**Handoff.** Quo was `needsAuth` on 2026-10-15. Stop before any live call. No private call content in logs, tests, or room posts. Rollback: revert the pure module.
+**Handoff.** Confirmed absent on 2026-10-15. Stop before any live call. No private call content in logs, tests, or room posts. Rollback: revert the pure module.
 
 ### SL-015 — Sookly enquiry handoff, read-only
 
-**WHAT.** One change: document and test the existing Sookly transition from quarantined enquiry to a human-approved contact, using that repo's release matrix as the oracle. Expected outcome: no new CRM and no write to Andolw. Acceptance: the test named in `sookly-control/release-matrix.md` for quarantine / human review, once that file is opened. **HOW.** `mblackth-ai/sookly-omnichat` only. Look for the Journey branch before adding files. **WHO.** Codex adds a missing test only if the matrix requires one that is absent. Claude reviews tenant isolation. Cursor validates HQ was not given a second contact store. Mark approves.
+**WHAT.** One change: document and test the existing Sookly transition from quarantined enquiry to a human-approved contact, using that repo's release matrix as the oracle. Expected outcome: no new CRM and no write to Andrew's CRM. Acceptance: the test named in `sookly-control/release-matrix.md` for quarantine / human review, once that file is opened. **HOW.** `mblackth-ai/sookly-omnichat` only. Look for the Journey branch before adding files. **WHO.** Codex adds a missing test only if the matrix requires one that is absent. Claude reviews tenant isolation. Cursor validates HQ was not given a second contact store. Mark approves.
 
 **Handoff.** ops.json says staging is NOT TESTED. Do not deploy. If #93 is the only open governance doc, leave it unmerged. Stop if the work duplicates `cursor/operational-journey-engine-v1`. Rollback: revert the test PR.
 
@@ -640,7 +645,7 @@ Order is value first where the risk stays reversible. Identity resolution and em
 | 3 | SL-018 Xero read-only numbers | Revenue and budget from the ledger | Fixtures in the PR. Live credentials wait for Mark. No Xero writes. |
 | 4 | SL-019 Andrew CRM note relay | HQ shows his notes without replacing his system | Adapter fails closed until SL-013 names the product. |
 | 5 | SL-020 Sookly work-item store | The CRM backend uses the SL-016 lifecycle | Production migration waits for Mark. |
-| 6 | SL-021 Pipeline kanban | Suppliers, clients, deals on that store | Read-only board. No email import. |
+| 6 | SL-021 Pipeline kanban | Extend `ContactsKanbanBoard.tsx` on sookly main | Read-only filters. No new board. No email import. |
 | 7 | SL-022 Identity contract | Dedup rules exist before any merge of people | No ingestion. Consent and retention are required fields. |
 | 8 | SL-023 Xero contacts on the identity | Ledger people join the graph | Read-only. Consent record required. |
 | 9 | SL-024 Quo metadata on the identity | Calls show as metadata and summaries | No call content. Reuses SL-014. |
@@ -649,13 +654,13 @@ Order is value first where the risk stays reversible. Identity resolution and em
 
 Xero, as observed this run: the agent session has a Xero MCP (list contacts, invoices, and payments, and also create/update tools). The SookLabs git tree has no Xero module. No Xero API call was made. The MCP is an operator tool. It is not the production adapter, and its write tools must not be copied into HQ.
 
-Andrew's CRM: Mark named Andrew as the owner. The product, URL, and API remain UNVERIFIED. Do not replace it. Do not treat Xero or QuickBooks as that CRM.
+Andrew's CRM: product name, URL, and API are UNKNOWN. SL-013 needs Andrew. Do not replace the CRM. Xero and Quo are not that system, and neither has code in the four repos.
 
 ### SL-016 — Work-item lifecycle and Execution tab
 
-**WHAT.** One change: a pure lifecycle `draft → edit/approval → approved → execution → done`, plus an Execution tab that lists items whose state is `execution`. Expected outcome: illegal jumps fail, and the tab renders only fixture items in `execution`. This shape is the work-item model Sookly will store in SL-020. Acceptance: tests for each legal step, a rejected skip from `draft` to `done`, and a tab fixture with one execution item and zero draft items. **HOW.** SookLabs, new module `lib/hq/work-item.js` and a read-only Execution tab on the founder client profile. Do not rewrite `lib/hq/content-draft.js`; article publish stays on that machine. Map a published article to `done` only in a comment, not in this PR's code. **WHO.** Codex implements and tests. Claude reviews that HQ did not gain a CRM table. Cursor validates the tab is read-only. Mark may merge and deploy this PR; it has no migration and no production write.
+**WHAT.** One change: map the existing sookly ops-command states onto the client lifecycle, and add a read-only Execution tab. The machine on sookly main is `PROPOSED → AWAITING_APPROVAL → APPROVED → APPLYING → APPLIED`, stored as OperationsCommand, CommandProposal, CommandApproval, and CommandExecution, scoped by `workspaceId`. That maps to draft, approval, execution, and done. Expected outcome: the tab lists fixture rows in APPLYING / execution only. Acceptance: a rejected skip from PROPOSED to APPLIED, and no new WorkItem table in the diff. **HOW.** SookLabs projector plus the Execution tab. Do not create `lib/hq/work-item.js` as a second store. Do not rewrite `content-draft.js`. A new table is allowed only if Codex writes down why the four existing command tables cannot represent the row, and Claude agrees before the table is added. **WHO.** Codex maps and tests. Claude reviews the no-new-table rule. Cursor validates the tab is read-only. Merge and deploy are allowed. There is no migration.
 
-**Handoff.** Read §12 and `content-draft.js` so the two machines stay distinct. JAKA lanes from SL-005 can later carry this state; do not rebuild the JAKA projector here. Stop after the draft PR. Rollback: revert.
+**Handoff.** Verified on sookly main `777ce576`. There is no WorkItem model. Reuse the command tables in SL-020. Stop after the draft PR. Rollback: revert.
 
 ### SL-017 — Per-tenant master view shell
 
@@ -671,21 +676,21 @@ Andrew's CRM: Mark named Andrew as the owner. The product, URL, and API remain U
 
 ### SL-019 — Andrew CRM ownership map and read-only note relay
 
-**WHAT.** One change: a document that says which RDUSA operations Andrew's CRM owns, plus a read-only adapter that relays note text into the HQ tenant projection. Expected outcome: when the product is still unnamed, the adapter returns unavailable and the page shows that. When a fixture note is supplied, HQ shows the note with source, period, and freshness. Acceptance: the adapter has no write method, and a fixture for a second tenant is not returned for RDUSA. **HOW.** SookLabs. Depends on SL-013. Do not fork his database. Do not sync bidirectionally. **WHO.** Codex implements the fail-closed adapter and tests. Claude reviews that the map does not assign his deals to Sookly. Cursor validates the RDUSA page. Mark confirms the ownership sentences before they are treated as true; until then they stay labeled UNVERIFIED.
+**WHAT.** One change: a document that says which RDUSA operations Andrew's CRM owns, plus a read-only adapter that relays note text into the HQ tenant projection. Expected outcome: when the product is still unnamed, the adapter returns unavailable and the page shows that. When a fixture note is supplied, HQ shows the note with source, period, and freshness. Acceptance: the adapter has no write method, and a fixture for a second tenant is not returned for RDUSA. **HOW.** SookLabs. Depends on SL-013. Do not fork his database. Do not sync bidirectionally. **WHO.** Codex implements the fail-closed adapter and tests. Claude reviews that the map does not assign his deals to Sookly. Cursor validates the RDUSA page. Mark confirms the ownership sentences before they are treated as true; until then they stay labeled UNKNOWN.
 
-**Handoff.** Start from SL-013's findings. If that doc is still empty, this PR ships the fail-closed adapter and an ownership table full of UNVERIFIED. Stop after the draft PR. No production credential. Rollback: revert.
+**Handoff.** Start from SL-013's findings. If that doc is still empty, this PR ships the fail-closed adapter and an ownership table full of UNKNOWN. Stop after the draft PR. No production credential. Rollback: revert.
 
 ### SL-020 — Sookly stores the work-item lifecycle
 
-**WHAT.** One change: Sookly persists a work item with the SL-016 states and a tenant id. Expected outcome: disposable-database tests move an item along the legal path and reject a cross-tenant read. Acceptance: those tests, named in the PR with the Sookly test command discovered from that repo. **HOW.** `mblackth-ai/sookly-omnichat` only. Look for the existing Journey branch before adding a table. Ship SQL with a rollback note. Do not apply it to production in the PR. HQ does not get a copy of the table. **WHO.** Codex implements. Claude reviews tenant predicates. Cursor validates HQ was not given a second store. Mark's yes is required before the production migration.
+**WHAT.** One change: Sookly tests prove a CommandExecution row moves along the existing ops-command states and is invisible to another `workspaceId`. Expected outcome: no new WorkItem table. Acceptance: those tests, using the test command in the sookly repo. **HOW.** `mblackth-ai/sookly-omnichat` main `777ce576`. Extend OperationsCommand / CommandProposal / CommandApproval / CommandExecution. Do not add a parallel journey table. No migration is pending in git. Do not apply the 3 Oct migrations to production in this PR. PR #62 claims they were applied; that claim was not re-checked. **WHO.** Codex writes tests against the existing tables. Claude reviews the workspace predicate. Cursor validates HQ gained no copy. A production migration, if one becomes necessary, waits for Mark.
 
-**Handoff.** The lifecycle text in SL-016 is the contract. If Sookly already has a journey table, extend it instead of adding a parallel one. Stop if the repo cannot be opened. Stop after the draft PR. Rollback SQL stays in the PR body.
+**Handoff.** SL-016 is the map. If the four tables cannot hold the row, stop and justify a table in the PR body. Do not add it in the same commit. Rollback: revert. No history rewrite.
 
 ### SL-021 — Pipeline kanban for suppliers, clients, and deals
 
-**WHAT.** One change: a read-only kanban in Sookly with three lanes (suppliers, clients, deals) rendering SL-020 work items. Expected outcome: an item in `execution` appears on the board; a `draft` item does not appear in a done column. Acceptance: fixture tests for lane and state. No drag-and-drop write in this PR. **HOW.** Sookly UI against the SL-020 store or a fixture with the same shape. HQ's pipeline block in SL-017 may link to this board; it does not copy the cards into HQ storage. **WHO.** Codex implements. Claude reviews that Andrew's CRM is not a fourth column pretending to be the source of truth. Cursor validates the three lanes. Merge and deploy of the read-only UI are allowed after SL-020's migration is already approved and applied. This PR itself does not migrate.
+**WHAT.** One change: extend `ContactsKanbanBoard.tsx` (`cac0648` on sookly main). Expected outcome: suppliers, clients, and deals render as columns or filters on that board, using the contact SOP stages already there, and an APPLYING item can be distinguished from a finished one. Acceptance: a fixture test that a second workspace's card is absent. No new board component. No drag-and-drop write. **HOW.** sookly-omnichat only. HQ's pipeline block may link here and must not copy cards into HQ. **WHO.** Codex extends the existing component and tests. Claude reviews that Andrew's CRM is not a new column. Cursor validates there is still one board. This PR does not migrate.
 
-**Handoff.** Depends on SL-020. Do not import mail or Xero here. Stop after the draft PR. Rollback: revert.
+**Handoff.** The board is already on main. Do not build another. Do not import mail, Quo, or Xero. Contact staging stays `contact-crm-lifecycle.ts`. PR #3 is stale; do not revive it. Stop after the draft PR. Rollback: revert.
 
 ### SL-022 — Contact identity, consent, and retention
 
@@ -707,15 +712,21 @@ Andrew's CRM: Mark named Andrew as the owner. The product, URL, and API remain U
 
 ### SL-025 — Attach Joomla people, read-only
 
-**WHAT.** One change: link a fixture Joomla contact id onto an identity when consent lists `joomla`. Expected outcome: no article publish method exists in the diff. Acceptance: unpublished versus missing id is distinguished, and a foreign tenant is refused. **HOW.** SEOS or Sookly, wherever the Joomla read from SL-011 actually landed. Fixture transport only. **WHO.** Codex implements. Claude reviews that publish stays out. Cursor validates the identity link. No production Joomla credential in the PR.
+**WHAT.** One change: link a fixture Joomla contact id onto an identity when consent lists `joomla`. Expected outcome: no article publish method exists in the diff. Acceptance: unpublished versus missing id is distinguished, and a foreign tenant is refused. **HOW.** rdusa, next to the SL-011 read that wraps `scripts/joomla-publisher.mjs`. SEOS has no Joomla code. Fixture transport only. **WHO.** Codex implements. Claude reviews that publish stays out. Cursor validates the identity link. No production Joomla credential in the PR.
 
-**Handoff.** Depends on SL-011 and SL-022. If Joomla is still unidentified, stop and leave the task blocked. Rollback: revert.
+**Handoff.** Depends on SL-011 and SL-022. The client exists. Do not block on discovering Joomla. Rollback: revert.
 
 ### SL-026 — Email ingestion gate
 
 **WHAT.** One change: an import function that returns `refused` unless it is given a consent record (mailbox, date range, purpose) and a retention window, both matching SL-022. Expected outcome: the twelve-year range Mark described is representable as a date range in the consent object, and the function still does not connect to a mailbox. Acceptance: missing consent, missing retention, and a range that exceeds the consented window are all refused; a fully populated fixture returns `ready` without performing I/O. **HOW.** Sookly pure module. No IMAP, no Google, no Microsoft client. **WHO.** Codex implements the gate and tests. Claude reviews that `ready` has no side effect. Cursor validates the module imports nothing that opens a socket. Mark's yes, plus the stored consent and retention decision, is required before any later PR adds a real mailbox client.
 
-**Handoff.** This is the last phase. Do not start it by pulling mail "to see the shape". Stop after the draft PR. Rollback: revert.
+**Handoff.** This is the last phase. Do not start it by pulling mail "to see the shape". rdusa already tracks customer emails in about 50 files; do not copy them into this module. Stop after the draft PR. Rollback: revert.
+
+### SL-027 — rdusa repo hygiene
+
+**WHAT.** One change: stop tracking `codex_order_runs/` and fix the ignore rule. The rule is `.codex_order_runs/` (leading dot), so the real directory is not ignored. Expected outcome: `git check-ignore` matches `codex_order_runs/`, and `git rm --cached` removes it from the index without deleting the local files. Acceptance: a fresh clone of the PR branch does not list those paths, and the diff does not rewrite history. **HOW.** rdusa main `839532a`. Edit `.gitignore` and untrack only. Customer emails in about 50 other tracked files, and other prospect lists, stay in git for this PR. List their paths in the PR body. Do not paste addresses. A history rewrite that purges them is a separate decision and waits for Mark. **WHO.** Codex edits the ignore rule and the index. Claude reviews that no customer content was copied into the PR text. Cursor validates `git status` is clean of the order-run paths. Mark's yes is required before any `git filter-repo` or force push.
+
+**Handoff.** Verified by pass `bc-d0a012b4`. The repo has no CI and no acceptance suite, so the check is `git check-ignore -v` plus `git ls-files`. Do not use SL-013 as an excuse to read those files. Stop after the draft PR. Rollback: revert the commit. That restores tracking. It does not restore a history rewrite, because this PR must not perform one.
 
 ## 13. What this preflight does not start
 
