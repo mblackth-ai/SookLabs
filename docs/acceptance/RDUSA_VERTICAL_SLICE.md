@@ -1,7 +1,7 @@
 # RDUSA First Vertical Slice: Acceptance Contract
 Status: PROPOSED, no production changes authorised
 Date: 2026-10-15
-Scope: Demonstrate one complete article and measurement loop.
+Scope: Demonstrate one complete article and measurement loop, then a separate permissioned existing-CRM overlay slice. Current USD 1,500/month retainer remains the baseline; expansion fee and support boundaries are pending written agreement. No outsourced phones or operations takeover.
 
 | ID | Positive acceptance | Proof |
 | --- | --- | --- |
@@ -19,6 +19,6 @@ Scope: Demonstrate one complete article and measurement loop.
 | RD-09 | Article -> review -> approval -> Joomla result -> metrics -> HQ client report works without manual duplicate entry. | End-to-end pilot recording |
 | RD-10 | Reduced retyping, interruptions or waiting is measured relative to baseline. | Before/after operational evidence |
 
-Deferred: social publishing APIs, Quo communications ingestion, external Andrew CRM until identified, generalised multi-client provisioning, expanded model swarm.
+Subsequent acceptance (not part of current article pilot): identify and verify Andolw's external CRM access/API; map contact, lead, quote and order authorities; demonstrate read-only mapping, authorised scoped sync, deduplication and correction audit; prove enquiry-to-quote status without replacing his CRM. Quo ingestion and social publishing require separate provider approval. Generalised multi-client provisioning and expanded model swarm remain deferred.
 Existing SEOS Refactor Studio acceptance remains in force; this pilot does not redefine its release gate.
 PASS requires objective evidence from the intended environment. Migrations, publication, external sends, credential changes and production deployments require human authorisation.
