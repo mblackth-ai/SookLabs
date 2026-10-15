@@ -585,3 +585,28 @@ I checked the PR's item "Document links and entrypoints verified on branch" agai
 - **Nothing conflicts with open work.** Nothing in either branch conflicts with the #20 wake patch, #36, #37 or #40. The contract keeps MCP as bounded tools, which matches the control plane. Telegram/n8n stays on hold, and the register only classifies the older Drive relay spec.
 
 This is a review only. I didn't comment on #42, and I made no edits on either branch.
+
+## 34. Loop pass 217 (2026-10-15, 13:19 UTC): Codex's review of #42, checked against the branch
+
+At 12:48 UTC Codex posted an exact-head review of #42 at `4d1a1ee`. It marks the PR blocked and asks for it to stay draft. Its two points both check out on the branch:
+
+1. **The contract outranks domain sources.** `SOOKLABS_SYSTEM_CONTRACT.md` line 64 puts "this cross-system contract" above "domain canonical specs and tests". That contradicts the contract's own line 9 ("Domain-level acceptance and release criteria retain authority inside their own repositories"). It also contradicts the control plane's canonical-authority table (`docs/HQ-MCP-CONTROL-PLANE.md` §"Execution mode — canonical authority", lines 193–235).
+2. **The RDUSA file reads as an authority.** `docs/acceptance/RDUSA_VERTICAL_SLICE.md` is titled "Acceptance Contract" and sets RDUSA scope and approval criteria from inside the HQ repo, even though the register forbids competing authorities.
+
+Two more gaps the branch doesn't cover, beyond my §33 notes:
+
+- The control plane names SEOS acceptance as `docs/mvp-smoke-checklist.md`, but the register lists only `SEOS-MVP-1.md` and `DECISIONS.md`.
+- The control plane names RDUSA scope as `01_RETAINER_FRAMEWORK_GUARDRAILS/RETAINER_PROMISE_MAP.md` (with execution in `04_.../NEXT_ACTIONS.md`), but the register lists only the index and the governance doc. These are the owning sources the RDUSA checklist should defer to.
+
+Suggested wording, offered as text only. Edits to a checkout of the PR branch were blocked as shared-resource changes, so this isn't a patch.
+
+- **Contract precedence (replaces line 64):** "approved legal/client agreements and human permissions > each domain's canonical acceptance, scope and commercial sources (as named in `docs/HQ-MCP-CONTROL-PLANE.md`) within that domain > this cross-system contract, for cross-repository boundaries only > runtime evidence > historical/speculative reports. This contract never overrides a domain's canonical source; apparent conflicts become decision requests that cite both."
+- **RDUSA file:** retitle it "Cross-System Evidence Checklist", with the status "PROPOSED, NON-AUTHORITATIVE projection". Add a header naming the RDUSA and SEOS owning sources and saying they win. Add an "Owning source" column for each domain owner to confirm. Change the final PASS line to "Checklist items do not grant PASS; the owning source's acceptance does."
+- **AGENTS.md:** call the RDUSA file a non-authoritative checklist.
+- **Register:** add three rows:
+  - SEOS `docs/mvp-smoke-checklist.md` (ACTIVE_DOMAIN acceptance);
+  - RDUSA `RETAINER_PROMISE_MAP.md` and `NEXT_ACTIONS.md` (ACTIVE_DOMAIN scope and execution);
+  - HQ `docs/relay/` (HISTORICAL evidence).
+- **Link and authority check:** Codex's "lightweight link/authority check" could be a small node script. It would check that the relative links in those four files resolve, that the `docs/HQ-*.md` references exist, that the RDUSA file stays marked NON-AUTHORITATIVE, and that the contract keeps the domain-precedence sentence.
+
+Still open from §33: the "Andolw" / "Andrew" spelling, and SEOS's "Vercel+Postgres" when it actually runs on the droplet. No PR comment and no edits on #42 or on the SEOS branch. This is the author's call, and Codex has asked for a fresh exact-head review after the amendment.
