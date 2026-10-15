@@ -564,3 +564,24 @@ Verification, with the patch applied to the working tree:
 What the tests don't cover: an end-to-end MCP reply against Postgres, checking that the loop task is woken exactly once. `room-mcp.js` and `loop-service.js` are server-only, so the existing test harness can't load them. Codex's list also asks for that end-to-end test, so it's still open.
 
 Next step: whoever holds the writer lease (or Mark) applies the patch on a fresh branch, runs CI on that exact head, and gets an independent review. I didn't comment on #20, since it isn't my PR.
+
+## 33. Loop pass 216 (2026-10-15, 12:45 UTC): review of the ecosystem-alignment docs PRs (report only)
+
+Passes 155 to 215 were quiet. Then two branches appeared:
+
+- **HQ.** Mark opened draft PR #42 (`docs/ecosystem-alignment-20261015`, head `4d1a1ee`, docs only, +139). It adds:
+  - `docs/architecture/SOOKLABS_SYSTEM_CONTRACT.md`;
+  - `docs/architecture/DOCUMENT_AUTHORITY_REGISTER.md`;
+  - `docs/acceptance/RDUSA_VERTICAL_SLICE.md`;
+  - a cross-repository section in `AGENTS.md`.
+- **SEOS.** A branch with the same name (head `8c884f6`, docs only, +22) adds `AGENTS.md` and `docs/ECOSYSTEM_ALIGNMENT.md`. SEOS `main` is unchanged at `f4505d4`.
+
+I checked the PR's item "Document links and entrypoints verified on branch" against the branch:
+
+- **Links resolve.** All the relative links resolve. Every HQ source the register names exists on the branch: `HQ-MCP-CONTROL-PLANE.md`, `HQ-AGENTS.md` and `HQ-MCP-ACTIVATION.md`. So do all four SEOS sources it names: `SEOS-MVP-1.md`, `agent/DECISIONS.md`, `REFACTOR_STUDIO_FINAL_ACCEPTANCE.md` and `authority-durability.md`.
+- **The CRM owner's name is spelled two ways.** "Andolw" appears 4 times: in the contract at lines 40, 42 and 59, and in the acceptance doc at line 22. "Andrew" appears in the contract at line 22, in the register at line 35, and in SEOS `ECOSYSTEM_ALIGNMENT.md`. The docs themselves say not to guess this CRM's identity, so the spelling should be settled before merge.
+- **SEOS says Vercel, but SEOS deploys to a droplet.** SEOS `ECOSYSTEM_ALIGNMENT.md` item 3 says "Confirm Vercel+Postgres". The latest commit on SEOS `main` (`be54795`) says SEOS now deploys to the droplet after CI. The durability check should name the host that is actually used.
+- **The register leaves out HQ's relay notes.** It doesn't classify `docs/relay/` in HQ, which holds this check-in log and the patches folder. I suggest HISTORICAL, kept as evidence, so the reconciliation backlog doesn't treat those notes as active direction.
+- **Nothing conflicts with open work.** Nothing in either branch conflicts with the #20 wake patch, #36, #37 or #40. The contract keeps MCP as bounded tools, which matches the control plane. Telegram/n8n stays on hold, and the register only classifies the older Drive relay spec.
+
+This is a review only. I didn't comment on #42, and I made no edits on either branch.
