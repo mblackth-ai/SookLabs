@@ -610,3 +610,40 @@ Suggested wording, offered as text only. Edits to a checkout of the PR branch we
 - **Link and authority check:** Codex's "lightweight link/authority check" could be a small node script. It would check that the relative links in those four files resolve, that the `docs/HQ-*.md` references exist, that the RDUSA file stays marked NON-AUTHORITATIVE, and that the contract keeps the domain-precedence sentence.
 
 Still open from §33: the "Andolw" / "Andrew" spelling, and SEOS's "Vercel+Postgres" when it actually runs on the droplet. No PR comment and no edits on #42 or on the SEOS branch. This is the author's call, and Codex has asked for a fresh exact-head review after the amendment.
+
+## 35. Loop pass 220 (2026-10-15, 14:56 UTC): #42 strips financial figures; Cursor's #43 preflight (report only)
+
+**#42, new head `d493ec4`.** Three new commits titled "security(docs): remove RDUSA financial figures and prohibit commercial data in repos". They:
+
+- remove the retainer and proposal figures from the contract, the register and the RDUSA file;
+- add a rule that confidential commercial terms stay out of repositories, PRs and design files.
+
+Two things remain:
+
+- **The figures are still in the branch history.** The current files are clean, but the earlier commits on the branch (`127ed77` through `4d1a1ee`) still contain them, and the PR's commit list shows those commits. A squash merge would keep them off master, but they stay readable in the branch and PR history until the branch is deleted or rewritten. That's Mark's call.
+- **Master already holds a figure.** `lib/hq/control-plane.js` line 8 has a retainer amount field with a number in it. Cursor flags the same thing in #43. Removing it is a separate decision for Mark.
+
+None of Codex's three asks at 12:48 is addressed yet: the precedence on line 64, the RDUSA file's status as an authority, and links to the owning sources. My §33/§34 findings are also still open: the CRM owner's two spellings, SEOS's Vercel-or-droplet host, and the register gaps.
+
+**#43, new draft from Cursor (`cursor/engine-integration-preflight-2353`, head `c423a77`, one file, `docs/ENGINE_INTEGRATION_PREFLIGHT.md`, +510).** It is a design-only preflight. It:
+
+- reconciles open branches and PRs;
+- sets out SL-001 through SL-013 as one-PR-each tasks, with Grok dispatching, Codex implementing, Claude reviewing architecture and security, a fresh Cursor session validating, and Mark approving;
+- folds my §32 wake patch into SL-001 ("re-implement, do not copy the patch blindly").
+
+I checked its main code claims against master `8c6d83a`, and they hold:
+
+- **SL-002 premise (owner links can be burned).** `redeemOwnerInvite` in `lib/hq/owner-portal.js` runs three separate `q(...)` calls: it marks the invite used, inserts the access row, then links the two. There's no transaction around them. If the insert fails, the link is already marked used.
+- **The client API is open on master.** `middleware.js` line 97 opens all of `/hq/api/client/`.
+- **SL-001 premise (SL fields would be lost).** `normalizeBaton` (`lib/hq/swarm-contract.js:179`) rebuilds the baton from a fixed field list, so any new SL fields would be dropped.
+- **The wake gap is still there.** HTTP replies wake the loop and MCP `room_post` replies don't.
+
+Points for Mark and the author:
+
+1. **Privacy: a person's contact details are in the doc.** Line 264 names a person found by web search, along with their email address and a note that a phone number was found. The doc itself says a name match is not identity proof. A private individual's contact details shouldn't sit in a repo doc. Suggest cutting it to "a public catalog page names a possible contact; identity unverified".
+2. **SEOS hosting is confirmed as ambiguous.** Cursor saw `seos.sooklabs.com` served by Vercel, while SEOS main deploys to the droplet (my §33 point 3). Its §8 says the same: Mark names the production host.
+3. **Stale pointer.** The doc says the hopeful-edison relay ends at §32 / `ac4ce80`. It now runs to §35 at a later head. This is only a pointer refresh.
+4. **SL-001 test plan.** SL-001's acceptance item 5 covers the wake rule. My patch's tests still don't include an end-to-end MCP reply against Postgres; §32 lists it as open. SL-001 should require that test, or make it explicit that the source-scan test is the accepted substitute.
+5. **Reviewer role.** The doc assigns Claude as the reviewer for every SL task, and I can do that. Under the stop rules in each brief, I review the PR diff against the brief and don't implement the same task.
+
+I made no PR comments and no edits on #42, #43 or the SEOS branch.
