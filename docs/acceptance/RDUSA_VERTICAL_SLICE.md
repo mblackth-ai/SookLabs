@@ -1,7 +1,7 @@
 # RDUSA First Vertical Slice: Acceptance Contract
 Status: PROPOSED, no production changes authorised
 Date: 2026-10-15
-Scope: Demonstrate one complete article and measurement loop, then a separate permissioned existing-CRM overlay slice. Current USD 1,500/month retainer remains the baseline; expansion fee and support boundaries are pending written agreement. No outsourced phones or operations takeover.
+Scope: Demonstrate one complete article and measurement loop, then a separate permissioned existing-CRM overlay slice. Existing client commercial terms are kept confidential outside repositories; overlay scope and support boundaries require written client approval. No outsourced phones or operations takeover.
 
 | ID | Positive acceptance | Proof |
 | --- | --- | --- |
