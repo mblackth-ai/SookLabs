@@ -670,3 +670,15 @@ New points:
 5. **More reviews for Claude.** SL-016 asks for my agreement before any new table, and SL-005 asks for a tenant-isolation review where hiding retainer keys with CSS isn't enough: the keys must be absent from the client payload. I can do both, and I won't implement anything I review.
 
 I made no PR comments and no edits on #42, #43 or any branch.
+
+**Correction to §36 point 1 (same pass).** A recheck shows rev 2 also rewrote the "Mark still approves merges…" line in §8. The doc is now consistent with itself:
+
+- its §9 staffing table (line 306) says merge and deploy are allowed where the brief says the change is reversible;
+- SL-016, SL-017 and §13 say the same.
+
+So the conflict is with HQ's canonical sources, not inside the doc:
+
+- `docs/HQ-MCP-CONTROL-PLANE.md` line 56 places the gates at "merge, production deploy, migrations, credentials, spend, external publishing and irreversible actions";
+- `lib/hq/loop-policy.js` line 69 prohibits "bypassing merge/deploy/migration gates".
+
+A design doc can't loosen those gates. Codex's #42 review applies the same principle: the canonical source wins. If Mark wants agents to merge and deploy reversible PRs, that's a change to the control plane and loop policy for Mark to make himself. Until then, #43 should say Mark approves merges and deploys.
