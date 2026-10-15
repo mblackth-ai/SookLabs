@@ -34,6 +34,13 @@ This contract governs **cross-repository boundaries** after founder approval and
 - Database-backed client workflows need proven persistence; ephemeral SQLite on serverless is not an acceptable production authority store.
 - Every write action, including Joomla updates, must handle stale source revisions and re-approval after edits.
 
+## RDUSA commercial boundary and integration overlay (2026-10-15 correction)
+- Current working baseline: **USD 1,500 per month** under the existing RDUSA retainer. Do not claim any additional fee has been accepted.
+- **No longer part of proposed expansion:** outsourced phone coverage, receptionist shifts, or takeover of general day-to-day operations. Earlier USD 3,000/month 90-day operations documents are historical proposals only, not a current agreement.
+- **Proposed new work, separately priced and approved:** integrate Andolw's existing CRM and a minimally invasive business overlay across permitted contact, enquiry, quote, order, communications, Joomla content and measurement systems. Connect existing source systems rather than build a duplicate CRM.
+- Record onboarding fee versus ongoing integration/support work, exact permissions, responsibilities, deliverables, service levels and start date in a new written agreement before representing it as committed.
+- Identify Andolw's CRM and verify documented APIs and data rights before planning migrations or bidirectional sync.
+
 ## RDUSA first proven vertical slice
 1. Audit deployments, database durability, current docs and granted scopes.
 2. Connect Joomla unpublished articles read-only, preserving article ID/revision.
@@ -49,7 +56,7 @@ Existing SEOS Refactor Studio closure criteria remain separate; a future social 
 ## Roadmap
 P0: reconcile documentation and prove current environments.
 P1: RDUSA Joomla approval/publish + source-linked reporting and tenant-safe client view.
-P2: verified social, Quo and external CRM integrations.
+P2: identify and securely integrate Andolw's existing external CRM and authorised Quo workflow; verified social connections follow bounded provider-specific approvals.
 P3: expand HQ Rooms model collaboration after shared-state/security acceptance.
 P4: generalise proven client onboarding (Jaka next candidate).
 
