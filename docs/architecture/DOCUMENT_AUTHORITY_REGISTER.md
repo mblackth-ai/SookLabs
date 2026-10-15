@@ -25,7 +25,7 @@ After approval/merge, [System Contract](./SOOKLABS_SYSTEM_CONTRACT.md) controls 
 | RDUSA September report | HISTORICAL performance evidence | Dates and data freshness cannot be silently treated as current |
 
 ## 2026-10-15 RDUSA commercial correction
-The 90-day USD 3,000/month operations takeover page in Notion is a **historical proposal**, not current engagement authority. The existing USD 1,500/month retainer is the operating baseline. The new overlay/CRM integration is proposed as separately agreed work; outsourced phones and day-to-day business operations are excluded. Refer to the updated [RDUSA Notion page](https://app.notion.com/p/3da49f41df5481ee85b9f1ae85bafb47). Verify any later signed agreement before changing terms.
+The former operations takeover page in Notion is a **historical proposal**, not current engagement authority. Existing client commercial terms are confidential and maintained outside repositories. The new overlay/CRM integration is proposed as separately approved work; outsourced phones and day-to-day business operations are excluded. Never include confidential retainer figures or personal accounting in any code, README, issue, PR or design file. Refer to the updated [RDUSA Notion page](https://app.notion.com/p/3da49f41df5481ee85b9f1ae85bafb47). Verify any later signed agreement before changing terms.
 
 ## Confirmed direction conflicts to resolve
 1. Drive relay describes immediate lead creation; Sookly requires untrusted capture quarantine/pending human review. **Preserve Sookly restriction.**
