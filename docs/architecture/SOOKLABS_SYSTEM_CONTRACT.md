@@ -35,10 +35,10 @@ This contract governs **cross-repository boundaries** after founder approval and
 - Every write action, including Joomla updates, must handle stale source revisions and re-approval after edits.
 
 ## RDUSA commercial boundary and integration overlay (2026-10-15 correction)
-- Current working baseline: **USD 1,500 per month** under the existing RDUSA retainer. Do not claim any additional fee has been accepted.
-- **No longer part of proposed expansion:** outsourced phone coverage, receptionist shifts, or takeover of general day-to-day operations. Earlier USD 3,000/month 90-day operations documents are historical proposals only, not a current agreement.
+- Existing RDUSA commercial terms are confidential and maintained only in the approved internal/offline agreement register. No commercial figures or personal financial records belong in any repository.
+- **No longer part of proposed expansion:** outsourced phone coverage, receptionist shifts, or takeover of general day-to-day operations. Prior takeover proposals are not current scope or agreements.
 - **Proposed new work, separately priced and approved:** integrate Andolw's existing CRM and a minimally invasive business overlay across permitted contact, enquiry, quote, order, communications, Joomla content and measurement systems. Connect existing source systems rather than build a duplicate CRM.
-- Record onboarding fee versus ongoing integration/support work, exact permissions, responsibilities, deliverables, service levels and start date in a new written agreement before representing it as committed.
+- Record any proposed onboarding or ongoing support commercial terms in a separate confidential agreement maintained outside the repositories. Repository documents may describe approved functional scope and acceptance, but no confidential pricing or accounting.
 - Identify Andolw's CRM and verify documented APIs and data rights before planning migrations or bidirectional sync.
 
 ## RDUSA first proven vertical slice
