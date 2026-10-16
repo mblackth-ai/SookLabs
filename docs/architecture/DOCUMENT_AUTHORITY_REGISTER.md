@@ -23,16 +23,20 @@ After approval/merge, [System Contract](./SOOKLABS_SYSTEM_CONTRACT.md) controls 
 | Drive `13 — SookLabs HQ MCP Gateway & Agent Swarm Protocol Specification` | PROPOSED design | Check MCP tool inventory and live runtime |
 | Drive `SookLabs Growth OS — PRD (phased) — Grok complete draft` | PROPOSED | Reconcile against client-first roadmap |
 | RDUSA September report | HISTORICAL performance evidence | Dates and data freshness cannot be silently treated as current |
+| HQ PRs #5, #9, #10, #11, #12 | UNKNOWN | Decision needed (merge / close / supersede) |
+| HQ `docs/HQ-MCP-CONTROL-PLANE.md` §RDUSA value-expansion item 2 | PROPOSED | Must not imply Sookly CRM replaces Andolw's CRM |
+| `mblackth-ai/websitev1.1` (Cascade CRM) | UNKNOWN | Identify whether this is Andolw's CRM; live URL 404 on 2026-10-15 |
+| sookly-omnichat #83 | ACTIVE_DOMAIN | Release gates G1–G13 binding |
 
 ## 2026-10-15 RDUSA commercial correction
-The former operations takeover page in Notion is a **historical proposal**, not current engagement authority. Existing client commercial terms are confidential and maintained outside repositories. The new overlay/CRM integration is proposed as separately approved work; outsourced phones and day-to-day business operations are excluded. Never include confidential retainer figures or personal accounting in any code, README, issue, PR or design file. Refer to the updated [RDUSA Notion page](https://app.notion.com/p/3da49f41df5481ee85b9f1ae85bafb47). Verify any later signed agreement before changing terms.
+The former operations takeover page in Notion is a **historical proposal**, not current engagement authority. Existing client commercial terms are confidential and maintained outside repositories. The new overlay/CRM integration is proposed as separately approved work; outsourced phones and day-to-day business operations are excluded. Never include confidential retainer figures or personal accounting in any code, README, issue, PR or design file. Refer to the updated Notion RDUSA page (URL to be confirmed by Mark; not verified). Verify any later signed agreement before changing terms.
 
 ## Confirmed direction conflicts to resolve
 1. Drive relay describes immediate lead creation; Sookly requires untrusted capture quarantine/pending human review. **Preserve Sookly restriction.**
 2. Conceptual social and MCP connection examples do not prove production credentials, active API permissions or live operation. **Connected requires runtime evidence.**
 3. SEOS contains both localStorage MVP state and DB-backed concepts. **Audit actual persistence per feature.**
 4. Existing HQ and RDUSA documents already establish ownership and acceptance. **Do not create competing approval or commercial-scope authorities.**
-5. Sookly Contact CRM is documented; **Andrew's separately referenced CRM name and login are not confirmed**.
+5. Sookly Contact CRM is documented; **Andolw (name/spelling to be confirmed)'s separately referenced CRM name and login are not confirmed**.
 
 ## Full reconciliation backlog
 Inventory all normative .md/.mdc/AGENTS/CLAUDE files on relevant branches and Drive references. For every conflict record: path, date, original claim, implementing commit, deployment evidence, owner, proposed classification, superseding reference, approver, PR, decision date. Only then patch specific obsolete headers with “Superseded by ...”; preserve their bodies for traceability.

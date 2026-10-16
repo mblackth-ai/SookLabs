@@ -12,17 +12,19 @@ This contract governs **cross-repository boundaries** after founder approval and
 | --- | --- | --- |
 | HQ (SookLabs) | Founder oversight, client-scoped views and approvals, multi-system reporting projections, audit, HQ Rooms/agent task evidence | Joomla content, Sookly CRM, SEOS specialist editing |
 | SEOS | Content lifecycle, Knowledge Base and approved claims, Joomla draft review, SEO/social planning, analytics, connector jobs | Founder operations, arbitrary CRM changes, autonomous publishing |
-| Sookly | Customer communications, receptionist, approved Contact CRM and customer journey; separate internal Ops Assistant role | Marketing publishing or unverified operating policy |
+| Sookly | Customer communications, receptionist, its own tenant Contact records for Sookly conversations (staged/reviewed). **Not** a client CRM of record; for RDUSA, Andolw's existing CRM (once identified) remains the CRM of record. Separate internal Ops Assistant role | Marketing publishing or unverified operating policy |
 | RDUSA | Client facts, contract scope, editorial QA, source records and current retainer execution | Platform-wide product decisions |
 | External platforms | Their original content/metrics/communications records | HQ authority or approvals |
 
 ### Roles and truth
 - HQ is founder command and client reporting; SEOS is specialist execution; the client portal is a tenant-scoped projection with permitted approval/feedback actions, not a second content database.
 - Sookly Receptionist and Ops Assistant have separate permissions, tone and guardrails. Ops answers require retrieval of the relevant versioned human-maintained SOP; missing or ambiguous SOP means abstain/escalate.
-- Joomla remains the CMS publication source of truth. GSC, GA4 and social platforms are the metric sources. Sookly owns its approved Contact CRM. The separately mentioned Andrew-built CRM is **unidentified** until evidence establishes its name, sign-in, API, and rights.
+- Joomla remains the CMS publication source of truth. GSC, GA4 and social platforms are the metric sources. Sookly owns its approved Contact CRM. The separately mentioned Andolw (name/spelling to be confirmed)-built CRM is **unidentified** until evidence establishes its name, sign-in, API, and rights.
 - Access does not equal assigned ownership or contractual responsibility. RDUSA's retainer scope is not expanded by proposed features.
 - Tenant scoping is enforced server-side on data, APIs, callbacks, reports, exports and background jobs.
 - All consequential actions carry actor, role, source ID/version, decision, timestamp, system outcome and objective evidence. Chat summaries are not PASS evidence.
+- Single execution ledger: HQ loop tasks (`lib/hq/loop-*.js`, `docs/HQ-LOOP.md`). No repo may introduce another task orchestrator, approval store, dashboard of record or CRM.
+- Model workers are authenticated bounded seats (HQ Room named connections). They draft and execute within scope; they are never decision authorities.
 
 ### Non-negotiable safety
 - Drafting/research by AI is allowed within permissions. Agents cannot self-approve, invent policy, change SOPs, publish, send customer communications, merge, deploy, migrate, spend or provision credentials without the appropriate explicitly recorded authority.

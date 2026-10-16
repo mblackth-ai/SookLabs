@@ -2,6 +2,9 @@
 Status: PROPOSED, no production changes authorised
 Date: 2026-10-15
 Scope: Demonstrate one complete article and measurement loop, then a separate permissioned existing-CRM overlay slice. Existing client commercial terms are kept confidential outside repositories; overlay scope and support boundaries require written client approval. No outsourced phones or operations takeover.
+Phone answering / front desk / general operations are out of scope; any USD 3,000 takeover figure is historical.
+
+ID reconciliation (checked 2026-10-16 against open HQ PR #5, branch `cursor/hq-four-front-evidence-sync-f8c4`): that PR does not use RD-01…RD-10. Its ids are slug scorecard ids (for example `engine-prisma-persistence`) and finish-line ids (`HQ-`, `SE-`, `SW-`, `MCP-`, `APP-`, `WDG-`, `JP-`), in acceptance docs that exist only on that PR. RD-01…RD-10 below are not a reuse of those ids and do not supersede them. PR #5 stays open until a founder decision to merge, close, or supersede it.
 
 | ID | Positive acceptance | Proof |
 | --- | --- | --- |
