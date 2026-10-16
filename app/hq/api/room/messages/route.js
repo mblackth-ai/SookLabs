@@ -4,6 +4,7 @@ import { getRoomStorageMode, listDispatches, listRoomMessages, listRoomSeats, po
 import { clampRoomLimit, normalizeChannel, roomBoardRows } from "@/lib/hq/swarm-contract";
 import { processQueued, routeMessage, seatStrip } from "@/lib/hq/swarm-router";
 import { seatEnv } from "@/lib/hq/seat-auth";
+import { replyWakesLoop } from "@/lib/hq/dispatch-guard";
 import { wakeFromDispatch } from "@/lib/hq/loop-service";
 
 export const dynamic = "force-dynamic";
@@ -67,7 +68,7 @@ export async function POST(request) {
   }
   if (saved.error) return json({ ok: false, error: saved.error.error }, saved.error.status);
   // A reply to a dispatch may be what an execution-loop task is waiting on.
-  if (dispatchId && !saved.deduped) after(() => wakeFromDispatch(dispatchId));
+  if (replyWakesLoop(saved, dispatchId)) after(() => wakeFromDispatch(dispatchId));
 
   // The message is committed. Routing is separate: if it fails, the post still stands.
   let dispatches = [];
