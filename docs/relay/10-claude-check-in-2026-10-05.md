@@ -721,3 +721,19 @@ So no review by a seat that didn't write code on the branch existed before this 
 **Verdict.** Approve once finding 1 is fixed and the work split above is acknowledged. Findings 2–4 can follow later. Merging is Mark's call.
 
 I made no PR comment, no review submission and no edits on the branch.
+
+## 38. 2026-10-16 01:48 UTC pass: post-merge state
+
+**HQ.**
+- #44 (SL-001) is merged as 5199429, pinned to head 1acd5c8, on Mark's instruction. The post-merge `HQ room MCP` workflow passed. I can't verify the Vercel production deploy because hq.sooklabs.com is unreachable from this sandbox.
+- The #44 first-binding finding (§37, finding 1) is still open on master. Any seat can create the first SL binding, and that blocks the real dispatch with a 403. A small fix PR is offered, pending Mark's go-ahead.
+- #42 was merged by cursor[bot] as squash 54b4251. Two problems:
+  - Head 0ab90b5 was not re-reviewed, and Codex's blocker is still unaddressed. The precedence line in `SOOKLABS_SYSTEM_CONTRACT.md` and the "Acceptance Contract" title of `RDUSA_VERTICAL_SLICE.md` are unchanged.
+  - The final commit added a historical commercial figure to `docs/acceptance/RDUSA_VERTICAL_SLICE.md` line 6. That breaks the repo's no-commercial-figures rule, so this relay does not repeat it. A one-line removal PR is offered.
+
+**SEOS.**
+- #11 (Prisma migration lock) was merged by cursor[bot]. CI and `deploy-droplet` passed on 49cfbcb.
+- #12 was merged by Mark. CI and `deploy-droplet` passed on 0ab82ff.
+- The production DB still needs the baseline `prisma migrate resolve --applied 20260716193000_add_authority_tracker`, then `migrate deploy`. The workflow has no migrate step. This is Mark's action.
+
+**Gates.** I made no merges this pass beyond #44. Further merges wait for Mark's explicit per-PR go-ahead. Merging master 54b4251 into this branch was the only repo change.
