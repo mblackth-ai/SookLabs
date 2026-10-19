@@ -22,8 +22,8 @@ jobs:
           SECRET: ${{ secrets.HQ_LOOP_WORKER_SECRET }}
         run: |
           if [ -z "$URL" ] || [ -z "$SECRET" ]; then
-            echo "::notice::HQ_LOOP_TICK_URL / HQ_LOOP_WORKER_SECRET not set; the loop is not woken."
-            exit 0
+            echo "::error::HQ_LOOP_TICK_URL / HQ_LOOP_WORKER_SECRET not set; the loop is not woken."
+            exit 1
           fi
           code=$(curl -sS -o body.json -w '%{http_code}' --max-time 90 -X POST "$URL" \
             -H "authorization: Bearer $SECRET" -H "x-hq-wake: github-schedule")
