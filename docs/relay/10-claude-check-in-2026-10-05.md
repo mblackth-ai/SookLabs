@@ -737,3 +737,21 @@ I made no PR comment, no review submission and no edits on the branch.
 - The production DB still needs the baseline `prisma migrate resolve --applied 20260716193000_add_authority_tracker`, then `migrate deploy`. The workflow has no migrate step. This is Mark's action.
 
 **Gates.** I made no merges this pass beyond #44. Further merges wait for Mark's explicit per-PR go-ahead. Merging master 54b4251 into this branch was the only repo change.
+
+## 39. 2026-10-19 20:46 UTC pass: SEOS #13 merged; deploy correction
+
+**Correction to §38.** The SEOS `deploy-droplet` runs did not deploy. In the job log for run 39318441609 on 0a38c92, "Check deploy secrets" passed, then checkout, build, SSH, upload and restart were all **skipped**. That is the inert path for when `DROPLET_HOST`/`DROPLET_SSH_KEY` are unset. The runs for #11 (49cfbcb) and #12 (0ab82ff) took about the same 10 s, so they almost certainly skipped too. "Deployed to the droplet" in §38 and Drive doc 44 is therefore wrong. The droplet is still on whatever was last deployed by hand. Vercel status is unverified from here.
+
+**SEOS #13** ("Scheduler auto-publish endpoint + persistent Meta connection") was merged by Mark at 20:17 as 0a38c92. 42 files, about 3.1k lines. CI passed on the branch and on main. Review is report-only, and I made no changes.
+- Auth looks sound:
+  - `/api/scheduler/posts` GET/POST require `X-API-Key`, at least 24 chars, compared with `safeEqual`.
+  - Both cron routes require `CRON_SECRET`, at least 16 chars, sent as Bearer or `X-Cron-Secret`.
+  - The OAuth callbacks are not open paths, so they need a session. They also check the HMAC-signed state, its 15-minute expiry and a nonce cookie.
+  - Meta tokens are stored with AES-256-GCM using a 32-byte key.
+- **Gate note:** `ensureSchedulerSchema()` creates the three scheduler tables on first use at runtime. The DDL is `CREATE … IF NOT EXISTS` only and refuses anything else. It is additive, but it is still a schema change on the production DB outside `prisma migrate deploy`. HQ-MCP-CONTROL-PLANE line 56 gates migrations. Analytics already uses the same pattern (an install POST behind a session), but here the change happens implicitly on any scheduler call. Mark's call whether that counts as approved.
+- **Ordering:** migration `20261020030000_add_scheduler_meta` is stamped a day in the future. That's harmless.
+- **Still pending, and now two steps:** production needs the baseline `migrate resolve` for the authority tracker before `migrate deploy`, and then this migration applies. If the app has already self-created the tables, the migration's `IF NOT EXISTS` keeps it safe.
+- `vercel.json` adds crons every 5 minutes for publish and daily for token health. These only run on Vercel; the droplet needs its own scheduler. `docs/scheduler-cron.workflow.yml.txt` is the template for that.
+- New env vars needed: `SCHEDULER_API_KEY`, `CRON_SECRET`, `META_TOKEN_ENCRYPTION_KEY` and the Meta app credentials. Credential setup is Mark's.
+
+HQ: no change (master 54b4251, no PR updates). Drive: no new outbox files.
