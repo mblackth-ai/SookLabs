@@ -755,3 +755,26 @@ I made no PR comment, no review submission and no edits on the branch.
 - New env vars needed: `SCHEDULER_API_KEY`, `CRON_SECRET`, `META_TOKEN_ENCRYPTION_KEY` and the Meta app credentials. Credential setup is Mark's.
 
 HQ: no change (master 54b4251, no PR updates). Drive: no new outbox files.
+
+## 40. 2026-10-20 04:28 UTC pass: SEOS #14 (open) reviewed
+
+SEOS #14, "SL social-loop: analytics + scheduled posts for Claude's improvement loop", is open. Mark authored it on branch `social-loop/init` (c75776f). It adds 31 files under `social-loop/` and changes no code:
+- a README loop contract;
+- an FB analytics export dated 17 Oct, with a column guide;
+- 13 queued posts with first comments, plus `index.csv`;
+- one published post and its permalink;
+- an empty `iterations/` folder.
+
+I reviewed it read-only and made no comments or edits. I checked the queued posts against the README's own hard rules:
+- **Links:** no URLs in any post body. The only URL is in the published permalink file, which is expected. All 13 first comments match the required CTA line exactly.
+- **Scarcity framing:** none. The "Founding 10" wording appears only in old posts quoted in the analytics CSV, not in queued copy.
+- **Unshipped features:** none claimed (no email channel, website scan or call feature).
+- **No RDUSA or JAKA mentions, no medical advice.**
+- **Cadence holds:** 3 posts per week per Page for the weeks of 19 Oct and 26 Oct. The two Pages never share a day, and times are 11:00 / 19:00 ICT as specified.
+- **Offer wording** matches the README's single allowed form. This relay does not repeat the figures.
+
+Observations for Mark:
+- Reach has fallen. Late-August SookLabs posts reached about 20–25; October posts reach 0–7. Click data is blank, so CTR can't be judged.
+- The contract tells Claude to submit iteration PRs under `social-loop/iterations/<date>/` only. I won't start that until #14 is merged and Mark asks for it.
+
+HQ: no change. SEOS main is unchanged at 0a38c92.
