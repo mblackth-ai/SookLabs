@@ -800,3 +800,41 @@ Impact, from reading the merged code. This is report only; I made no comments or
 Offer to Mark: a small SEOS PR that adds the workflow file (inert until the secrets are set) and corrects the doc and `next_publish_at` wording. It would be opened only on his go-ahead.
 
 HQ: no change (master 54b4251). SEOS #14 is still open at c75776f. Drive: no new outbox files.
+
+## 42. 2026-10-20 21:04 UTC pass: HQ #45, SEOS #16 and #17 merged (content and social record)
+
+Mark merged three PRs between 20:34 and 20:47 UTC. I reviewed all three read-only after the merge. I made no comments or edits.
+
+**HQ #45 → master 7be1921: "Content & Social section, briefing action items, Clients (RDUSA, JAKA)"**
+- 12 files changed.
+- New pages: `/hq/content`, `/hq/clients` and `/hq/clients/[slug]`.
+- New components: `ContentSocialBoard` and `ContentActionItems`.
+- `lib/hq/content-summary.js` reads SEOS `/api/hq/content-summary` server-side.
+  - It sends `SEOS_HQ_API_TOKEN` as a Bearer token, the same token the Authority and Reports panels use.
+  - It never throws; on failure it shows "not configured" or the error.
+  - It is read-only, and HQ keeps no copy of the posts.
+- `lib/hq/clients.js` holds only public profile facts and marks every system as `connected: false`. No metrics are faked.
+- `node --test lib/hq/content-summary.test.js`: 5 of 5 pass locally.
+
+**SEOS #16 → cefe22f: "Record every social post per business + read-only HQ content summary"**
+- Migration `20261021030000_add_social_record` is additive only. It adds five nullable columns to `scheduler_posts`, the default `origin='seos'`, and a new `social_businesses` table.
+- The runtime installer also runs this DDL on first use. It now checks every statement against `ADDITIVE_STATEMENT_RE`, which allows only `CREATE TABLE/INDEX IF NOT EXISTS` and `ADD COLUMN IF NOT EXISTS`. The runtime-DDL gate question from §39 still applies.
+- Auth on the new routes:
+  - `/api/hq/content-summary` checks the HQ service token.
+  - `/api/scheduler/import` checks `SCHEDULER_API_KEY`.
+  - Both are added to the middleware open-path list and enforce their own auth.
+  - `/api/social/*` stays behind the session login, and its PUT checks same-site.
+- Imported rows are `scheduled`, `blocked` or `skipped`. The publish cron only claims `queued` rows, so imports are never published.
+- The import seed data (`src/data/social-imports/*.json`) contains the public marketing copy for each client's Page. It holds no secrets or tokens.
+
+**SEOS #17 → 93a02cf: "Social dashboard: All + per-business tabs with calendar, charts, flags and approvals"**
+- UI only, under the session gate.
+
+**Deploy state.** The HQ content panel will show the SEOS 404 hint until SEOS is serving 93a02cf. The §41 publish-cron issue (daily only, posts late) is unchanged and still affects these scheduled posts.
+
+Still open for Mark:
+- SEOS #14;
+- the 5-minute cron backup PR offer (§41);
+- the earlier offers: the #44 first-binding fix and removing the commercial figure from the RDUSA acceptance doc.
+
+Telegram remains on hold.
