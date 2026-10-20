@@ -778,3 +778,25 @@ Observations for Mark:
 - The contract tells Claude to submit iteration PRs under `social-loop/iterations/<date>/` only. I won't start that until #14 is merged and Mark asks for it.
 
 HQ: no change. SEOS main is unchanged at 0a38c92.
+
+## 41. 2026-10-20 20:29 UTC pass: SEOS #15 merged (publish cron moved to daily)
+
+SEOS main moved from 0a38c92 to 65ad8b2. Mark merged #15, "vercel.json: run publish cron daily (Hobby plan allows daily crons only)". It is a one-line change: `/api/scheduler/cron/publish` now runs at `0 2 * * *` instead of `*/5 * * * *`. Token-health is unchanged at `0 1 * * *`.
+
+- **CI:** `ci` passed on 65ad8b2.
+- **`deploy-droplet` run 5 passed, but did not deploy.** It took 11s, which is the same inert path as before: secrets are not set and the deploy steps were skipped. Hosting appears to be Vercel Hobby.
+
+Impact, from reading the merged code. This is report only; I made no comments or edits.
+- **Posts will go out late.** 02:00 UTC is 09:00 ICT. The social-loop contract (#14) schedules posts at 11:00 and 19:00 ICT. With only the daily cron, an 11:00 post goes out about 22h late and a 19:00 post about 14h late. A day's 11:00 and 19:00 posts would then both go out in the same 09:00 ICT run.
+- **Retries slow from minutes to days.** `publisher.ts` retries transient Meta errors after 5 and then 15 minutes, up to 3 attempts. Under a daily cron, each retry waits until the next day.
+- **The scheduler response promises a time it no longer meets.** The API still returns `next_publish_at = scheduled_for + 5 min` (`validation.ts`). `docs/scheduler-auto-publish.md` still says "Vercel Cron every 5 min".
+- **The repo already ships a fix.** `docs/scheduler-cron.workflow.yml.txt` is a GitHub Actions backup trigger running `*/5 * * * *`. It is safe alongside Vercel Cron because posts are claimed atomically. To enable it, Mark would:
+  1. copy it to `.github/workflows/scheduler-cron.yml`;
+  2. set the repo secrets `SEOS_CRON_URL` and `SEOS_CRON_SECRET`.
+
+  Without those secrets the workflow is inert. Setting secrets is Mark's action.
+- **Volume is fine.** The cap of 5 posts per run is enough for the current cadence of 3 posts per week per Page.
+
+Offer to Mark: a small SEOS PR that adds the workflow file (inert until the secrets are set) and corrects the doc and `next_publish_at` wording. It would be opened only on his go-ahead.
+
+HQ: no change (master 54b4251). SEOS #14 is still open at c75776f. Drive: no new outbox files.
