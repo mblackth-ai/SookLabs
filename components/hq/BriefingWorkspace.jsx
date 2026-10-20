@@ -6,8 +6,9 @@ import { AskAIButton, AskAIFocusCard } from "./AskAIButton";
 import { BriefingNotesEditor } from "./BriefingNotesEditor";
 import { Card } from "./Card";
 import { useAskAI } from "./useAskAI";
+import { ContentActionItems } from "./ContentActionItems";
 
-export function BriefingWorkspace({ initialData }) {
+export function BriefingWorkspace({ initialData, contentActions }) {
   const ask = useAskAI();
 
   return (
@@ -27,6 +28,7 @@ export function BriefingWorkspace({ initialData }) {
           </div>
           <AskAIFocusCard ask={ask} />
         </Card>
+        {contentActions ? <ContentActionItems items={contentActions.items} error={contentActions.error} /> : null}
         <BriefingNotesEditor initialData={initialData} />
       </div>
     </div>
