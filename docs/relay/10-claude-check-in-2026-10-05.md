@@ -979,3 +979,42 @@ Still open:
 - The earlier offers.
 
 Drive: no new outbox files.
+
+## 48. 2026-10-21 19:49 UTC pass: SEOS #14, #25 and HQ #48 merged
+
+Mark merged these between 19:46 and 19:47 UTC. I reviewed them read-only after the merge and made no comments or edits.
+
+**SEOS #14 → dee1b49: social-loop.** This is the content I reviewed in §40 (31 files under `social-loop/`). It is unchanged since that review.
+
+**SEOS #25 → da35be0: "Scheduler auto-publish: Threads via threads_connections, 280/2200 intake rules, hiring rails + aliases, cancel/readiness/dry-run, sheet bridge"** (18 files)
+- **Threads publishing.** It now takes the token from `threads_connections[brand]` (one-tap connect, #23) first. It falls back to `meta_tokens` for `account.threadsUserId`.
+- **Intake limits.** Threads text plus CTA over 280 characters is now rejected (400). The Instagram caption target is 800–1500; outside that it only warns.
+- **Account routing.** `account-config.ts` adds aliases (for example `retaildisplayusa` → `rdusa`). It also adds the hiring rails, which publish via `sooklabs` and `sooklyco`.
+- **New endpoints and options.**
+  - `POST /api/scheduler/posts/:id/cancel` (X-API-Key) changes a queued post to skipped.
+  - `GET /api/scheduler/readiness` (X-API-Key) returns token-free readiness per account.
+  - `?dry_run=1` on the cron route does not claim rows or call Meta.
+  - The middleware open-path list now includes the cancel route (UUID-restricted regex) and readiness. Both check the key themselves.
+- **RDUSA can now publish from SEOS.** `rdusa` is now `enabled: true`. A seed `updateMany` flips the row only if it still carries the original v1 note. So any post queued under `rdusa` (or an alias) through the scheduler API will now publish from SEOS once a token exists. The box's import rows are unaffected.
+- **Finding (raises §47 #2): the Threads publisher does not check whose token it is using.**
+  - `defaultThreadsCredential` uses `conn.userId` and `conn.token` from `threads_connections` without checking that `conn.userId` equals `account.threadsUserId`.
+  - Combined with the reusable authorize link (§47), anyone who completes a brand's link becomes that brand's publishing identity. SEOS would then post the brand's queued Threads content to their account. `rdusa` is now enabled and has a known `threadsUserId`, so this affects a client.
+  - **One-line guard:** in `defaultThreadsCredential`, if `account.threadsUserId` is set and differs from `conn.userId`, return null (or throw `PermanentPublishError`). Also show the mismatch in readiness.
+- **Still open:** §44 `accounts[]` can rewrite the IDs of enabled accounts, which now include `rdusa`.
+
+**HQ #48 → master 06edcb6: "client submenus (RDUSA, JAKA, SookLabs, Sookly Omnichat) with Retainer, Content & Social and Briefing pages"** (20 files)
+- **Tests.** `node --test lib/hq/*.test.js` → 103 of 103 pass locally.
+- **Commercial figures are now in master (Mark to decide).** `docs/RDUSA_RETAINER_DELIVERY_CONTRACT.md`, `docs/JAKA_RETAINER_DELIVERY_CONTRACT.md`, `lib/hq/rdusa-retainer-contract.js` and `lib/hq/jaka-retainer-contract.js` contain each client's retainer fee. RDUSA also has an hourly standby rate. The JS modules feed the HQ Retainer pages.
+  - This relay does not repeat the figures.
+  - It is the same class of item as the RDUSA acceptance-doc figure I offered to remove earlier.
+  - If figures should stay out of the repo, move them to an env or DB value shown only to the owner, or drop them.
+
+Open items:
+- Threads publisher identity guard (new).
+- §47 token-pull key and single-use state.
+- §44 `accounts[]` guard.
+- §41 publish cron runs only daily.
+- Commercial figures in the retainer docs.
+- The earlier HQ #44 offer.
+
+Drive: no new outbox files. New open branches: SEOS `feat/social-brand-switcher` and `scheduler-rdusa-enable-v0-note`; HQ `feat/hq-client-submenus` (likely the source branch of #48).
