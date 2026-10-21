@@ -7,6 +7,7 @@ import { BusinessContentCard, ContentUnavailable, NotConnectedRow } from "@/comp
 import { readContentSummary } from "@/lib/hq/content-client";
 import { businessSummary } from "@/lib/hq/content-summary.js";
 import { getClient } from "@/lib/hq/clients";
+import { ClientSectionTabs } from "@/components/hq/ClientSectionTabs";
 import { getSeosAppUrl } from "@/lib/hq/paths";
 
 export const dynamic = "force-dynamic";
@@ -31,7 +32,8 @@ export default async function ClientPage({ params }) {
         actions={<Button variant="secondary" size="sm" href={seosUrl}>Open in SEOS</Button>}
       />
       <div className="hq-page-content" style={{ display: "grid", gap: 16 }}>
-        <section aria-label="Locked metrics">
+        <ClientSectionTabs client={client} active="overview" />
+        {client.lockedMetrics.length ? <section aria-label="Locked metrics">
           <div className="hq-section-label" style={{ marginBottom: 8 }}>Locked metrics</div>
           <div className="hq-grid-2">
             {client.lockedMetrics.map((m) => {
@@ -53,7 +55,7 @@ export default async function ClientPage({ params }) {
               );
             })}
           </div>
-        </section>
+        </section> : null}
 
         <div className="hq-grid-2">
           <Card padding="md">

@@ -678,6 +678,12 @@
   opacity: 0.95;
 }
 
+.hq-sidebar-nav-link--nested-2 {
+  padding-left: calc(var(--space-2-5) + 36px + var(--space-2));
+  font-size: var(--text-xs);
+  opacity: 0.85;
+}
+
 .hq-sidebar-nav-link:hover {
   background: rgba(255, 255, 255, 0.04);
 }

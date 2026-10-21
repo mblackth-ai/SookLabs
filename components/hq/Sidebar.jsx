@@ -7,7 +7,7 @@ import { Avatar } from "./Avatar";
 import { OpsStorageChip } from "./OpsStorageChip";
 import { icons } from "@/lib/hq/icons";
 import { nav, currentUser } from "@/lib/hq/mock-data";
-import { isHqNavActive } from "@/lib/hq/paths";
+import { isHqNavActive, normalizeHqPathname } from "@/lib/hq/paths";
 
 const GLYPH = "/assets/sooklabs/sooklabs-glyph.png";
 
@@ -19,11 +19,11 @@ const TODAY_PIN = [
   { id: "pin-automation", label: "Agents", icon: "activity", href: "/hq/automation" },
 ];
 
-function NavRow({ row, active, onNavigate, nested = false }) {
+function NavRow({ row, active, onNavigate, nested = false, depth = 1 }) {
   return (
     <Link
       href={row.href}
-      className={`hq-sidebar-nav-link${nested ? " hq-sidebar-nav-link--nested" : ""}${active ? " hq-sidebar-nav-link--active" : ""}`}
+      className={`hq-sidebar-nav-link${nested ? " hq-sidebar-nav-link--nested" : ""}${nested && depth > 1 ? " hq-sidebar-nav-link--nested-2" : ""}${active ? " hq-sidebar-nav-link--active" : ""}`}
       onClick={onNavigate}
     >
       <span
@@ -37,8 +37,9 @@ function NavRow({ row, active, onNavigate, nested = false }) {
   );
 }
 
-function shouldShowSubitem(pathname, parentHref, subitemHref) {
-  return isHqNavActive(pathname, parentHref) || isHqNavActive(pathname, subitemHref);
+function shouldShowSubitem(pathname, parentHref, row) {
+  if (row.alwaysOpen) return true;
+  return isHqNavActive(pathname, parentHref) || isHqNavActive(pathname, row.href);
 }
 
 export function Sidebar({ mobileOpen = false, onMobileClose }) {
@@ -46,6 +47,7 @@ export function Sidebar({ mobileOpen = false, onMobileClose }) {
   const router = useRouter();
 
   const isActive = (href) => isHqNavActive(pathname, href);
+  const isRowActive = (row) => (row.exact ? normalizeHqPathname(pathname) === normalizeHqPathname(row.href) : isActive(row.href));
 
   async function signOut() {
     await fetch("/hq/api/logout", { method: "POST" });
@@ -117,17 +119,18 @@ export function Sidebar({ mobileOpen = false, onMobileClose }) {
               />
             );
           }
-          if (row.kind === "subitem") {
-            if (!lastParentHref || !shouldShowSubitem(pathname, lastParentHref, row.href)) {
+          if (row.kind === "subitem" || row.kind === "subsubitem") {
+            if (!lastParentHref || !shouldShowSubitem(pathname, lastParentHref, row)) {
               return null;
             }
             return (
               <NavRow
                 key={row.id}
                 row={row}
-                active={isActive(row.href)}
+                active={isRowActive(row)}
                 onNavigate={onMobileClose}
                 nested
+                depth={row.kind === "subsubitem" ? 2 : 1}
               />
             );
           }
