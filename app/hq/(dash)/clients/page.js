@@ -34,7 +34,7 @@ export default async function ClientsPage() {
                     ))}
                   </div>
                   <div style={{ fontSize: "var(--text-xs)", color: "var(--text-tertiary)", marginTop: 8 }}>
-                    {b ? `${b.counts.scheduled} scheduled · ${b.counts.published} published · ${b.gapDays.length} gap days` : `SEOS: ${result.error || "no data"}`}
+                    {b ? `${b.counts.scheduled} scheduled · ${b.counts.published} published · ${b.gapDays.length} gap days${b.daysAhead != null ? ` · ${b.daysAhead} days ahead` : ""}${b.reporting && !b.reporting.healthy ? " · publisher issue" : ""}` : `SEOS: ${result.error || "no data"}`}
                   </div>
                 </Card>
               </Link>

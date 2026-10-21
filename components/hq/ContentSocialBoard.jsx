@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Badge } from "./Badge";
 import { Button } from "./Button";
 import { Card } from "./Card";
+import { reportingStatus } from "@/lib/hq/content-summary.js";
 
 const PLATFORM = { instagram: "#d6409f", facebook: "#3987e5", threads: "#a1a1aa", linkedin: "#0ea5e9" };
 const muted = { fontSize: "var(--text-xs)", color: "var(--text-tertiary)" };
@@ -9,6 +10,39 @@ const muted = { fontSize: "var(--text-xs)", color: "var(--text-tertiary)" };
 function fmt(iso, tz) {
   if (!iso) return "—";
   return new Intl.DateTimeFormat("en-GB", { timeZone: tz || "Asia/Bangkok", weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(iso));
+}
+
+function day(iso, tz) {
+  return iso ? new Intl.DateTimeFormat("en-GB", { timeZone: tz || "Asia/Bangkok", day: "numeric", month: "short" }).format(new Date(iso)) : "—";
+}
+
+const HEALTH = { ok: "success", stale: "warning", error: "warning", down: "error" };
+
+export function ReportingPanel({ b }) {
+  const st = reportingStatus(b);
+  if (!st.reported) return <div style={muted}>Box reporting: not reported by this SEOS version.</div>;
+  return (
+    <div style={{ display: "grid", gap: 6 }}>
+      <div style={{ fontSize: "var(--text-xs)", color: st.pushStale ? "var(--color-warning)" : "var(--text-secondary)" }}>
+        Last push to SEOS: {st.lastPushAt ? `${fmt(st.lastPushAt, "Asia/Bangkok")} ICT (${st.lastPush})` : "never"}
+      </div>
+      {st.publishers.length ? (
+        st.publishers.map((p) => (
+          <div key={p.key} style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "center", fontSize: "var(--text-xs)" }}>
+            <span style={{ color: "var(--text-primary)" }}>
+              {p.name}
+              <span style={{ color: "var(--text-tertiary)" }}>
+                {" · last run "}{p.lastRun}{p.queued != null ? ` · ${p.queued} queued` : ""}{p.nextDueAt ? ` · next ${fmt(p.nextDueAt, "Asia/Bangkok")} ICT` : ""}{p.detail ? ` · ${p.detail}` : ""}
+              </span>
+            </span>
+            <Badge variant={HEALTH[p.health] || "outline"} size="sm">{p.health}</Badge>
+          </div>
+        ))
+      ) : (
+        <div style={muted}>No box publisher reports for this business.</div>
+      )}
+    </div>
+  );
 }
 
 function tzLabel(tz) {
@@ -36,7 +70,7 @@ function Count({ value, label, tone }) {
   );
 }
 
-function PlatformBars({ byPlatform }) {
+function PlatformBars({ byPlatform, tz }) {
   const rows = Object.entries(byPlatform || {});
   if (!rows.length) return <div style={muted}>No posts in the window.</div>;
   const max = Math.max(1, ...rows.map(([, v]) => v.scheduled + v.published + v.unverified + v.failed + v.blocked));
@@ -55,6 +89,7 @@ function PlatformBars({ byPlatform }) {
           </span>
           <span style={{ color: "var(--text-secondary)", fontVariantNumeric: "tabular-nums" }}>
             {v.published} pub · {v.scheduled} sched{v.blocked ? ` · ${v.blocked} blocked` : ""}{v.failed ? ` · ${v.failed} failed` : ""}
+            {v.scheduledThrough ? ` · thru ${day(v.scheduledThrough, tz)}` : ""}
           </span>
         </div>
       ))}
@@ -94,17 +129,23 @@ export function BusinessContentCard({ b, seosUrl, clientHref }) {
         </div>
         <div style={{ display: "flex", gap: 6 }}>
           {flagged ? <Badge variant="warning" size="sm">{flagged} flagged</Badge> : <Badge variant="success" size="sm">no failures</Badge>}
+          {b.reporting && !b.reporting.healthy ? <Badge variant="error" size="sm">publisher issue</Badge> : null}
           {clientHref ? <Button variant="ghost" size="sm" href={clientHref}>Client page</Button> : null}
         </div>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(0, 1fr))", gap: 8, marginBottom: 12 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(6, minmax(0, 1fr))", gap: 8, marginBottom: 12 }}>
         <Count value={b.counts.scheduled} label="scheduled (next 14d)" />
+        <Count value={b.daysAhead ?? "—"} label={b.scheduledThrough ? `days ahead (thru ${day(b.scheduledThrough, b.timezone)})` : "days ahead"} tone={b.daysAhead != null && b.daysAhead < 7 ? "var(--color-warning)" : undefined} />
         <Count value={b.counts.published} label="published (last 14d)" tone="var(--color-success)" />
         <Count value={b.gapDays.length} label="gap days" tone={b.gapDays.length ? "var(--color-warning)" : undefined} />
         <Count value={flagged} label="failed + blocked" tone={flagged ? "var(--color-error)" : undefined} />
         <Count value={b.counts.unverified} label="unverified" />
       </div>
-      <PlatformBars byPlatform={b.byPlatform} />
+      <PlatformBars byPlatform={b.byPlatform} tz={b.timezone} />
+      <div style={{ marginTop: 12 }}>
+        <div className="hq-section-label" style={{ marginBottom: 6 }}>Publishing & reporting</div>
+        <ReportingPanel b={b} />
+      </div>
       {b.contentLines?.length ? (
         <div style={{ marginTop: 12 }}>
           <div className="hq-section-label" style={{ marginBottom: 6 }}>Content mix</div>
@@ -161,6 +202,7 @@ export function ContentUnavailable({ result, seosUrl }) {
 export function ContentSocialBoard({ result, seosUrl, clientSlugs = [] }) {
   if (!result.ok) return <ContentUnavailable result={result} seosUrl={seosUrl} />;
   const t = result.data.totals || { scheduled: 0, published: 0, unverified: 0, failed: 0, blocked: 0, gapDays: 0 };
+  const unhealthy = t.unhealthyPublishers ?? null;
   return (
     <div style={{ display: "grid", gap: 16 }}>
       <div className="hq-grid-4">
@@ -169,7 +211,9 @@ export function ContentSocialBoard({ result, seosUrl, clientSlugs = [] }) {
         <Card padding="md"><Count value={t.failed + t.blocked} label="Failed + blocked" tone={t.failed + t.blocked ? "var(--color-error)" : undefined} /></Card>
         <Card padding="md"><Count value={t.gapDays} label="Gap days (all businesses)" tone={t.gapDays ? "var(--color-warning)" : undefined} /></Card>
       </div>
-      <div style={muted}>From SEOS at {fmt(result.data.generatedAt, "Asia/Bangkok")} ICT. Unverified = scheduled outside SEOS, time passed, no published record yet; never counted as published.</div>
+      <div style={muted}>
+        {unhealthy == null ? "" : unhealthy ? `${unhealthy} publisher${unhealthy === 1 ? "" : "s"} need attention. ` : "All box publishers reporting OK. "}
+        From SEOS at {fmt(result.data.generatedAt, "Asia/Bangkok")} ICT. Unverified = scheduled outside SEOS, time passed, no published record yet; never counted as published.</div>
       <div className="hq-grid-2">
         {result.data.businesses.map((b) => (
           <BusinessContentCard key={b.slug} b={b} seosUrl={seosUrl} clientHref={clientSlugs.includes(b.slug) ? `/hq/clients/${b.slug}` : null} />
