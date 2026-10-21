@@ -33,7 +33,7 @@ Context hint: ${job.summary || "(open Automation → Refresh queue for full cont
 
 function statusVariant(status) {
   if (status === "completed") return "success";
-  if (status === "failed") return "error";
+  if (status === "failed" || status === "timed_out") return "error";
   return "warning";
 }
 
@@ -170,7 +170,7 @@ export function AgentJobLog({ jobs = [], compact = false }) {
                   </div>
                 </div>
                 <Badge variant={statusVariant(job.status)} size="sm">
-                  {job.status}
+                  {job.status === "timed_out" ? "timed out" : job.status}
                 </Badge>
               </div>
               {!compact && job.status === "running" ? (
