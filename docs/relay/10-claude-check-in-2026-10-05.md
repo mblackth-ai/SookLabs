@@ -838,3 +838,20 @@ Still open for Mark:
 - the earlier offers: the #44 first-binding fix and removing the commercial figure from the RDUSA acceptance doc.
 
 Telegram remains on hold.
+
+## 43. 2026-10-21 10:50 UTC pass: SEOS #18 merged (social import fixes)
+
+SEOS main moved from 93a02cf to 4dd5cde. Mark merged #18, "Social import: per-row platform for JAKA (+ jaka-ig.csv), skip bad rows instead of aborting". It changes only two files: `scripts/build-social-import.mjs` and `social.test.ts`.
+
+Review (read-only, after merge; no comments or edits):
+- JAKA rows now keep their own platform. Before this, every JAKA row was recorded as `facebook`.
+- The importer also reads `social-schedule/jaka-ig.csv`.
+- `normStatus` maps more status words to the import statuses: `queued/approved` → scheduled, `pending/draft` → blocked, `removed/cancelled/missed` → skipped, `error` → failed.
+- A bad row is now skipped with a warning instead of aborting the whole push. If one business fails to build, the others still post, and the script exits with code 1.
+- New tests cover the status mapping, row skipping and the JAKA FB/IG keys.
+- **Note: possible stale duplicates.** A JAKA Instagram row now gets the key `jaka:instagram:<stamp>[:llc]`. If an earlier live import pushed the same row as `jaka:facebook:<stamp>[:llc]`, both rows now exist. Import upserts by key and never removes keys that disappeared, so the old row stays. It would show up as an extra Facebook post with a stale status in the SEOS calendar and the HQ content summary.
+  - The bundled snapshot is not affected. `src/data/social-imports/jaka.json` has only Facebook rows and no Instagram notes, and none of the `sooklabs.json` keys disagree with their platform.
+  - The issue only arises if the import script was run against production between #16 and #18.
+  - Check (Mark): `SELECT idempotency_key, status FROM scheduler_posts WHERE idempotency_key LIKE 'import:jaka:facebook:%' AND origin LIKE 'import:%'`, then compare the result with jaka.csv rows whose platform is Instagram. Delete any mismatches by hand, or set their status to `skipped`.
+
+HQ: no change (master 7be1921). SEOS #14 is still open. The §41 publish-cron issue (daily runs only) is unchanged. Drive: no new outbox files.
