@@ -855,3 +855,33 @@ Review (read-only, after merge; no comments or edits):
   - Check (Mark): `SELECT idempotency_key, status FROM scheduler_posts WHERE idempotency_key LIKE 'import:jaka:facebook:%' AND origin LIKE 'import:%'`, then compare the result with jaka.csv rows whose platform is Instagram. Delete any mismatches by hand, or set their status to `skipped`.
 
 HQ: no change (master 7be1921). SEOS #14 is still open. The §41 publish-cron issue (daily runs only) is unchanged. Drive: no new outbox files.
+
+## 44. 2026-10-21 11:22 UTC pass: SEOS #19 merged (social reporting, delete_keys, account IDs)
+
+SEOS main moved from 4dd5cde to e40bd6d. Mark merged #19, "Social reporting: box publisher heartbeats, last push, days ahead; import can delete stale keys and fill account IDs". It touches 12 files. I reviewed it read-only after the merge and made no comments or edits.
+
+What the PR adds:
+- **Migration `20261021120000_add_social_reports`.** It is additive only: one new `social_reports` table. The same SQL is embedded for the runtime installer, and a test keeps the two identical.
+- **`POST /api/scheduler/import` takes three new arrays.** The route is still gated by `SCHEDULER_API_KEY`.
+  - `reports[]`: publisher heartbeats.
+  - `delete_keys[]`: up to 100 keys. It only deletes rows whose origin starts with `import:`, and never a key that is also in the same batch. This is the clean-up path for the stale JAKA `facebook` keys I noted in §43.
+  - `accounts[]`: fills Page, IG and Threads IDs.
+- **HQ content summary additions:** `daysAhead`, `scheduledThrough`, `reporting.lastPushAt`, `pushStale`, publisher health, and `totals.unhealthyPublishers`.
+- **Default account map:** now carries the public RDUSA and JAKA Page, IG and Threads IDs. Both accounts stay `enabled: false`, because the ops box publishes for them, not SEOS.
+
+Findings for Mark:
+1. **`accounts[]` widens what the scheduler API key can do.**
+   - Before this PR, the key could only queue and import posts. Now it can overwrite the platform IDs of any known account, including enabled accounts that SEOS publishes to (the Sookly / SookLabs Pages).
+   - It cannot enable an account or touch tokens. But if the key leaked, the holder could repoint an enabled account's `facebook_page_id` to another Page that the same Meta token can manage. Queued posts would then publish there.
+   - **Suggested fix:** only apply `accounts[]` to accounts where `enabled = false`, or only fill fields that are currently null. Either is a one-line guard in `importRecords`.
+2. **The bundled snapshot can put deleted keys back.** `syncBundledImports()` re-inserts the committed snapshot on each cold start, in insert mode. If a key passed to `delete_keys` is also in `src/data/social-imports/*.json`, it comes back on the next cold start.
+   - The current JAKA snapshot is Facebook-only and correct, so the stale keys from §43 are not affected.
+   - It would matter for any future delete of a snapshot key.
+   - **Fix options:** have the snapshot sync skip keys that were deleted (a tombstone), or drop keys from the snapshot whenever they are deleted.
+
+Unchanged:
+- HQ master is still 7be1921.
+- SEOS #14 is still open.
+- The publish cron still runs only daily (§41).
+
+Drive: no new outbox files.
