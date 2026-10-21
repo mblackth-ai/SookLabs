@@ -912,3 +912,18 @@ Still open:
 - The earlier offers.
 
 Drive: no new outbox files.
+
+## 46. 2026-10-21 12:27 UTC pass: SEOS #21 and #22 merged (content-summary fixes)
+
+SEOS main moved from e43341d to 14111e8. I reviewed both PRs read-only after the merge and made no comments or edits.
+
+- **#21 (de39d4b): fixes a production 500 on `GET /api/hq/content-summary`.**
+  - In `summary.ts`, `dayKey` and `hourOf` now pass `timeZone: tz` explicitly instead of using the `{ timeZone }` shorthand. Turbopack had inlined the shorthand into a caller where `timeZone` was unbound, which threw a ReferenceError.
+  - A regression test was added.
+  - So SEOS production is serving the #16+ code, and HQ's Content panel was hitting this 500 until the fix deploys.
+- **#22 (14111e8): the content summary now also accepts the scheduler `X-API-Key`, as well as the HQ Bearer token.** This lets the ops box check what HQ will show.
+  - The PR's reasoning is that the key can already list every post, so nothing new is exposed. That holds: `GET /api/scheduler/posts` is key-gated.
+  - The HQ-token path is unchanged.
+  - A missing or invalid key falls through to the Bearer check, so there is no bypass.
+
+HQ is unchanged (master a2fad73). SEOS #14 is still open. The other open items are carried over from §45.
