@@ -927,3 +927,55 @@ SEOS main moved from e43341d to 14111e8. I reviewed both PRs read-only after the
   - A missing or invalid key falls through to the Bearer check, so there is no bypass.
 
 HQ is unchanged (master a2fad73). SEOS #14 is still open. The other open items are carried over from §45.
+
+## 47. 2026-10-21 16:10 UTC pass: SEOS #23, #24 and HQ #47 merged
+
+Mark merged three PRs between 14:32 and 15:37 UTC. I reviewed them read-only after the merge. I made no comments or edits.
+
+**SEOS #23 → b4277c5: "Threads one-tap connect"**
+
+What it adds:
+- 14 files, including a new `threads_connections` table (additive migration plus embedded SQL).
+- `GET /api/threads/oauth/start` (X-API-Key) returns a signed authorize link.
+  - The state is HMAC-SHA256 with `THREADS_OAUTH_STATE_SECRET`, at least 16 characters.
+  - It carries a nonce, a 72 h default TTL and a hard cap of 14 days.
+- The callback verifies the state with `safeEqual`. It exchanges code → short-lived → 60-day token, then calls `/me`, and stores the token encrypted with AES-256-GCM.
+  - The result page HTML-escapes everything and sets `no-store` and `no-referrer`.
+  - Error text is scrubbed of codes, tokens and the app secret.
+- The Meta uninstall and data-deletion callbacks verify `signed_request` (HMAC with the app secret, constant-time compare).
+- `GET /api/threads/connections/[brand]` (X-API-Key) returns the decrypted token so the box can pull it.
+- Tests: `threads-oauth.test.ts`.
+
+Overall the crypto and escaping are careful. Findings for Mark:
+1. **The scheduler API key can now read plaintext Threads publish tokens.**
+   - `/api/threads/connections/[brand]` returns `access_token` decrypted to any holder of `SCHEDULER_API_KEY`. Each token is valid for 60 days and has `threads_content_publish` scope.
+   - This is the third widening of that one key, after `accounts[]` (§44) and the content summary (§46). It started as a queue-only key.
+   - **Suggestion:** give the token pull its own secret (for example `THREADS_PULL_KEY`), held only by the box. Reasonable additions are an IP allowlist and logging every pull.
+2. **An authorize link can be used more than once, and by anyone.**
+   - The state is not single-use and is not tied to an expected Threads account.
+   - Anyone who gets the link within its TTL (default 72 h, up to 14 days) can sign in with their own Threads account. Because the store is an upsert, that replaces the brand's stored connection. The box would then pull and post with the wrong account's token, or the real connection is simply knocked out.
+   - **Suggestions:**
+     - record used nonces and refuse a second callback for the same nonce;
+     - optionally pass `expected_username` to `start` and reject a mismatch in the callback;
+     - shorten the default TTL.
+3. **Minor: the deletion confirmation code leaks the Threads user ID.**
+   - The code is `thd-` + base64url(`userId:timestamp`) (first 24 chars) + random. That puts a recoverable user ID into the public status URL.
+   - The status page also reports "deletion complete" for any well-formed code.
+   - **Suggestion:** use a random code only.
+
+**SEOS #24 → fa41699: "Business Suite batch posts take their reconciled status/permalink from RECONCILED.json"**
+- Changes only the import script and its tests.
+
+**HQ #47 → master 663919b: "agent jobs still 'running' after 6 h are marked timed_out on read and persisted"**
+- `lib/hq/agent-jobs.js` is a pure helper (`HQ_AGENT_JOB_STALE_HOURS`, default 6).
+- `readOpsData` expires stale jobs and calls `writeOpsData` with the whole document.
+- Tests pass locally: `node --test lib/hq/agent-jobs.test.js lib/hq/content-summary.test.js` → 10/10.
+- **Note:** this is a write-on-read of the full ops document. Suppose a job callback or another write lands between the read and this write. If that happens on the one read that expires a job, last-writer-wins can drop that update. The window is small and only opens once per stale job. Doing the expiry as a targeted update (Postgres `UPDATE … WHERE status='running' AND started_at < …`) would avoid it.
+
+Still open:
+- SEOS #14.
+- The publish cron runs only daily (§41).
+- The `accounts[]` guard (§44).
+- The earlier offers.
+
+Drive: no new outbox files.
