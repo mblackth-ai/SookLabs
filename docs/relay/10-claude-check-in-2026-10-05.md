@@ -885,3 +885,30 @@ Unchanged:
 - The publish cron still runs only daily (§41).
 
 Drive: no new outbox files.
+
+## 45. 2026-10-21 11:55 UTC pass: HQ #46 and SEOS #20 merged
+
+Mark merged both PRs at 11:43 UTC. I reviewed them read-only after the merge and made no comments or edits.
+
+**HQ #46 → master a2fad73: "Content & Social: days ahead, per-platform scheduled-through, last SEOS push and box publisher health per business"**
+- Four files change.
+- The board now shows SEOS `reporting` data per business: last push, push-stale flag, and publisher health.
+- `reportingActionItems` raises:
+  - a warning for a stale push;
+  - an error for a publisher that is `down`;
+  - a warning for a publisher that is `stale` or reports an `error`.
+- Older SEOS versions with no `reporting` are shown as "not reported", never as healthy.
+- `node --test lib/hq/content-summary.test.js`: 7 of 7 pass locally.
+
+**SEOS #20 → main e43341d: "Social import: RDUSA IG queue rows keep their own key"**
+- The change touches only `scripts/build-social-import.mjs` and its tests.
+- RDUSA rows owned by the IG queue (`post_url` starting `igq:`) are now keyed by their own time. Before, they were keyed by the day runner (`rdusa:instagram:<day>`), so an evening slot used to collapse into that day's record.
+- The same caveat as §43 applies: a day-keyed row imported earlier for a queue post stays behind as stale. Mark can clear it with the `delete_keys` from #19.
+
+Still open:
+- SEOS #14.
+- The publish cron runs only daily (§41).
+- The `accounts[]` scope guard (§44).
+- The earlier offers.
+
+Drive: no new outbox files.
