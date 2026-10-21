@@ -1018,3 +1018,38 @@ Open items:
 - The earlier HQ #44 offer.
 
 Drive: no new outbox files. New open branches: SEOS `feat/social-brand-switcher` and `scheduler-rdusa-enable-v0-note`; HQ `feat/hq-client-submenus` (likely the source branch of #48).
+
+## 49. 2026-10-21 20:22 UTC pass: SEOS #26–#29 merged
+
+SEOS main moved from da35be0 to fff0d3f. I reviewed the four PRs read-only after the merge and made no comments or edits.
+
+- **#26 (c17db54):** a brand switcher in the SEOS UI (JAKA, SookLabs and Sookly next to RDUSA). Session-gated UI, with a new `brands.test.ts`.
+- **#27 (f146807):** `rdusa` is now enabled for queued posts when its row carries either of the earlier seed notes. This continues #25.
+- **#28 (ff3a6dd):** `POST /api/threads/connections/:brand` (X-API-Key) with `{ access_token, expect_username? }`.
+  - It checks the token against Threads and stores it encrypted for the brand, the same way the OAuth callback does.
+  - It never echoes the token back.
+- **#29 (fff0d3f):**
+  - Token health now refreshes `threads_connections` tokens.
+  - New `POST /api/meta/page-tokens` (X-API-Key) with `{ page_id, access_token }`.
+  - It checks the token with `debug_token`: valid, issued for `META_APP_ID`, IG publish scopes, and the token's Page must match `page_id`. For a user or system-user token, it derives the Page token instead.
+  - The validation is reasonable. One small gap: the app check is skipped when `debug_token` omits `app_id`. It is written as `if (appId && appId !== app.appId)`, which would be safer as `if (appId !== app.appId)`.
+
+**Main finding: one shared key now controls who SEOS publishes as.** `SCHEDULER_API_KEY` started as a queue-only intake key. With #19, #23, #28 and #29 merged, it can now:
+- rewrite account Page, IG and Threads IDs (`accounts[]`, §44);
+- read plaintext Threads tokens (`/api/threads/connections/:brand` GET, §47);
+- bind any working Threads token to any brand (#28). `expect_username` is optional, and the publisher does not check the token's user against `account.threadsUserId` (§48);
+- store Page tokens (#29).
+
+So anyone holding that key can redirect any enabled brand's queued posts, including client RDUSA, to an account they control. That key also sits in the box and in the Google Sheet bridge (`docs/scheduler-sheet-bridge.gs`, #25).
+
+Recommended fix (one SEOS PR; I can open it on Mark's go-ahead):
+1. Split the key. Keep `SCHEDULER_API_KEY` for intake, cancel and readiness only. Add `SCHEDULER_ADMIN_KEY` (box only) for account IDs, the token pull, and token or Page imports.
+2. Check identity at publish time. Refuse to publish when the Threads connection's user differs from `account.threadsUserId`, and when an imported Page token's Page differs from `account.facebookPageId`. Show any mismatch in readiness.
+3. Make `expect_username` mandatory on #28 imports, and make OAuth state single-use (§47).
+
+Other open items:
+- the publish cron runs only daily (§41);
+- retainer figures in HQ (§48);
+- HQ #44.
+
+HQ is unchanged (master 06edcb6). Drive: no new outbox files.
