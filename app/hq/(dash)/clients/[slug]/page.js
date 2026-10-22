@@ -9,6 +9,9 @@ import { businessSummary } from "@/lib/hq/content-summary.js";
 import { getClient } from "@/lib/hq/clients";
 import { ClientSectionTabs } from "@/components/hq/ClientSectionTabs";
 import { getSeosAppUrl } from "@/lib/hq/paths";
+import { EnquiriesPanel } from "@/components/hq/EnquiriesPanel";
+import { readRdusaEnquiries, rdusaMvpStart } from "@/lib/hq/enquiries-client";
+import { measurementDay } from "@/lib/hq/enquiries.js";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +21,11 @@ export default async function ClientPage({ params }) {
   const { slug } = await params;
   const client = getClient(slug);
   if (!client) notFound();
-  const result = await readContentSummary();
+  const [result, enquiries] = await Promise.all([
+    readContentSummary(),
+    client.sooklyEnquiries ? readRdusaEnquiries() : Promise.resolve(null),
+  ]);
+  const mvpStart = rdusaMvpStart();
   const b = businessSummary(result, client.seosBusiness);
   const seosUrl = getSeosAppUrl();
   const lines = new Map((b?.contentLines ?? []).map((l) => [l.key, l]));
@@ -33,6 +40,10 @@ export default async function ClientPage({ params }) {
       />
       <div className="hq-page-content" style={{ display: "grid", gap: 16 }}>
         <ClientSectionTabs client={client} active="overview" />
+        {client.sooklyEnquiries ? <section aria-label="Enquiries">
+          <div className="hq-section-label" style={{ marginBottom: 8 }}>Enquiries (Sookly)</div>
+          <EnquiriesPanel result={enquiries} day={measurementDay(new Date(), mvpStart)} start={mvpStart} />
+        </section> : null}
         {client.lockedMetrics.length ? <section aria-label="Locked metrics">
           <div className="hq-section-label" style={{ marginBottom: 8 }}>Locked metrics</div>
           <div className="hq-grid-2">
