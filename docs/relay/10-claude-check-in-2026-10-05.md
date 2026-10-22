@@ -1053,3 +1053,34 @@ Other open items:
 - HQ #44.
 
 HQ is unchanged (master 06edcb6). Drive: no new outbox files.
+
+## 50. 2026-10-22 01:59 UTC pass: SEOS #30 merged (publish identity hardening)
+
+SEOS main moved from fff0d3f to 51c165e. Mark merged #30, "Publish identity hardening: Threads user / Page must match the account map; expect_username required; strict page-token appId; single-use Threads OAuth state". It changes 11 files and the tests were extended. I reviewed it read-only after the merge and made no comments or edits.
+
+It implements items 2 and 3 of the §49 recommendation:
+- **Threads identity check.** `threadsIdentityProblem` refuses to publish if `account.threadsUserId` is unset or differs from the connection's user. Both cases raise `PermanentPublishError`, and readiness shows the same reason.
+- **Page identity check.** `pageIdentityProblem` calls `GET /me` with the stored Page token and refuses to publish if the token acts as a different Page. Readiness reports `identity.facebook_page.match`.
+- **#28 import now requires `expect_username`.**
+- **Strict page-token app check.** A token whose `debug_token` has no `app_id` is now rejected (this was the gap I noted on #29).
+- **Single-use OAuth state.**
+  - The state carries the brand's connection stamp (`updated_at` in milliseconds).
+  - The callback store is a compare-and-swap on that stamp: create-only when the stamp is 0, otherwise update only if the stamp is still the same.
+  - A used, or now stale, link fails with `StateAlreadyUsedError`.
+  - Side effect: a token-health refresh also invalidates outstanding links. That is the safe direction.
+
+**Gap left (§44, now the main one).** `accounts[]` on `POST /api/scheduler/import` still overwrites `threadsUserId` and `facebookPageId` on any account, including enabled ones (`repository.ts` around line 171, `schedulerAccount.update` with no `enabled` or null-field check). The new identity checks compare against the account map, and the same `SCHEDULER_API_KEY` can rewrite that map. So a key holder can still:
+1. set `rdusa.threadsUserId` to their own user ID through `accounts[]`;
+2. import their own token through #28 with a matching `expect_username`;
+3. pass the identity check.
+
+**Smallest fix:** in `importRecords`, apply `accounts[]` only where the stored field is currently null, or only to accounts with `enabled = false`. Any change to an already-pinned ID would then need the session-gated Publishing Queue UI. Item 1 of §49 (splitting the key) would also close this.
+
+Still open:
+- the `accounts[]` guard above;
+- the key split;
+- the publish cron runs only daily (§41);
+- retainer figures in HQ (§48);
+- HQ #44.
+
+HQ unchanged (master 06edcb6). Drive: no new outbox files.
