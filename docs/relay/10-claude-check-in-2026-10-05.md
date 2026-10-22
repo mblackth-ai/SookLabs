@@ -1084,3 +1084,20 @@ Still open:
 - HQ #44.
 
 HQ unchanged (master 06edcb6). Drive: no new outbox files.
+
+## 51. 2026-10-22 09:42 UTC pass: HQ #49 merged (RDUSA enquiries from Sookly)
+
+HQ master moved from 06edcb6 to 15637ca. Mark merged #49, "HQ: RDUSA enquiries from Sookly (30-day metrics, needs-attention, briefing items)", which touches 8 files. I reviewed it read-only after the merge and made no comments or edits.
+
+- **Data source.** `lib/hq/enquiries-client.js` (`server-only`) reads Sookly `GET /api/external/hq-summary` with `Authorization: Bearer SOOKLY_RDUSA_HQ_KEY` (`hq_summary:read` scope).
+  - `lib/hq/enquiries.js` is the pure part: fetch, action items and the measurement window.
+  - It never throws. A missing key shows "not configured", and a 404 shows a "Sookly not on that version yet" hint.
+  - It is read-only and never replies to customers.
+- **Measurement window.** It starts at `RDUSA_MVP_START` (default 2026-10-24 07:00 UTC, which is 14:00 ICT on Saturday 24 October) and is capped at 30 days. Before launch it shows the previous 30 days.
+- **Where it appears.** The `EnquiriesPanel` on the RDUSA client page and the Daily Briefing items.
+  - A contact waiting at least 24 h shows as an error. A shorter wait shows as a warning. A follow-up shows as neutral.
+  - The CRM row now names the client's own CRM plus Trello, marked linked but not synced.
+- **Tests.** `node --test lib/hq/*.test.js` passes 108 of 108 locally.
+- **Note: customer details now appear in HQ.** The briefing and panel show the customer's contact name and a message preview. HQ is session-gated, so this is fine for owner use. Bear it in mind before sharing HQ screens, and if Briefing items are ever relayed to Drive or chat (so far they are not).
+
+SEOS is unchanged (main 51c165e). Drive has no new outbox files. Open items carry over from §50: the `accounts[]` guard, splitting the key, the daily-only publish cron, the retainer figures, and HQ #44.
