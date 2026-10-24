@@ -4355,3 +4355,154 @@ a.hq-kpi-link:focus-visible {
     background: rgba(2, 4, 10, 0.72);
   }
 }
+
+/* ══ SL-029: Performance chart, pulse states, mobile page title ══ */
+
+/* Command bar: page title + folded search on narrow screens (desktop shows the full search field). */
+.hq-commandbar-title,
+.hq-search-trigger {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .hq-commandbar-title {
+    display: block;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--text-md, 15px);
+    font-weight: var(--weight-semibold);
+    color: var(--text-primary);
+    letter-spacing: var(--tracking-snug);
+  }
+  .hq-commandbar .hq-search {
+    display: none;
+  }
+  .hq-search-trigger {
+    display: inline-flex;
+  }
+  .hq-commandbar.is-searching .hq-search {
+    display: block;
+    flex: 1;
+    max-width: none;
+  }
+  .hq-commandbar.is-searching .hq-commandbar-title,
+  .hq-commandbar.is-searching .hq-search-trigger {
+    display: none;
+  }
+}
+
+/* Pulse values when the ops store is not live. */
+.hq-pulse-na {
+  color: var(--text-tertiary);
+}
+.hq-pulse-note {
+  margin-top: var(--space-3);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  line-height: var(--leading-snug);
+}
+.hq-pulse-note strong {
+  color: var(--text-primary);
+}
+.hq-pulse-note--error strong {
+  color: #fca5a5;
+}
+
+.hq-ops-unavailable {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-5);
+}
+
+/* Performance Overview */
+.hq-perf {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  margin-bottom: var(--space-6);
+}
+.hq-perf-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.hq-perf-title {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  letter-spacing: var(--tracking-snug);
+}
+.hq-perf-metric {
+  margin-top: 2px;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+.hq-perf-link {
+  font-size: var(--text-sm);
+  color: var(--text-accent);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.hq-perf-link:hover {
+  text-decoration: underline;
+}
+.hq-perf-figure {
+  margin: 0;
+  overflow-x: auto;
+}
+.hq-perf-svg {
+  display: block;
+  width: 100%;
+  min-width: 440px;
+  height: auto;
+}
+.hq-perf-grid {
+  stroke: rgba(148, 163, 255, 0.1);
+  stroke-width: 1;
+}
+.hq-perf-axis {
+  fill: var(--text-tertiary);
+  font-size: 10px;
+  font-family: inherit;
+}
+.hq-perf-line {
+  fill: none;
+  stroke: var(--cc-purple);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.hq-perf-dot {
+  fill: var(--navy-950);
+  stroke: var(--cc-purple-light);
+  stroke-width: 2;
+}
+.hq-perf-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 160px;
+  padding: var(--space-5);
+  border: 1px dashed var(--border-default);
+  border-radius: var(--radius-xl);
+  background:
+    repeating-linear-gradient(0deg, transparent 0 39px, rgba(148, 163, 255, 0.05) 39px 40px);
+}
+.hq-perf-empty-text {
+  max-width: 60ch;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: var(--leading-snug);
+}
+@media (max-width: 640px) {
+  .hq-perf {
+    padding: var(--space-4);
+  }
+}

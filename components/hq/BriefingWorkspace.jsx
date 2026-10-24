@@ -8,6 +8,7 @@ import { Card } from "./Card";
 import { useAskAI } from "./useAskAI";
 import { ContentActionItems } from "./ContentActionItems";
 import { EnquiryActionItems } from "./EnquiriesPanel";
+import { OpsUnavailable } from "./OpsUnavailable";
 
 export function BriefingWorkspace({ initialData, contentActions, enquiryActions }) {
   const ask = useAskAI();
@@ -31,7 +32,7 @@ export function BriefingWorkspace({ initialData, contentActions, enquiryActions 
         </Card>
         {enquiryActions ? <EnquiryActionItems items={enquiryActions.items} error={enquiryActions.error} /> : null}
         {contentActions ? <ContentActionItems items={contentActions.items} error={contentActions.error} /> : null}
-        <BriefingNotesEditor initialData={initialData} />
+        {initialData ? <BriefingNotesEditor initialData={initialData} /> : <OpsUnavailable what="briefing notes and priorities" />}
       </div>
     </div>
   );

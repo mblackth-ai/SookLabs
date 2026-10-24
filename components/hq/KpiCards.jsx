@@ -10,7 +10,7 @@ function KpiCard({ kpi }) {
     <>
       <div className="hq-kpi-head">
         <span className={`hq-kpi-icon hq-kpi-icon--${kpi.accent}`} aria-hidden="true" dangerouslySetInnerHTML={{ __html: icons[ICON[kpi.icon]] || "" }} />
-        <h2 className="hq-kpi-label">{kpi.label}</h2>
+        <h3 className="hq-kpi-label">{kpi.label}</h3>
       </div>
       {hasValue ? (
         <p className="hq-kpi-value" data-kpi-status="ok">
