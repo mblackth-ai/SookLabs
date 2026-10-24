@@ -15,6 +15,9 @@ import { ClickPlayDraftHint } from "@/components/hq/ClickPlayDraftHint";
 import { OverviewStorageWarn } from "@/components/hq/OverviewStorageWarn";
 import { OverviewMoreToday } from "@/components/hq/OverviewMoreToday";
 import { FourFrontsSummary } from "@/components/hq/FourFrontsSummary";
+import { KpiCards } from "@/components/hq/KpiCards";
+import { countOpenTasks } from "@/lib/hq/kpis";
+import { readHomeKpis } from "@/lib/hq/kpis-server";
 import {
   readOpsData,
   getTopOpenItems,
@@ -24,6 +27,8 @@ import {
   getOpsStorageMode,
 } from "@/lib/hq/ops";
 
+export const dynamic = "force-dynamic";
+
 export default async function OverviewPage() {
   const ops = await readOpsData();
   const storage = getOpsStorageMode();
@@ -32,10 +37,8 @@ export default async function OverviewPage() {
   const attention = getOpsAttention(ops);
   const blockers = getMergedBlockers(ops);
   const openPriorities = ops.todayPriorities.filter((p) => !p.done).length;
-  const openTasks = Object.values(ops.workstreams || {}).reduce(
-    (n, s) => n + (s.items || []).filter((i) => i.status !== "done").length,
-    0
-  );
+  const openTasks = countOpenTasks(ops);
+  const kpis = await readHomeKpis({ ops });
   const activeGoals = (ops.goals || []).filter((g) => g.status === "active").length;
   const primaryHref = ops.primaryBoardHref || "/hq/sookly/action-plan";
   const hasRunningJobs = (ops.agentJobs || []).some((j) => j.status === "running");
@@ -53,6 +56,8 @@ export default async function OverviewPage() {
       />
 
       <div className="hq-page-content">
+        <KpiCards kpis={kpis} />
+
         {/* Pulse */}
         <section className="hq-band hq-band--pulse" aria-label="Day pulse">
           <div className="hq-overview-pulse">
