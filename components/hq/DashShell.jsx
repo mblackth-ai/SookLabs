@@ -1,41 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
-import { PageChromeProvider, usePageChrome } from "./PageChrome";
+import { CommandBar } from "./CommandBar";
+import { PageChromeProvider } from "./PageChrome";
 import { Sidebar } from "./Sidebar";
 import { SaveStatusProvider } from "./SaveStatus";
-
-function MobileBar({ sidebarOpen, onOpenSidebar }) {
-  const { pageTitle } = usePageChrome();
-
-  return (
-    <div className="hq-mobile-bar">
-      <button
-        type="button"
-        className="hq-mobile-nav-toggle"
-        onClick={onOpenSidebar}
-        aria-label="Open navigation"
-        aria-expanded={sidebarOpen}
-      >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-          <line x1="4" y1="7" x2="20" y2="7" />
-          <line x1="4" y1="12" x2="20" y2="12" />
-          <line x1="4" y1="17" x2="20" y2="17" />
-        </svg>
-      </button>
-      {pageTitle ? (
-        <span className="hq-mobile-page-title" title={pageTitle}>
-          {pageTitle}
-        </span>
-      ) : (
-        <Link href="/hq" className="hq-mobile-brand">
-          SookLabs HQ
-        </Link>
-      )}
-    </div>
-  );
-}
 
 function DashShellInner({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -56,6 +25,9 @@ function DashShellInner({ children }) {
 
   return (
     <div className="hq-dash">
+      <a href="#hq-main" className="hq-skip-link">
+        Skip to content
+      </a>
       <Sidebar mobileOpen={sidebarOpen} onMobileClose={() => setSidebarOpen(false)} />
       {sidebarOpen && (
         <div
@@ -64,8 +36,8 @@ function DashShellInner({ children }) {
           aria-hidden="true"
         />
       )}
-      <div className="hq-dash-main">
-        <MobileBar sidebarOpen={sidebarOpen} onOpenSidebar={() => setSidebarOpen(true)} />
+      <div className="hq-dash-main" id="hq-main" tabIndex={-1}>
+        <CommandBar sidebarOpen={sidebarOpen} onOpenSidebar={() => setSidebarOpen(true)} />
         {children}
       </div>
     </div>

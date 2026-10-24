@@ -2,52 +2,58 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Avatar } from "./Avatar";
 import { OpsStorageChip } from "./OpsStorageChip";
 import { icons } from "@/lib/hq/icons";
-import { nav, currentUser } from "@/lib/hq/mock-data";
+import { currentUser } from "@/lib/hq/mock-data";
+import { nav } from "@/lib/hq/nav";
 import { isHqNavActive, normalizeHqPathname } from "@/lib/hq/paths";
 
 const GLYPH = "/assets/sooklabs/sooklabs-glyph.png";
 
-/** Morning-loop shortcuts pinned above the full nav tree. */
-const TODAY_PIN = [
-  { id: "pin-overview", label: "Overview", icon: "briefcase", href: "/hq" },
-  { id: "pin-board", label: "Action Plan", icon: "zap", href: "/hq/sookly/action-plan" },
-  { id: "pin-briefing", label: "Briefing", icon: "book", href: "/hq/briefing" },
-  { id: "pin-automation", label: "Agents", icon: "activity", href: "/hq/automation" },
-];
+/** Top-level items with the rows nested under them (subitems and subsubitems belong to the preceding item). */
+function groupNav(rows) {
+  const groups = [];
+  for (const row of rows) {
+    if (row.kind === "item") groups.push({ item: row, children: [] });
+    else if ((row.kind === "subitem" || row.kind === "subsubitem") && groups.length) groups.at(-1).children.push(row);
+  }
+  return groups;
+}
 
-function NavRow({ row, active, onNavigate, nested = false, depth = 1 }) {
+const GROUPS = groupNav(nav);
+
+function NavRow({ row, active, onNavigate, nested = false, depth = 1, groupActive = false }) {
+  const cls = [
+    "hq-sidebar-nav-link",
+    nested ? "hq-sidebar-nav-link--nested" : "",
+    nested && depth > 1 ? "hq-sidebar-nav-link--nested-2" : "",
+    active ? "hq-sidebar-nav-link--active" : "",
+    !active && groupActive ? "hq-sidebar-nav-link--group-active" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
   return (
-    <Link
-      href={row.href}
-      className={`hq-sidebar-nav-link${nested ? " hq-sidebar-nav-link--nested" : ""}${nested && depth > 1 ? " hq-sidebar-nav-link--nested-2" : ""}${active ? " hq-sidebar-nav-link--active" : ""}`}
-      onClick={onNavigate}
-    >
-      <span
-        className="hq-sidebar-nav-icon"
-        dangerouslySetInnerHTML={{ __html: icons[row.icon] || "" }}
-      />
+    <Link href={row.href} className={cls} onClick={onNavigate} aria-current={active ? "page" : undefined}>
+      <span className="hq-sidebar-nav-icon" aria-hidden="true" dangerouslySetInnerHTML={{ __html: icons[row.icon] || "" }} />
       <span className="hq-sidebar-nav-label">{row.label}</span>
+      {row.soon ? <span className="hq-sidebar-nav-badge hq-sidebar-nav-badge--soon">Soon</span> : null}
       {row.badge != null && <span className="hq-sidebar-nav-badge">{row.badge}</span>}
       {row.id === "settings" ? <OpsStorageChip /> : null}
     </Link>
   );
 }
 
-function shouldShowSubitem(pathname, parentHref, row) {
-  if (row.alwaysOpen) return true;
-  return isHqNavActive(pathname, parentHref) || isHqNavActive(pathname, row.href);
-}
-
 export function Sidebar({ mobileOpen = false, onMobileClose }) {
   const pathname = usePathname();
   const router = useRouter();
+  // Explicit open/closed choices per group; groups without a choice follow the current route.
+  const [toggled, setToggled] = useState({});
 
-  const isActive = (href) => isHqNavActive(pathname, href);
-  const isRowActive = (row) => (row.exact ? normalizeHqPathname(pathname) === normalizeHqPathname(row.href) : isActive(row.href));
+  const isActive = (row) =>
+    row.exact ? normalizeHqPathname(pathname) === normalizeHqPathname(row.href) : isHqNavActive(pathname, row.href);
 
   async function signOut() {
     await fetch("/hq/api/logout", { method: "POST" });
@@ -55,87 +61,73 @@ export function Sidebar({ mobileOpen = false, onMobileClose }) {
     router.refresh();
   }
 
-  // Subitems belong to the nearest preceding item; a divider ends the group.
-  const parentHrefs = [];
-  let parentHref = null;
-  for (const row of nav) {
-    if (row.kind === "divider") parentHref = null;
-    else if (row.kind === "item") parentHref = row.href;
-    parentHrefs.push(parentHref);
-  }
-
   return (
-    <aside className={`hq-sidebar${mobileOpen ? " hq-sidebar--open" : ""}`}>
+    <aside className={`hq-sidebar${mobileOpen ? " hq-sidebar--open" : ""}`} aria-label="HQ">
       <div className="hq-sidebar-header">
         <Image
           src={GLYPH}
-          alt="SookLabs"
+          alt=""
           width={28}
           height={28}
           priority
           style={{ borderRadius: "var(--radius-lg)", objectFit: "cover", flexShrink: 0 }}
         />
         <span className="hq-sidebar-brand">SookLabs HQ</span>
-        <button
-          type="button"
-          className="hq-sidebar-close"
-          onClick={onMobileClose}
-          aria-label="Close navigation"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+        <button type="button" className="hq-sidebar-close" onClick={onMobileClose} aria-label="Close navigation">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true">
             <line x1="18" y1="6" x2="6" y2="18" />
             <line x1="6" y1="6" x2="18" y2="18" />
           </svg>
         </button>
       </div>
 
-      <nav className="hq-sidebar-nav">
-        <div className="hq-sidebar-section-label hq-sidebar-section-label--pin">Today</div>
-        <div className="hq-sidebar-pin">
-          {TODAY_PIN.map((row) => (
-            <NavRow key={row.id} row={row} active={isActive(row.href)} onNavigate={onMobileClose} />
-          ))}
-        </div>
-
-        {nav.map((row, idx) => {
-          const lastParentHref = parentHrefs[idx];
-          if (row.kind === "section") {
+      <nav className="hq-sidebar-nav" aria-label="Main">
+        <ul className="hq-nav-list">
+          {GROUPS.map(({ item, children }) => {
+            const itemActive = isActive(item);
+            const childActive = children.some((c) => isActive(c));
+            const collapsible = children.some((c) => !c.alwaysOpen);
+            const open = toggled[item.id] ?? (itemActive || childActive);
+            const visible = children.filter((c) => c.alwaysOpen || open);
+            const listId = `hq-nav-group-${item.id}`;
             return (
-              <div key={"sec-" + row.label} className="hq-sidebar-section-label">
-                {row.label}
-              </div>
+              <li key={item.id} className="hq-nav-group">
+                <div className="hq-nav-item-row">
+                  <NavRow row={item} active={itemActive} groupActive={childActive} onNavigate={onMobileClose} />
+                  {collapsible ? (
+                    <button
+                      type="button"
+                      className={`hq-nav-toggle${open ? " hq-nav-toggle--open" : ""}`}
+                      aria-expanded={open}
+                      aria-controls={listId}
+                      aria-label={`${open ? "Hide" : "Show"} ${item.label} pages`}
+                      onClick={() => setToggled((t) => ({ ...t, [item.id]: !open }))}
+                    >
+                      <span aria-hidden="true" dangerouslySetInnerHTML={{ __html: icons.chevron }} />
+                    </button>
+                  ) : null}
+                </div>
+                {visible.length ? (
+                  <ul id={listId} className="hq-nav-sublist">
+                    {visible.map((row) => (
+                      <li key={row.id}>
+                        <NavRow
+                          row={row}
+                          active={isActive(row)}
+                          onNavigate={onMobileClose}
+                          nested
+                          depth={row.kind === "subsubitem" ? 2 : 1}
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                ) : collapsible ? (
+                  <ul id={listId} className="hq-nav-sublist" hidden />
+                ) : null}
+              </li>
             );
-          }
-          if (row.kind === "divider") {
-            return <div key={"div-" + idx} className="hq-sidebar-divider" />;
-          }
-          if (row.kind === "item") {
-            return (
-              <NavRow
-                key={row.id}
-                row={row}
-                active={isActive(row.href)}
-                onNavigate={onMobileClose}
-              />
-            );
-          }
-          if (row.kind === "subitem" || row.kind === "subsubitem") {
-            if (!lastParentHref || !shouldShowSubitem(pathname, lastParentHref, row)) {
-              return null;
-            }
-            return (
-              <NavRow
-                key={row.id}
-                row={row}
-                active={isRowActive(row)}
-                onNavigate={onMobileClose}
-                nested
-                depth={row.kind === "subsubitem" ? 2 : 1}
-              />
-            );
-          }
-          return null;
-        })}
+          })}
+        </ul>
       </nav>
 
       <div className="hq-sidebar-footer">
@@ -146,24 +138,8 @@ export function Sidebar({ mobileOpen = false, onMobileClose }) {
             <div className="hq-sidebar-user-role">{currentUser.role}</div>
           </div>
         </div>
-        <button
-          type="button"
-          className="hq-sidebar-signout"
-          onClick={signOut}
-          aria-label="Sign out of SookLabs HQ"
-        >
-          <svg
-            className="hq-sidebar-signout-icon"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
+        <button type="button" className="hq-sidebar-signout" onClick={signOut} aria-label="Sign out of SookLabs HQ">
+          <svg className="hq-sidebar-signout-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
             <polyline points="16 17 21 12 16 7" />
             <line x1="21" y1="12" x2="9" y2="12" />
