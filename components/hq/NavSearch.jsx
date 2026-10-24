@@ -9,7 +9,7 @@ const PAGES = navPages();
 const MAX_RESULTS = 8;
 
 /** Top-bar search: filters HQ pages from the nav client-side (no server search exists yet). */
-export function NavSearch() {
+export function NavSearch({ expanded = false, onExpandedChange }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
@@ -18,6 +18,11 @@ export function NavSearch() {
   const wrapRef = useRef(null);
   const baseId = useId();
   const listId = `${baseId}-results`;
+
+  // Narrow screens: the field is hidden until the top bar expands it; focus it once it is visible.
+  useEffect(() => {
+    if (expanded) inputRef.current?.focus();
+  }, [expanded]);
 
   const results = useMemo(() => filterNavPages(query, PAGES).slice(0, MAX_RESULTS), [query]);
   const showList = open && query.trim().length > 0;
@@ -28,15 +33,20 @@ export function NavSearch() {
       const typing = t instanceof HTMLElement && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
       if (e.key === "/" && !typing && !e.metaKey && !e.ctrlKey && !e.altKey) {
         e.preventDefault();
+        onExpandedChange?.(true);
         inputRef.current?.focus();
       }
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
+        onExpandedChange?.(true);
         inputRef.current?.focus();
       }
     }
     function onPointer(e) {
-      if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false);
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) {
+        setOpen(false);
+        onExpandedChange?.(false);
+      }
     }
     document.addEventListener("keydown", onKey);
     document.addEventListener("pointerdown", onPointer);
@@ -44,12 +54,13 @@ export function NavSearch() {
       document.removeEventListener("keydown", onKey);
       document.removeEventListener("pointerdown", onPointer);
     };
-  }, []);
+  }, [onExpandedChange]);
 
   function go(page) {
     if (!page) return;
     setOpen(false);
     setQuery("");
+    onExpandedChange?.(false);
     inputRef.current?.blur();
     router.push(page.href);
   }
@@ -69,6 +80,7 @@ export function NavSearch() {
       }
     } else if (e.key === "Escape") {
       if (query) setQuery("");
+      else onExpandedChange?.(false);
       setOpen(false);
     }
   }

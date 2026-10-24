@@ -1,15 +1,22 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { Avatar } from "./Avatar";
 import { NavSearch } from "./NavSearch";
+import { usePageChrome } from "./PageChrome";
 import { icons } from "@/lib/hq/icons";
 import { currentUser } from "@/lib/hq/mock-data";
 
-/** Sticky top bar for every HQ dashboard page: nav toggle (mobile), page search, action items, account. */
+/**
+ * Sticky top bar for every HQ dashboard page: nav toggle (mobile), page search, action items, account.
+ * On narrow screens the page title takes the middle and search folds into an icon that expands over it.
+ */
 export function CommandBar({ sidebarOpen, onOpenSidebar }) {
+  const { pageTitle } = usePageChrome();
+  const [searchOpen, setSearchOpen] = useState(false);
   return (
-    <header className="hq-commandbar">
+    <header className={`hq-commandbar${searchOpen ? " is-searching" : ""}`}>
       <button
         type="button"
         className="hq-mobile-nav-toggle"
@@ -23,8 +30,20 @@ export function CommandBar({ sidebarOpen, onOpenSidebar }) {
           <line x1="4" y1="17" x2="20" y2="17" />
         </svg>
       </button>
-      <NavSearch />
+      <span className="hq-commandbar-title" title={pageTitle || undefined}>
+        {pageTitle || "SookLabs HQ"}
+      </span>
+      <NavSearch expanded={searchOpen} onExpandedChange={setSearchOpen} />
       <div className="hq-commandbar-actions">
+        <button
+          type="button"
+          className="hq-iconbtn hq-search-trigger"
+          aria-label="Search pages"
+          aria-expanded={searchOpen}
+          onClick={() => setSearchOpen(true)}
+        >
+          <span aria-hidden="true" dangerouslySetInnerHTML={{ __html: icons.search }} />
+        </button>
         <Link href="/hq/briefing" className="hq-iconbtn" aria-label="Action items (Daily Briefing)" title="Action items (Daily Briefing)">
           <span aria-hidden="true" dangerouslySetInnerHTML={{ __html: icons.bell }} />
         </Link>

@@ -9,7 +9,15 @@ import { enquiryActionItems } from "@/lib/hq/enquiries.js";
 export const dynamic = "force-dynamic";
 
 export default async function BriefingPage() {
-  const [ops, content, enquiries] = await Promise.all([readOpsData(), readContentSummary(), readRdusaEnquiries()]);
+  const [ops, content, enquiries] = await Promise.all([
+    // A down or slow ops database must not crash the page; the workspace hides the editor instead.
+    readOpsData().catch((error) => {
+      console.warn("[hq briefing] ops read failed:", error?.message || error);
+      return null;
+    }),
+    readContentSummary(),
+    readRdusaEnquiries(),
+  ]);
   const contentActions = { items: contentActionItems(content, { seosUrl: getSeosAppUrl() }), error: content.ok ? null : content.error };
 
   const enquiryActions = { items: enquiryActionItems(enquiries), error: enquiries.ok ? null : enquiries.error };
